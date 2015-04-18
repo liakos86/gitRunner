@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+                android:id="@+id/btn_my_profile"
+                style="@style/BottomTab">
+            <ImageView
+                    android:src="@android:drawable/ic_lock_lock"
+                    style="@style/BottomTabImage"/>
+            <TextView
+                    android:text="My Profile"
+                    style="@style/BottomTabText"/>
+        </LinearLayout>
+        <LinearLayout
+                android:id="@+id/btn_new_run"
+                style="@style/BottomTab">
+            <ImageView
+                    android:src="@android:drawable/ic_delete"
+                    style="@style/BottomTabImage"/>
+            <TextView
+                    android:text="Run"
+                    style="@style/BottomTabText"/>
+        </LinearLayout>
+        <LinearLayout
+                android:id="@+id/btn_my_runs"
+                style="@style/BottomTab">
+            <ImageView
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    style="@style/BottomTabImage"/>
+            <TextView
+                    android:text="Old Runs"
+                    style="@style/BottomTabText"/>
+        </LinearLayout>
+        <LinearLayout
+                android:id="@+id/btn_my_chal"
+                style="@style/BottomTab">
+            <ImageView
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    style="@style/BottomTabImage"/>
+            <TextView
+                    android:text="Challenge"
+                    style="@style/BottomTabText"/>
+        </LinearLayout>
+
+
+        <!--<LinearLayout-->
+                <!--android:visibility="gone"-->
+                <!--android:id="@+id/btn_my_usage_dis"-->
+                <!--style="@style/BottomTab.Inactive">-->
+            <!--<ImageView-->
+                    <!--android:src="@drawable/my_usage_disable"-->
+                    <!--style="@style/BottomTabImage"/>-->
+            <!--<TextView-->
+                    <!--android:text="@string/my_usage"-->
+                    <!--style="@style/BottomTabText.disable"/>-->
+        <!--</LinearLayout>-->
+
+
+
+        <!--<LinearLayout-->
+                <!--android:id="@+id/btn_home"-->
+                <!--style="@style/BottomTab">-->
+            <!--<ImageView-->
+                    <!--android:src="@drawable/home"-->
+                    <!--style="@style/BottomTabImage.home"/>-->
+        <!--</LinearLayout>-->
+        <!--<LinearLayout-->
+                <!--android:id="@+id/btn_my_plan"-->
+                <!--style="@style/BottomTab.Inactive">-->
+            <!--<ImageView-->
+                    <!--android:src="@drawable/my_plan_disable"-->
+                    <!--style="@style/BottomTabImage"/>-->
+            <!--<TextView-->
+                    <!--android:text="@string/my_plan"-->
+                    <!--style="@style/BottomTabText.disable"/>-->
+        <!--</LinearLayout>-->
+        <!--<LinearLayout-->
+                <!--android:id="@+id/btn_get_help"-->
+                <!--style="@style/BottomTab">-->
+            <!--<ImageView-->
+                    <!--android:src="@drawable/get_help"-->
+                    <!--style="@style/BottomTabImage"/>-->
+            <!--<TextView-->
+                    <!--android:text="@string/get_help"-->
+                    <!--style="@style/BottomTabText"/>-->
+        <!--</LinearLayout>-->
+
+    </LinearLayout>
+
+</LinearLayout>

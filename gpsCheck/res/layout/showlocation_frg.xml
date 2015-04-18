@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical" >
+
+
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <Button android:id="@+id/buttonMap" android:layout_width="0dp" android:text="MAP" android:layout_height="wrap_content" android:layout_weight="0.5"/>
+        <Button android:id="@+id/buttonInfo" android:layout_width="0dp" android:text="INFO" android:layout_height="wrap_content" android:layout_weight="0.5"/>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <Button android:id="@+id/buttonStart" android:layout_width="0dp" android:text="Start" android:layout_height="wrap_content" android:layout_weight="0.5"/>
+        <Button android:id="@+id/buttonClear" android:layout_width="0dp" android:text="Clear" android:layout_height="wrap_content" android:layout_weight="0.5"/>
+    </LinearLayout>
+
+
+
+
+    <ViewFlipper
+    android:id="@+id/viewFlipper"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="6dp" >
+
+    <fragment
+            android:id="@+id/mapKostas"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scrollbars="vertical"
+            android:padding="30dp">
+
+
+        <TextView  android:id="@+id/textSpeed" android:text="Speed: 0.0" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+        <TextView android:layout_below="@+id/textSpeed" android:id="@+id/textDistance"  android:text="Distance: 0.0"  android:layout_width="fill_parent" android:layout_height="wrap_content"/>
+        <TextView android:layout_below="@+id/textDistance"  android:id="@+id/textSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+        <TextView
+                android:id="@+id/textTimer"
+                android:layout_below="@+id/textSpeedAvg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:text="0.00"
+                android:textColor="#FFFFFF"
+                android:textSize="70dp" />
+
+
+        <TextView android:layout_below="@id/textTimer" android:id="@+id/textProvider"  android:layout_width="fill_parent" android:layout_height="wrap_content" />
+
+        <Button android:layout_below="@+id/textProvider" android:id="@+id/buttonSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Save" android:layout_height="wrap_content" />
+
+
+
+    </RelativeLayout>
+
+    </ViewFlipper>
+
+
+
+</LinearLayout>
