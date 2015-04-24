@@ -1,5 +1,6 @@
 package com.example.gpsCheck;
 
+        import android.app.Activity;
         import android.content.Context;
         import android.graphics.Color;
         import android.location.Criteria;
@@ -7,6 +8,7 @@ package com.example.gpsCheck;
         import android.location.LocationListener;
         import android.location.LocationManager;
         import android.net.wifi.WifiManager;
+        import android.os.AsyncTask;
         import android.os.Bundle;
         import android.os.Handler;
         import android.os.SystemClock;
@@ -14,17 +16,17 @@ package com.example.gpsCheck;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
-        import android.widget.Button;
-        import android.widget.TextView;
-        import android.widget.Toast;
-        import android.widget.ViewFlipper;
+        import android.widget.*;
         import com.example.gpsCheck.dbObjects.Running;
+        import com.example.gpsCheck.dbObjects.User;
         import com.example.gpsCheck.model.ContentDescriptor;
         import com.example.gpsCheck.model.Database;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.SupportMapFragment;
         import com.google.android.gms.maps.model.*;
+        import org.json.JSONException;
+        import org.json.JSONObject;
 
         import java.security.Provider;
         import java.util.ArrayList;
@@ -32,7 +34,6 @@ package com.example.gpsCheck;
         import java.util.List;
 
 public class FrgShowLocation extends Fragment implements LocationListener {
-    private TextView textSpeed, textSpeedAvg, textDistance, textTimer, textProvider;
     private long mStartTime = 0L, totalTime=0L;
     private Handler mHandler = new Handler();
     private LocationManager locationManager;
@@ -40,15 +41,24 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     GoogleMap googleMap;
     Marker runnerMarker, startMarker;
     Location lastLocation;
-    float totalDistance=0;
     ViewFlipper viewFlipper;
-    Button map, info, start, clear, save;
-    boolean running=false, firstChange=false;
+    Button  start, clear, save;
+    boolean running=false, firstChange=false, goalReached=false;
     String timerStop1;
     String latLonList="";
 
     List<Polyline>mapLines;
-    
+
+    private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
+    float totalDistance=0, targetDistance=15;
+
+
+    String opponentId;
+
+
+
+
+
 
 
     /** Called when the activity is first created. */
@@ -62,17 +72,14 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.showlocation_frg, container, false);
 
-        textSpeed = (TextView) v.findViewById(R.id.textSpeed);
-        textSpeedAvg = (TextView) v.findViewById(R.id.textSpeedAvg);
-        textDistance = (TextView) v.findViewById(R.id.textDistance);
-        textTimer = (TextView) v.findViewById(R.id.textTimer);
-        textProvider = (TextView) v.findViewById(R.id.textProvider);
-        viewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
-        map = (Button) v.findViewById(R.id.buttonMap);
-        info = (Button) v.findViewById(R.id.buttonInfo);
-        start = (Button) v.findViewById(R.id.buttonStart);
-        clear = (Button) v.findViewById(R.id.buttonClear);
-        save = (Button) v.findViewById(R.id.buttonSave);
+        textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
+        textChalSpeedAvg = (TextView) v.findViewById(R.id.textChalSpeedAvg);
+        textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
+        textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
+        save = (Button) v.findViewById(R.id.buttonChalSave);
+
+
+
 
 
 
@@ -80,7 +87,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
 
 
-        setListeners();
+        setListeners(v);
 
         selectProvider();
 
@@ -94,7 +101,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
         lastLocation = getLastLocation();// locationManager.getLastKnownLocation(provider);
 
-        textProvider.setText("Currently using: "+provider);
+//        textProvider.setText("Currently using: "+provider);
 
 //        providerField.setText(provider);
 
@@ -199,49 +206,125 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
             mHandler.removeCallbacks(mUpdateTimeTask);
 
-            textTimer.setText(timerStop1);
+            textChalTimer.setText(timerStop1);
             mStartTime = 0L;
 
         }
 
     }
 
-    public void setListeners(){
+    public void uploadChallenge(){
+
+
+
+        if (!running){
+
+            Toast.makeText(getActivity(),"Saving...",Toast.LENGTH_LONG).show();
+
+            Date now = new Date();
+            Running tr = new Running(-1, "I am running",
+                    totalTime,
+                    now.toString(),totalDistance, 1, "opponent_id", latLonList);
+
+
+
+            Database db = new Database(getActivity().getBaseContext());
+            db.addRunning(tr);
+
+            try {
+
+                JSONObject workout = new JSONObject();
+                workout.put("user_id", "hgfhgfghfhj");
+                workout.put("distance", String.valueOf(totalDistance));
+                workout.put("time", String.valueOf(totalTime));
+                workout.put("date", now.toString());
+                workout.put("type", "1");
+                workout.put("opponent_id", "asdjnjfej");
+                workout.put("latLonList", latLonList);
+
+                new uploadMongoChallenge(getActivity(), workout).execute();
+
+
+            }catch (JSONException e){
+                Toast.makeText(getActivity(),"Error uploading!", Toast.LENGTH_LONG).show();
+            }
+
+        }else{
+            Toast.makeText(getActivity(), "Still running!",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private class uploadMongoChallenge extends AsyncTask<Void, Void, Integer> {
+        private Activity activity;
+        JSONObject workout;
+
+        public uploadMongoChallenge(Activity activity, JSONObject workout) {
+            this.activity = activity;
+            this.workout = workout;
+        }
+
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Integer doInBackground(Void... unused) {
+            SyncHelper sh = new SyncHelper(activity);
+
+
+            int ll_rows = sh.createMongoChallenge(workout);
+
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+        }
+
+
+    }
+
+    public void setListeners(View v){
+
+
+
+
+        Button buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
+        final LinearLayout ll = (LinearLayout) v.findViewById(R.id.targetWindow);
+        final EditText et = (EditText) v.findViewById(R.id.targetValue);
+
+        buttonTarget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                targetDistance = Float.parseFloat(et.getText().toString());
+                ll.setVisibility(View.GONE);
+
+            }
+        });
+
 
         save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               saveRun(totalDistance, totalTime);
-            }
-        });
-
-
-
-
-        map.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (viewFlipper.getDisplayedChild()==1) viewFlipper.showPrevious();
-            }
-        });
-
-        info.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (viewFlipper.getDisplayedChild()==0) viewFlipper.showNext();
-            }
-        });
-
-        start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if (!running) {
 
-                    if (provider!=null)
-                        getUpdates(true);
-                    else
-                        selectProvider();
+
+                    if (goalReached){
+                        uploadChallenge();
+                        getUpdates(false);
+
+                    }else {
+
+                        if (provider != null)
+                            getUpdates(true);
+                        else
+                            selectProvider();
+                    }
 
 
                 }else{
@@ -252,16 +335,54 @@ public class FrgShowLocation extends Fragment implements LocationListener {
             }
         });
 
-        clear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (googleMap!=null)
-                    googleMap.clear();
-            }
-        });
 
 
     }
+
+//    public void setListeners(){
+//
+//        save.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//               saveRun(totalDistance, totalTime);
+//            }
+//        });
+//
+//
+//
+//
+//
+//
+//        start.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                if (!running) {
+//
+//                    if (provider!=null)
+//                        getUpdates(true);
+//                    else
+//                        selectProvider();
+//
+//
+//                }else{
+//                    getUpdates(false);
+//
+//                }
+//
+//            }
+//        });
+//
+//        clear.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (googleMap!=null)
+//                    googleMap.clear();
+//            }
+//        });
+//
+//
+//    }
 
     public void saveRun(float totalDistance, long totalTime){
 
@@ -289,7 +410,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     }
 
     public void initializeMap(){
-        SupportMapFragment fm = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapKostas);
+        SupportMapFragment fm = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapChalKostas);
         googleMap = fm.getMap();
 
         googleMap.setMyLocationEnabled(true);
@@ -386,11 +507,21 @@ public class FrgShowLocation extends Fragment implements LocationListener {
             mapLines.add(pline);
 
             // getSpeed is in meters/second so km/hour is meters*1000  / seconds*3600
-            textSpeed.setText("Speed: " + String.format("%1$,.2f", ((location.getSpeed() * 3600) / 1000)));
+            textChalSpeed.setText("Speed: " + String.format("%1$,.2f", ((location.getSpeed() * 3600) / 1000)));
 
-            textSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
+            textChalSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
 
-            textDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000)));
+            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000)));
+
+
+            if (totalDistance>=targetDistance){
+
+                goalReached=true;
+                running=false;
+//                start.performClick();
+                save.setText("Upload challenge");
+            }
+
         }else{
             firstChange = true;
         }
@@ -437,7 +568,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-        textProvider.setText("Enabled new provider " + provider);
+//        textChalProvider.setText("Enabled new provider " + provider);
 
     }
 
@@ -462,7 +593,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
             int minutes = seconds / 60;
             seconds = seconds % 60;
 
-            textTimer.setText("" + minutes + ":"
+            textChalTimer.setText("" + minutes + ":"
                     + String.format("%02d", seconds));
 
             timerStop1 = minutes + ":"
