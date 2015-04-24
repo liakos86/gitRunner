@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class User {
 
+    private String username;
     private ObjectId _id;
     private float totalDistance;
     private long totalTime;
@@ -93,5 +94,13 @@ public class User {
 
     public void setFriends(String friends) {
         this.friends = friends;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
