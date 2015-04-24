@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+//fixme commit this
 
 /**
  * Created by liakos on 11/4/2015.
@@ -126,8 +127,12 @@ public class FrgShowProfile  extends Fragment {
 
     }
 
+    public final static boolean isValidEmail(CharSequence target) {
+        if (target == null)
+            return false;
 
-
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
 
     public void startAsyncGetOrInsert(int type){
 
@@ -136,14 +141,22 @@ public class FrgShowProfile  extends Fragment {
             password = editPassword.getText().toString();
             email = editEmail.getText().toString();
             if (username.length()==0||password.length()==0||email.length()==0){
-                Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (!isValidEmail(email)){
+                Toast.makeText(getActivity(), "Please fill in a valid email!", Toast.LENGTH_LONG).show();
                 return;
             }
         }else if (type==userTypes.GET_BY_EMAIL.getValue()){
             password = editExistingPassword.getText().toString();
             email = editExistingEmail.getText().toString();
             if (password.length()==0||email.length()==0){
-                Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (!isValidEmail(email)){
+                Toast.makeText(getActivity(), "Please fill in a valid email!", Toast.LENGTH_LONG).show();
                 return;
             }
         }
@@ -163,7 +176,6 @@ public class FrgShowProfile  extends Fragment {
 
         return truitonList;
     }
-
 
     private class insertOrGetUser extends AsyncTask<Void, Void, Integer> {
         private Activity activity;

@@ -14,6 +14,7 @@
 
     <!--</com.google.android.gms.ads.AdView>-->
 
+    <!--fixme commit this-->
 
     <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
                   android:id="@+id/FrgProfileViewSwitcher"
@@ -42,7 +43,7 @@
                 android:layout_height="fill_parent"
                 android:orientation="vertical">
 
-            <EditText android:id="@+id/inputExistingEmail" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="e-mail"/>
+            <EditText android:id="@+id/inputExistingEmail" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="e-mail"/>
             <EditText android:inputType="textPassword" android:gravity="center" android:id="@+id/inputExistingPassword" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="password"/>
 
             <Button android:id="@+id/buttonLogin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Login"/>
@@ -60,8 +61,8 @@
 
 
 
-            <EditText android:id="@+id/inputEmail" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="e-mail"/>
-            <EditText android:id="@+id/inputUsername" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="username"/>
+            <EditText android:id="@+id/inputEmail" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="e-mail"/>
+            <EditText android:id="@+id/inputUsername" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="username"/>
             <EditText android:id="@+id/inputPassword" android:inputType="textPassword" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="password"/>
 
 

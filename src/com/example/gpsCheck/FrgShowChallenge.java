@@ -2,6 +2,7 @@ package com.example.gpsCheck;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,12 +11,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.example.gpsCheck.dbObjects.Running;
+import com.example.gpsCheck.dbObjects.User;
 import com.example.gpsCheck.model.Database;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +30,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+//fixme commit
 
 public class FrgShowChallenge extends Fragment implements LocationListener {
     private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
@@ -43,9 +48,13 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
     String timerStop1;
     String latLonList="";
 
+    LeaderArrayAdapterItem adapter;
+
     String opponentId;
 
     List<Polyline>mapLines;
+
+    List<User>leaders;
 
 
 
@@ -72,6 +81,11 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
 
 
         mapLines = new ArrayList<Polyline>();
+
+
+        setList(v);
+
+        getLeaderBoard();
 
 
 
@@ -111,6 +125,35 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
 
 
         return  v;
+    }
+
+    private void getLeaderBoard(){
+
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+
+        String friends = app_preferences.getString("friends",null);
+        if (friends!=null && !friends.equals("")){
+            new getLeaderBoard(getActivity(),friends).execute();
+        }
+
+    }
+
+    private void setList(View v){
+
+        ListView runningListView = (ListView) v.findViewById(R.id.listLeaders);
+        runningListView.setDivider(null);
+
+        leaders = new ArrayList<User>();
+
+
+        adapter = new LeaderArrayAdapterItem(getActivity().getApplicationContext(),
+                R.layout.list_running_row, leaders);
+        runningListView.setAdapter(adapter);
+
+
+
+
     }
 
 
@@ -205,6 +248,10 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
     }
 
     public void setListeners(View v){
+
+        ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.challengeFlipper);
+        vf.setDisplayedChild(1);
+
 
         Button buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
         final LinearLayout ll = (LinearLayout) v.findViewById(R.id.targetWindow);
@@ -471,6 +518,16 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
         return bestLocation;
     }
 
+
+    private void setAdapter(List<User>users) {
+        //todo maybe empty and refill
+
+        for (User user: users) leaders.add(user);
+//        leaders = users;
+        adapter.notifyDataSetChanged();
+    }
+
+
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
@@ -557,6 +614,108 @@ public class FrgShowChallenge extends Fragment implements LocationListener {
         }
 
 
+    }
+
+
+
+    private class getLeaderBoard extends AsyncTask<Void, Void, List<User>> {
+        private Activity activity;
+        String friends;
+
+        public getLeaderBoard(Activity activity, String friends) {
+            this.activity = activity;
+            this.friends = friends;
+        }
+
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected List<User> doInBackground(Void... unused) {
+            SyncHelper sh = new SyncHelper(activity);
+
+
+                    return sh.getLeaderBoard(friends);
+
+
+
+        }
+
+        @Override
+        protected void onPostExecute(List<User> users) {
+
+            setAdapter(users);
+
+        }
+
+
+    }
+
+
+
+
+    // here's our beautiful adapter
+    public class LeaderArrayAdapterItem extends ArrayAdapter<User> {
+
+        Context mContext;
+        int layoutResourceId;
+        List<User> data;
+
+        public LeaderArrayAdapterItem(Context mContext, int layoutResourceId,
+                                List<User> data) {
+
+            super(mContext, layoutResourceId, data);
+            this.layoutResourceId = layoutResourceId;
+            this.mContext = mContext;
+            this.data = data;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+
+            leaderViewHolder holder =null;
+            if (convertView == null || !(convertView.getTag() instanceof leaderViewHolder)) {
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.list_leaderboard_row, parent, false);
+
+                holder = new leaderViewHolder();
+
+                holder.username = (TextView) convertView
+                        .findViewById(R.id.leader_username);
+                holder.score =  (TextView) convertView
+                        .findViewById(R.id.leader_points);
+
+
+
+                convertView.setTag(holder);
+            } else {
+                holder = (leaderViewHolder) convertView.getTag();
+
+            }
+
+            // object item based on the position
+             User user = data.get(position);
+
+
+            if (user.getUsername().length()>0)
+                holder.username.setText(user.getUsername());
+            else holder.username.setText("-- No name --");
+
+
+
+            holder.score.setText(String.valueOf(user.getTotalScore()));
+
+
+
+            return convertView;
+
+        }
+
+    }
+
+    private class leaderViewHolder{
+        TextView username;
+        TextView score;
     }
 
 }

@@ -65,6 +65,7 @@ public class SyncHelper {
 
     }
 
+    //fixme commit
     public int getMongoUser(String email, String username, String password) {
 
         Log.v(TAG, "Fetching user");
@@ -181,13 +182,15 @@ public class SyncHelper {
                editor.putString("mongoId", user.get_id().get$oid());
                editor.putInt("totalScore", user.getTotalScore());
                editor.putInt("totalChallenges", user.getTotalChallenges());
-               editor.commit();
+                editor.putString("friends", user.getFriends());
+                editor.commit();
                returnCode = 2;
             }else if (email==null&&user!=null){
 
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putInt("totalScore", user.getTotalScore());
                 editor.putInt("totalChallenges", user.getTotalChallenges());
+                editor.putString("friends", user.getFriends());
                 editor.commit();
 
                 returnCode = 0;
@@ -271,6 +274,110 @@ public class SyncHelper {
         Log.v(TAG, String.format("Fetching stores - done"));
 
         return 0;
+
+    }
+
+    public List<User> getLeaderBoard(String friends){
+
+        Log.v(TAG, "Fetching leaderboard");
+        List<User>users = new ArrayList<User>();
+        String[]friendsArray;
+        String query;
+
+        if (friends==null||friends.equals("")){
+            return users;
+        }else{
+           friendsArray = friends.split(" ");
+            int length = friendsArray.length;
+            query = "{ $or: [";
+            for (int i=0; i<length-1; i++){
+                query+= "{ 'email': '" +friendsArray[i]+ "'},";
+            }
+            query+= "{ 'email': '" +friendsArray[length-1]+ "'}";
+            query+= "] }";
+
+        }
+
+//        https://api.mongolab.com/api/1/databases/auction/collections/runner?
+//        q={ $or: [ { "email": "liak@liak.gr" }, { "email": "liak2@liak.gr" } ] }
+//        &apiKey=fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz
+
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .authority(authUrl)
+                .path(runnerPath)
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("s", "{'totalScore': -1}")
+                .appendQueryParameter("apiKey", apiKey)
+                .build();
+
+
+
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+
+        HttpGet httpRequest = new HttpGet(uri.toString());
+
+        try {
+
+            setDefaultGetHeaders(httpRequest);
+
+            Log.v(TAG, "Fetching runs - requesting");
+            HttpResponse response = client.execute(httpRequest);
+            Log.v(TAG, "Fetching runs - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG,statusLine.getStatusCode()+" - "+statusLine.getReasonPhrase());
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+                instream.close();
+            }
+
+            Log.v(TAG, String.format("Deserialising [%s]", resultString));
+
+            Gson gson = new Gson();
+
+
+            users = (List<User>) gson.fromJson(resultString,
+                    new TypeToken<List<User>>() {
+                    }.getType());
+
+//            dbHelper.deleteAllStores();
+
+            Log.v(TAG, String.format("Fetching parts - retrieved [%d] users", users.size()));
+
+//            for (int i = 0; i < StoreList.size(); i++) {
+//                dbHelper.addSite(StoreList.get(i));
+//                ll_rows++;
+//            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception fetching stores", e);
+            return users;
+        }
+
+        Log.v(TAG, String.format("Fetching stores - done"));
+
+        return users;
+
 
     }
 
