@@ -23,6 +23,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -180,7 +181,8 @@ public class SyncHelper {
 
                SharedPreferences.Editor editor = app_preferences.edit();
                editor.putString("mongoId", user.get_id().get$oid());
-               editor.putInt("totalScore", user.getTotalScore());
+                editor.putString("username", user.getUsername());
+                editor.putInt("totalScore", user.getTotalScore());
                editor.putInt("totalChallenges", user.getTotalChallenges());
                 editor.putString("friends", user.getFriends());
                 editor.commit();
@@ -189,6 +191,7 @@ public class SyncHelper {
 
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putInt("totalScore", user.getTotalScore());
+                editor.putString("username", user.getUsername());
                 editor.putInt("totalChallenges", user.getTotalChallenges());
                 editor.putString("friends", user.getFriends());
                 editor.commit();
@@ -277,26 +280,144 @@ public class SyncHelper {
 
     }
 
-    public List<User> getLeaderBoard(String friends){
+    public List<User> getLeaderBoardOrFriend(String friends, int type){
 
-        Log.v(TAG, "Fetching leaderboard");
-        List<User>users = new ArrayList<User>();
-        String[]friendsArray;
-        String query;
+        List<User> users = new ArrayList<User>();
+            Log.v(TAG, "Fetching leaderboard");
 
-        if (friends==null||friends.equals("")){
-            return users;
-        }else{
-           friendsArray = friends.split(" ");
-            int length = friendsArray.length;
-            query = "{ $or: [";
-            for (int i=0; i<length-1; i++){
-                query+= "{ 'email': '" +friendsArray[i]+ "'},";
+            String[] friendsArray;
+            String query;
+
+            if (friends == null || friends.equals("")) {
+                return users;
+            } else {
+
+                if (type==0) {
+
+                    friendsArray = friends.split(" ");
+                    int length = friendsArray.length;
+                    query = "{ $or: [";
+                    for (int i = 0; i < length - 1; i++) {
+                        query += "{ 'username': '" + friendsArray[i] + "'},";
+                    }
+                    query += "{ 'username': '" + friendsArray[length - 1] + "'}";
+                    query += "] }";
+                }else {
+
+                    query = "{ 'username' : '"+friends+"'}";
+
+                }
+
             }
-            query+= "{ 'email': '" +friendsArray[length-1]+ "'}";
-            query+= "] }";
 
-        }
+//        https://api.mongolab.com/api/1/databases/auction/collections/runner?
+//        q={ $or: [ { "email": "liak@liak.gr" }, { "email": "liak2@liak.gr" } ] }
+//        &apiKey=fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz
+
+
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .authority(authUrl)
+                    .path(runnerPath)
+                    .appendQueryParameter("q", query)
+                    .appendQueryParameter("s", "{'totalScore': 1}")
+                    .appendQueryParameter("apiKey", apiKey)
+                    .build();
+
+
+            DefaultHttpClient client = application.getHttpClient();
+            client.setParams(getMyParams());
+
+
+            try {
+
+                HttpGet httpRequest = new HttpGet(uri.toString());
+
+
+                setDefaultGetHeaders(httpRequest);
+
+                Log.v(TAG, "Fetching runs - requesting");
+                HttpResponse response = client.execute(httpRequest);
+                Log.v(TAG, "Fetching runs - responce received");
+
+                HttpEntity entity = response.getEntity();
+
+                StatusLine statusLine = response.getStatusLine();
+
+                Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+
+                if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                    Log.e(TAG, statusLine.getStatusCode() + " - " + statusLine.getReasonPhrase());
+                }
+
+                String resultString = null;
+
+                if (entity != null) {
+                    InputStream instream = entity.getContent();
+                    Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                    if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                        instream = new GZIPInputStream(instream);
+                    }
+                    resultString = Utils.convertStreamToString(instream);
+
+                    instream.close();
+                }
+
+                Log.v(TAG, String.format("Deserialising [%s]", resultString));
+
+                Gson gson = new Gson();
+
+
+                users = (List<User>) gson.fromJson(resultString,
+                        new TypeToken<List<User>>() {
+                        }.getType());
+
+                if (type==1&&users.size()==1){
+                    uploadNewFriend(app_preferences.getString("friends",null)+" "+users.get(0).getUsername());
+                }
+
+//            dbHelper.deleteAllStores();
+
+                Log.v(TAG, String.format("Fetching parts - retrieved [%d] users", users.size()));
+
+//            for (int i = 0; i < StoreList.size(); i++) {
+//                dbHelper.addSite(StoreList.get(i));
+//                ll_rows++;
+//            }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Exception fetching stores", e);
+                return users;
+            }
+
+            Log.v(TAG, String.format("Fetching stores - done"));
+
+
+            return users;
+
+
+
+
+    }
+
+
+    public boolean uploadNewFriend(String friends){
+
+
+        Log.v(TAG, "Uploading new friend");
+
+        String newFriends = "{ $set: {'friends': '" + friends + "'} }";
+
+        String newFriends2= " {'friends': '" + friends + "'}";
+
+        String query = "{'username': '"+app_preferences.getString("username", null)+"'}";
+
+
+
+
+
+
 
 //        https://api.mongolab.com/api/1/databases/auction/collections/runner?
 //        q={ $or: [ { "email": "liak@liak.gr" }, { "email": "liak2@liak.gr" } ] }
@@ -308,24 +429,31 @@ public class SyncHelper {
                 .authority(authUrl)
                 .path(runnerPath)
                 .appendQueryParameter("q", query)
-                .appendQueryParameter("s", "{'totalScore': -1}")
                 .appendQueryParameter("apiKey", apiKey)
                 .build();
-
 
 
         DefaultHttpClient client = application.getHttpClient();
         client.setParams(getMyParams());
 
-        HttpGet httpRequest = new HttpGet(uri.toString());
 
         try {
+            JSONObject obj = new JSONObject();
+            obj.put("friends" , friends);
+            StringEntity se = new StringEntity(obj.toString());
 
-            setDefaultGetHeaders(httpRequest);
 
-            Log.v(TAG, "Fetching runs - requesting");
+
+            HttpPut httpRequest = new HttpPut(uri.toString());
+
+            httpRequest.setEntity(se);
+
+
+            setDefaultPutHeaders(httpRequest);
+
+            Log.v(TAG, "new friend - requesting");
             HttpResponse response = client.execute(httpRequest);
-            Log.v(TAG, "Fetching runs - responce received");
+            Log.v(TAG, "new friend - responce received");
 
             HttpEntity entity = response.getEntity();
 
@@ -335,7 +463,8 @@ public class SyncHelper {
 
             if (statusLine.getStatusCode() >= 300) {
 //                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
-                Log.e(TAG,statusLine.getStatusCode()+" - "+statusLine.getReasonPhrase());
+                Log.e(TAG, statusLine.getStatusCode() + " - " + statusLine.getReasonPhrase());
+                return false;
             }
 
             String resultString = null;
@@ -353,16 +482,11 @@ public class SyncHelper {
 
             Log.v(TAG, String.format("Deserialising [%s]", resultString));
 
-            Gson gson = new Gson();
 
-
-            users = (List<User>) gson.fromJson(resultString,
-                    new TypeToken<List<User>>() {
-                    }.getType());
 
 //            dbHelper.deleteAllStores();
 
-            Log.v(TAG, String.format("Fetching parts - retrieved [%d] users", users.size()));
+            Log.v(TAG, String.format("Fetching parts - new friend added"));
 
 //            for (int i = 0; i < StoreList.size(); i++) {
 //                dbHelper.addSite(StoreList.get(i));
@@ -370,14 +494,12 @@ public class SyncHelper {
 //            }
 
         } catch (Exception e) {
-            Log.e(TAG, "Exception fetching stores", e);
-            return users;
+            Log.e(TAG, "Exception inserting friend", e);
+            return false;
         }
 
-        Log.v(TAG, String.format("Fetching stores - done"));
-
-        return users;
-
+        Log.v(TAG, String.format("uploaded friend - done"));
+        return true;
 
     }
 
@@ -461,6 +583,11 @@ public class SyncHelper {
     private void setDefaultPostHeaders(HttpPost httpPost) throws UnsupportedEncodingException {
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
+    }
+
+    private void setDefaultPutHeaders(HttpPut httpPut) throws UnsupportedEncodingException {
+        httpPut.setHeader("Accept", "application/json");
+        httpPut.setHeader("Content-type", "application/json");
     }
 
     private HttpParams getMyParams() {

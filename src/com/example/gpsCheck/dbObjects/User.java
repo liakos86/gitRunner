@@ -16,6 +16,7 @@ public class User {
     private int totalScore;
     private List<Running> challenges;
     private String friends; //email list as it is unique
+    private String email;
 
     public User(){}
 
@@ -102,5 +103,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

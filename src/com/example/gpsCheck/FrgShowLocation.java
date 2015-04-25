@@ -16,6 +16,7 @@ package com.example.gpsCheck;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
+        import android.view.inputmethod.InputMethodManager;
         import android.widget.*;
         import com.example.gpsCheck.dbObjects.Running;
         import com.example.gpsCheck.dbObjects.User;
@@ -42,10 +43,12 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     Marker runnerMarker, startMarker;
     Location lastLocation;
     ViewFlipper viewFlipper;
-    Button  start, clear, save;
+    Button   save, buttonTarget;
     boolean running=false, firstChange=false, goalReached=false;
     String timerStop1;
     String latLonList="";
+    LinearLayout ll;
+    EditText et ;
 
     List<Polyline>mapLines;
 
@@ -177,7 +180,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 //            googleMap.clear();
             running=true;
             locationManager.requestLocationUpdates(provider, 2000, 3, this);
-            start.setText("Stop");
+            save.setText("Stop");
 
 
             startMarker=null;
@@ -202,7 +205,13 @@ public class FrgShowLocation extends Fragment implements LocationListener {
             locationManager.removeUpdates(this);
 
             running=false;
-            start.setText("Start");
+
+            if (goalReached){
+                save.setText("Upload challenge");
+
+            }else {
+                save.setText("Start");
+            }
 
             mHandler.removeCallbacks(mUpdateTimeTask);
 
@@ -292,16 +301,15 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
 
 
-        Button buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
-        final LinearLayout ll = (LinearLayout) v.findViewById(R.id.targetWindow);
-        final EditText et = (EditText) v.findViewById(R.id.targetValue);
+          buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
+          ll = (LinearLayout) v.findViewById(R.id.targetWindow);
+          et = (EditText) v.findViewById(R.id.targetValue);
 
         buttonTarget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                targetDistance = Float.parseFloat(et.getText().toString());
-                ll.setVisibility(View.GONE);
+                validateDistance();
 
             }
         });
@@ -337,6 +345,29 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
 
 
+    }
+
+    private void validateDistance(){
+
+
+
+
+        try {
+
+            targetDistance = Float.parseFloat(et.getText().toString());
+            if (targetDistance<1000){
+                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=1000)", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+        }catch (Exception e){
+            Toast.makeText(getActivity(),"Enter a valid distance in meters", Toast.LENGTH_LONG).show();
+            return;
+        }
+        ll.setVisibility(View.GONE);
+        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(buttonTarget.getWindowToken(), 0);
     }
 
 //    public void setListeners(){
@@ -384,30 +415,30 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 //
 //    }
 
-    public void saveRun(float totalDistance, long totalTime){
-
-
-
-        if (!running){
-
-
-            Date now = new Date();
-            Running tr = new Running(-1, "I am running",
-                    totalTime,
-                    now.toString(), totalDistance, 0, "-", latLonList);
-
-
-
-            Database db = new Database(getActivity().getBaseContext());
-
-            db.addRunning(tr);
-
-        }else{
-            Toast.makeText(getActivity(), "Still running!",
-                    Toast.LENGTH_SHORT).show();
-        }
-
-    }
+//    public void saveRun(float totalDistance, long totalTime){
+//
+//
+//
+//        if (!running){
+//
+//
+//            Date now = new Date();
+//            Running tr = new Running(-1, "I am running",
+//                    totalTime,
+//                    now.toString(), totalDistance, 0, "-", latLonList);
+//
+//
+//
+//            Database db = new Database(getActivity().getBaseContext());
+//
+//            db.addRunning(tr);
+//
+//        }else{
+//            Toast.makeText(getActivity(), "Still running!",
+//                    Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 
     public void initializeMap(){
         SupportMapFragment fm = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapChalKostas);
@@ -511,15 +542,15 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
             textChalSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
 
-            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000)));
+            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+targetDistance);
 
 
             if (totalDistance>=targetDistance){
 
                 goalReached=true;
                 running=false;
+                getUpdates(false);
 //                start.performClick();
-                save.setText("Upload challenge");
             }
 
         }else{

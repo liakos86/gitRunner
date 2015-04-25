@@ -3,58 +3,28 @@ package com.example.gpsCheck;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.example.gpsCheck.dbObjects.Running;
 import com.example.gpsCheck.dbObjects.User;
-import com.example.gpsCheck.model.Database;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.*;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 //fixme commit
 
 public class FrgShowChallenge extends Fragment {
-    private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
-    private long mStartTime = 0L, totalTime=0L;
-    private Handler mHandler = new Handler();
-    private LocationManager locationManager;
-    private String provider;
-    GoogleMap googleMap;
-    Marker runnerMarker, startMarker;
-    Location lastLocation;
-    float totalDistance=0, targetDistance=15;
-    Button  save;
-    boolean running=false, firstChange=false, goalReached=false;
-    String timerStop1;
-    String latLonList="";
 
     LeaderArrayAdapterItem adapter;
-
-    String opponentId;
-
-    List<Polyline>mapLines;
-
     List<User>leaders;
+    EditText friendName;
+    Button addFriend;
 
 
 
@@ -63,7 +33,6 @@ public class FrgShowChallenge extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getTargetDistance();
 
 
     }
@@ -126,7 +95,7 @@ public class FrgShowChallenge extends Fragment {
 
         String friends = app_preferences.getString("friends",null);
         if (friends!=null && !friends.equals("")){
-            new getLeaderBoard(getActivity(),friends).execute();
+            new getLeaderBoardOrFriend(getActivity(),friends, 0).execute();
         }
 
     }
@@ -134,8 +103,9 @@ public class FrgShowChallenge extends Fragment {
     private void setList(View v){
 
         ListView runningListView = (ListView) v.findViewById(R.id.listLeaders);
+        addFriend = (Button) v.findViewById(R.id.buttonAddFriend);
+        friendName = (EditText) v.findViewById(R.id.editNewFriend);
         runningListView.setDivider(null);
-
         leaders = new ArrayList<User>();
 
 
@@ -144,10 +114,52 @@ public class FrgShowChallenge extends Fragment {
         runningListView.setAdapter(adapter);
 
 
+        addFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              fetchFriend();
+            }
+        });
+
+
 
 
     }
 
+    private void fetchFriend() {
+
+        if (friendName.getText().length() > 3) {
+            if (!alreadyFriend(friendName.getText().toString())) {
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(addFriend.getWindowToken(), 0);
+                new getLeaderBoardOrFriend(getActivity(), friendName.getText().toString(), 1).execute();
+            }
+        } else {
+            Toast.makeText(getActivity(), "Insert valid name", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean alreadyFriend(String friendName){
+
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+        String friends = app_preferences.getString("friends", null);
+        if (friends != null && !friends.equals("")) {
+            String[] friendsList = friends.split(" ");
+            for (String friendEmail : friendsList) {
+                if (friendEmail.equals(friendName)) {
+                    Toast.makeText(getActivity(), "Already a friend", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            }
+
+        }
+        return false;
+
+
+
+    }
 
 //    public void selectProvider(){
 //
@@ -517,6 +529,34 @@ public class FrgShowChallenge extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    private void refreshAdapter(List<User>users) {
+        //todo maybe empty and refill
+
+        if (users.size()>0) {
+
+            ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            SharedPreferences.Editor editor = app_preferences.edit();
+
+            String friends = app_preferences.getString("friends", null);
+
+                friends += " " + users.get(0).getUsername();
+                editor.putString("friends", friends);
+
+            editor.commit();
+            Toast.makeText(getActivity(), "Friend added!", Toast.LENGTH_LONG).show();
+
+            leaders.add(users.get(0));
+//        leaders = users;
+            adapter.notifyDataSetChanged();
+
+        }else{
+            Toast.makeText(getActivity(), "Username does not exist!", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+
 //
 //    @Override
 //    public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -608,17 +648,19 @@ public class FrgShowChallenge extends Fragment {
 
 
 
-    private class getLeaderBoard extends AsyncTask<Void, Void, List<User>> {
+    private class getLeaderBoardOrFriend extends AsyncTask<Void, Void, List<User>> {
         private Activity activity;
         String friends;
+        int type;
 
-        public getLeaderBoard(Activity activity, String friends) {
+        public getLeaderBoardOrFriend(Activity activity, String friends, int type) {
             this.activity = activity;
             this.friends = friends;
+            this.type = type;
         }
 
         protected void onPreExecute() {
-
+            addFriend.setClickable(false);
         }
 
         @Override
@@ -626,8 +668,7 @@ public class FrgShowChallenge extends Fragment {
             SyncHelper sh = new SyncHelper(activity);
 
 
-                    return sh.getLeaderBoard(friends);
-
+                return sh.getLeaderBoardOrFriend(friends, type);
 
 
         }
@@ -635,13 +676,18 @@ public class FrgShowChallenge extends Fragment {
         @Override
         protected void onPostExecute(List<User> users) {
 
-            setAdapter(users);
+            addFriend.setClickable(true);
+
+            if (type==0)
+                setAdapter(users);
+            else if (type==1)
+                refreshAdapter(users);
+
 
         }
 
 
     }
-
 
 
 
