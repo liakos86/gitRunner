@@ -34,7 +34,7 @@ package com.example.gpsCheck;
         import java.util.Date;
         import java.util.List;
 
-public class FrgShowLocation extends Fragment implements LocationListener {
+public class FrgShowLocation extends BaseFragment implements LocationListener {
     private long mStartTime = 0L, totalTime=0L;
     private Handler mHandler = new Handler();
     private LocationManager locationManager;
@@ -56,8 +56,11 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     float totalDistance=0, targetDistance=15;
 
 
-    String opponentId;
+    String opponentUsername;
+    Spinner selectUsernameSpinner;
+    Switch typeSwitch;
 
+    int type;//0 personal, 1 challenge
 
 
 
@@ -73,6 +76,8 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View v = inflater.inflate(R.layout.showlocation_frg, container, false);
 
         textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
@@ -98,15 +103,11 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
         if (provider==null){
 
-
+            Toast.makeText(getActivity(),"Cannot get location provider", Toast.LENGTH_LONG).show();
             return v;
         }
 
         lastLocation = getLastLocation();// locationManager.getLastKnownLocation(provider);
-
-//        textProvider.setText("Currently using: "+provider);
-
-//        providerField.setText(provider);
 
         // Initialize the location fields
         if (lastLocation != null) {
@@ -116,13 +117,24 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
         }
 
-//        else {
-//            locationManager.requestLocationUpdates(provider, 500, 0, this);
-////            latituteField.setText("Location not available");
-////            longitudeField.setText("Location not available");
-//        }
+        setSpinner(v);
 
         return  v;
+    }
+
+    private void setSpinner(View v) {
+        selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
+        String[]names = user.getFriends().split(" ");
+
+//        List<String> list = new ArrayList<String>();
+//        for (String name:names)
+//        list.add(name);
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, names);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selectUsernameSpinner.setAdapter(dataAdapter);
+        selectUsernameSpinner.setPrompt("Select a friend");
     }
 
 
@@ -297,6 +309,33 @@ public class FrgShowLocation extends Fragment implements LocationListener {
     }
 
     public void setListeners(View v){
+
+
+        typeSwitch = (Switch) v.findViewById(R.id.switcher);
+
+        //set the switch to ON 
+        typeSwitch.setChecked(true);
+        typeSwitch.setTextOn("Personal");
+        typeSwitch.setTextOff("Challenge");
+        //attach a listener to check for changes in state
+        typeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                    if (isChecked) {
+                        type=0;
+                        selectUsernameSpinner.setClickable(false);
+                    }
+                    else {
+                        type=1;
+                        selectUsernameSpinner.setClickable(true);
+
+                    }
+
+
+            }
+        });
 
 
 
@@ -646,5 +685,7 @@ public class FrgShowLocation extends Fragment implements LocationListener {
 
         return truitonList;
     }
+
+
 
 }

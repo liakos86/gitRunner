@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Created by liakos on 11/4/2015.
  */
-public class FrgShowRuns  extends Fragment {
+public class FrgShowRuns  extends BaseFragment {
 
     static final String[] FROM = {
             // ! beware. I mark the position of the fields
@@ -53,7 +53,6 @@ public class FrgShowRuns  extends Fragment {
     static final int sTypePosition = 5;
     static final int sOppIdPosition = 6;
     static final int sLatLonListPosition = 7;
-
 
 
 

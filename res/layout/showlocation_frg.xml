@@ -35,14 +35,28 @@
                     android:textColor="#FFFFFF"
                     android:textSize="20dp" />
 
-            <Button android:layout_below="@+id/textChalTimer" android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
+            <Switch
+                    android:id="@+id/switcher"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="20dp"
+                    android:layout_below="@+id/textChalSpeedAvg"
+                    android:text="Select type" />
 
-            <LinearLayout android:layout_below="@id/buttonChalSave" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+            <Spinner android:id="@+id/friendsSpinner" android:gravity="center" android:layout_marginTop="30dp" android:layout_marginBottom="30dp"  android:drawSelectorOnTop="true" android:layout_below="@id/switcher" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+
+            <LinearLayout android:layout_below="@+id/friendsSpinner" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
                 <EditText android:id="@+id/targetValue" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="target distance"/>
                 <Button  android:id="@+id/buttonTarget" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
 
 
             </LinearLayout>
+
+            <Button android:layout_below="@+id/targetWindow" android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
+
 
 
         </RelativeLayout>

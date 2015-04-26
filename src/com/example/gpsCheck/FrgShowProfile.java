@@ -16,7 +16,7 @@ import android.widget.*;
 /**
  * Created by liakos on 11/4/2015.
  */
-public class FrgShowProfile  extends Fragment {
+public class FrgShowProfile  extends BaseFragment {
 
     private enum userTypes{
         INSERT_NEW(0), GET_BY_ID(1), GET_BY_EMAIL(2);
@@ -47,6 +47,8 @@ public class FrgShowProfile  extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.showprofile_frg, container, false);
 
 
@@ -117,12 +119,15 @@ public class FrgShowProfile  extends Fragment {
     private void setTextValues(){
 
         TextView textTotalChallenges = (TextView) getView().findViewById(R.id.textTotalChallenges);
+        TextView textTotalScore = (TextView) getView().findViewById(R.id.textTotalScore);
+
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
 
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
-        textTotalChallenges.setText("Total Challenges: "+app_preferences.getInt("totalChallenges",0));
+        textTotalChallenges.setText("Total Challenges: "+user.getTotalChallenges());
+        textTotalScore.setText("Total Score: "+user.getTotalScore());
+
 
 
     }

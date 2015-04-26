@@ -19,7 +19,7 @@ import java.util.List;
 
 //fixme commit
 
-public class FrgShowChallenge extends Fragment {
+public class FrgShowChallenge extends BaseFragment {
 
     LeaderArrayAdapterItem adapter;
     List<User>leaders;
@@ -39,6 +39,8 @@ public class FrgShowChallenge extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View v = inflater.inflate(R.layout.showchallenge_frg, container, false);
 
 
@@ -525,6 +527,18 @@ public class FrgShowChallenge extends Fragment {
         //todo maybe empty and refill
 
         for (User user: users) leaders.add(user);
+        int num = users.size();
+        int score = user.getTotalScore();
+        for (int i=0; i<num; i++){
+            if (score>leaders.get(i).getTotalScore()){
+                leaders.add(i,user);
+                break;
+            }
+            if (i==num-1)
+            leaders.add(num,user);
+        }
+
+
 //        leaders = users;
         adapter.notifyDataSetChanged();
     }
@@ -546,7 +560,17 @@ public class FrgShowChallenge extends Fragment {
             editor.commit();
             Toast.makeText(getActivity(), "Friend added!", Toast.LENGTH_LONG).show();
 
-            leaders.add(users.get(0));
+            int num = leaders.size();
+            int score = users.get(0).getTotalScore();
+            for (int i=0; i<num; i++){
+                if (score>leaders.get(i).getTotalScore()){
+                    leaders.add(i,users.get(0));
+                    break;
+                }
+                if (i==num-1)
+                leaders.add(num,users.get(0));
+
+            }
 //        leaders = users;
             adapter.notifyDataSetChanged();
 
@@ -730,16 +754,23 @@ public class FrgShowChallenge extends Fragment {
             }
 
             // object item based on the position
-             User user = data.get(position);
+             User user1 = data.get(position);
 
 
-            if (user.getUsername().length()>0)
-                holder.username.setText(user.getUsername());
+            if (user1.getUsername().length()>0)
+                holder.username.setText(user1.getUsername());
             else holder.username.setText("-- No name --");
 
+            if (user1.getUsername().equals(user.getUsername())){
+                holder.username.setTextColor(getResources().getColor(R.color.runner_green));
+            }else{
+                holder.username.setTextColor(getResources().getColor(R.color.drawer_black));
+
+            }
 
 
-            holder.score.setText(String.valueOf(user.getTotalScore()));
+
+            holder.score.setText(String.valueOf(user1.getTotalScore()));
 
 
 

@@ -320,7 +320,7 @@ public class SyncHelper {
                     .authority(authUrl)
                     .path(runnerPath)
                     .appendQueryParameter("q", query)
-                    .appendQueryParameter("s", "{'totalScore': 1}")
+                    .appendQueryParameter("s", "{'totalScore': -1}")
                     .appendQueryParameter("apiKey", apiKey)
                     .build();
 

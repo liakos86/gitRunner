@@ -1,5 +1,7 @@
 package com.example.gpsCheck.dbObjects;
 
+import android.content.SharedPreferences;
+
 import java.util.List;
 
 /**
@@ -31,6 +33,16 @@ public class User {
         this.totalRuns = totalRuns;
         this.totalScore = totalScore;
 
+    }
+
+    public User(SharedPreferences prefs){
+        this._id = new ObjectId(prefs.getString("mongoId",null));
+        this.username = prefs.getString("username", "");
+        this.totalChallenges = prefs.getInt("totalChallenges", 0);
+        this.totalDistance = prefs.getFloat("totalDistance", 0);
+        this.totalScore = prefs.getInt("totalScore",0);
+        this.totalTime = prefs.getLong("totalTime",0);
+        this.friends = prefs.getString("friends","");
     }
 
     public ObjectId get_id() {
