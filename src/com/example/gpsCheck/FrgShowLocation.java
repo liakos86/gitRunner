@@ -78,6 +78,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
+
+
         View v = inflater.inflate(R.layout.showlocation_frg, container, false);
 
         textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
@@ -125,16 +127,18 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private void setSpinner(View v) {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
         String[]names = user.getFriends().split(" ");
+        List<String>usernames=new ArrayList<String>();
+        for (String name:names) usernames.add(name);
 
-//        List<String> list = new ArrayList<String>();
-//        for (String name:names)
-//        list.add(name);
+        MyAdapter adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
+        adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
+        selectUsernameSpinner.setSelection(0);
 
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, names);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        selectUsernameSpinner.setAdapter(dataAdapter);
-        selectUsernameSpinner.setPrompt("Select a friend");
+
+//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
+//                android.R.layout.simple_spinner_item, names);
+//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selectUsernameSpinner.setAdapter(adapter);
     }
 
 
@@ -684,6 +688,75 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         truitonList.setArguments(args);
 
         return truitonList;
+    }
+
+
+    class MyAdapter extends ArrayAdapter<String> {
+        List<String>names;
+
+        public MyAdapter(Context ctx, int txtViewResourceId, List<String>names) {
+            super(ctx, txtViewResourceId,names);
+            this.names = names;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getCustomDropView(position, convertView, parent);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return getCustomView(position, convertView, parent);
+        }
+
+        public View getCustomView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            ViewHolderFriend holder;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.customspinneritem, null);
+                holder = new ViewHolderFriend();
+                holder.name = (TextView) convertView.findViewById(R.id.name);
+                holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
+                holder.info = (TextView) convertView.findViewById(R.id.msisdn);
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolderFriend) convertView.getTag();
+            }
+            holder.name.setText(user.getUsername());
+            holder.info.setText(user.getTotalScore()+" points");//FIXME Only for the first account
+            holder.profileImg.setBackgroundResource(R.drawable.ic_launcher);
+
+            return convertView;
+        }
+
+
+        public View getCustomDropView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            ViewHolderFriend holder;
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.custom_spinner_dropdown, null);
+                holder = new ViewHolderFriend();
+                holder.name = (TextView) convertView.findViewById(R.id.name);
+                holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
+                holder.info = (TextView) convertView.findViewById(R.id.msisdn);
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolderFriend) convertView.getTag();
+            }
+
+            String friend = names.get(position);
+            holder.info.setText(friend);//FIXME Only for the first account
+            holder.profileImg.setBackgroundResource(android.R.drawable.ic_dialog_email);
+            return convertView;
+        }
+    }
+
+    private class ViewHolderFriend {
+        TextView name;
+        ImageView profileImg;
+        TextView info;
     }
 
 
