@@ -546,38 +546,38 @@ public class FrgShowChallenge extends BaseFragment {
     private void refreshAdapter(List<User>users) {
         //todo maybe empty and refill
 
-        if (users.size()>0) {
+//        if (users.size()>0) {
+//
+//            ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+//            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+//            SharedPreferences.Editor editor = app_preferences.edit();
+//
+//            String friends = app_preferences.getString("friends", null);
+//
+//                friends += " " + users.get(0).getUsername();
+//                editor.putString("friends", friends);
+//
+//            editor.commit();
+            Toast.makeText(getActivity(), "Friend request sent!", Toast.LENGTH_LONG).show();
 
-            ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
-            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
-            SharedPreferences.Editor editor = app_preferences.edit();
-
-            String friends = app_preferences.getString("friends", null);
-
-                friends += " " + users.get(0).getUsername();
-                editor.putString("friends", friends);
-
-            editor.commit();
-            Toast.makeText(getActivity(), "Friend added!", Toast.LENGTH_LONG).show();
-
-            int num = leaders.size();
-            int score = users.get(0).getTotalScore();
-            for (int i=0; i<num; i++){
-                if (score>leaders.get(i).getTotalScore()){
-                    leaders.add(i,users.get(0));
-                    break;
-                }
-                if (i==num-1)
-                leaders.add(num,users.get(0));
-
-            }
-//        leaders = users;
-            adapter.notifyDataSetChanged();
-
-        }else{
-            Toast.makeText(getActivity(), "Username does not exist!", Toast.LENGTH_LONG).show();
-
-        }
+//            int num = leaders.size();
+//            int score = users.get(0).getTotalScore();
+//            for (int i=0; i<num; i++){
+//                if (score>leaders.get(i).getTotalScore()){
+//                    leaders.add(i,users.get(0));
+//                    break;
+//                }
+//                if (i==num-1)
+//                leaders.add(num,users.get(0));
+//
+//            }
+////        leaders = users;
+//            adapter.notifyDataSetChanged();
+//
+//        }else{
+//            Toast.makeText(getActivity(), "Username does not exist!", Toast.LENGTH_LONG).show();
+//
+//        }
     }
 
 
