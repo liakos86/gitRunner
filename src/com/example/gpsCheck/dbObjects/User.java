@@ -19,6 +19,7 @@ public class User {
     private List<Running> challenges;
     private String friends; //email list as it is unique
     private String email;
+    private String friendRequests;
 
     public User(){}
 
@@ -43,6 +44,15 @@ public class User {
         this.totalScore = prefs.getInt("totalScore",0);
         this.totalTime = prefs.getLong("totalTime",0);
         this.friends = prefs.getString("friends","");
+        this.friendRequests = prefs.getString("friendRequests","");
+    }
+
+    public String getFriendRequests() {
+        return friendRequests;
+    }
+
+    public void setFriendRequests(String friendRequests) {
+        this.friendRequests = friendRequests;
     }
 
     public ObjectId get_id() {

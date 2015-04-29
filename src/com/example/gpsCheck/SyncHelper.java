@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
+//todo sendme
 public class SyncHelper {
 
     private static final String TAG = Thread.currentThread().getStackTrace()[2].getClassName()
@@ -185,6 +186,7 @@ public class SyncHelper {
                 editor.putInt("totalScore", user.getTotalScore());
                editor.putInt("totalChallenges", user.getTotalChallenges());
                 editor.putString("friends", user.getFriends());
+                editor.putString("friendRequests", user.getFriendRequests());
                 editor.commit();
                returnCode = 2;
             }else if (email==null&&user!=null){
@@ -194,6 +196,7 @@ public class SyncHelper {
                 editor.putString("username", user.getUsername());
                 editor.putInt("totalChallenges", user.getTotalChallenges());
                 editor.putString("friends", user.getFriends());
+                editor.putString("friendRequests", user.getFriendRequests());
                 editor.commit();
 
                 returnCode = 0;
@@ -374,7 +377,10 @@ public class SyncHelper {
                         }.getType());
 
                 if (type==1&&users.size()==1){
-                    uploadNewFriend(app_preferences.getString("friends",null)+" "+users.get(0).getUsername());
+
+                    getMongoUserByUsername(users.get(0).getUsername());
+
+//                    uploadNewFriendOrRequest(app_preferences.getString("friends",null)+" "+users.get(0).getUsername(), 0);
                 }
 
 //            dbHelper.deleteAllStores();
@@ -401,17 +407,106 @@ public class SyncHelper {
 
     }
 
+    public User getMongoUserByUsername(String username) {
 
-    public boolean uploadNewFriend(String friends){
+        Log.v(TAG, "Fetching user");
+
+        User user = null;
+
+        Uri uri=null;
+
+            uri = new Uri.Builder()
+                    .scheme("https")
+                    .authority(authUrl)
+                    .path(runnerPath)
+                    .appendQueryParameter("q", "{ 'username':'"+username+"' }")
+                    .appendQueryParameter("fo", "true")
+                    .appendQueryParameter("apiKey", apiKey)
+                    .build();
+
+
+
+
+
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+
+
+
+        try {
+
+            HttpResponse response;
+
+
+                HttpGet httpRequest = new HttpGet(uri.toString());
+                setDefaultGetHeaders(httpRequest);
+                Log.v(TAG, "Fetching runs - requesting");
+                response = client.execute(httpRequest);
+
+
+
+            Log.v(TAG, "Fetching runs - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG,statusLine.getStatusCode()+" - "+statusLine.getReasonPhrase());
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+                instream.close();
+            }
+
+            Log.v(TAG, String.format("Deserialising [%s]", resultString));
+
+            Gson gson = new Gson();
+             user = (User) gson.fromJson(resultString,
+                    new TypeToken<User>() {
+                    }.getType());
+
+            uploadNewFriendOrRequest(user.getFriendRequests()+" "+app_preferences.getString("username",""), user.getUsername(), 1);
+
+
+            Log.v(TAG, String.format("Fetching parts - ready to insert 1 user", 1));
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception fetching user", e);
+            return user;
+        }
+
+        Log.v(TAG, String.format("Fetching stores - done"));
+
+
+
+        return user;
+
+    }
+
+
+    public boolean uploadNewFriendOrRequest(String friends,String username, int type){
 
 
         Log.v(TAG, "Uploading new friend");
 
-        String newFriends = "{ $set: {'friends': '" + friends + "'} }";
-
-        String newFriends2= " {'friends': '" + friends + "'}";
-
-        String query = "{'username': '"+app_preferences.getString("username", null)+"'}";
+        String query;
+        if (username==null)
+         query = "{'username': '"+app_preferences.getString("username", null)+"'}";
+        else
+            query = "{'username': '"+username+"'}";
 
 
 
@@ -439,8 +534,16 @@ public class SyncHelper {
 
         try {
             JSONObject obj = new JSONObject();
-            obj.put("friends" , friends);
-            StringEntity se = new StringEntity(obj.toString());
+
+            if (type==0)
+                obj.put("friends" , friends);
+            else if (type==1)
+                obj.put("friendRequests" , friends);
+
+            JSONObject lastObj = new JSONObject();
+            lastObj.put("$set", obj);
+
+            StringEntity se = new StringEntity(lastObj.toString());
 
 
 
