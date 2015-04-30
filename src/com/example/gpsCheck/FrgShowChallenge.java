@@ -22,9 +22,13 @@ import java.util.List;
 public class FrgShowChallenge extends BaseFragment {
 
     LeaderArrayAdapterItem adapter;
+    RequestsArrayAdapterItem adapterForReq;
     List<User>leaders;
+    List<String>friendRequests;
     EditText friendName;
     Button addFriend;
+
+    SyncHelper sh;
 
 
 
@@ -42,6 +46,7 @@ public class FrgShowChallenge extends BaseFragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         View v = inflater.inflate(R.layout.showchallenge_frg, container, false);
+        sh = new SyncHelper(getActivity());
 
 
 
@@ -109,11 +114,29 @@ public class FrgShowChallenge extends BaseFragment {
         friendName = (EditText) v.findViewById(R.id.editNewFriend);
         runningListView.setDivider(null);
         leaders = new ArrayList<User>();
+        friendRequests = new ArrayList<String>();
 
+        String[] friendList = user.getFriendRequests().split(" ");
+        for (String fr:friendList){
+            if (!fr.equals("null")&& !fr.equals("") && !fr.equals(" ")) friendRequests.add(fr);
+        }
+
+        final ViewSwitcher vs = (ViewSwitcher) v.findViewById(R.id.chalSwitcher);
+
+        Button leaderBoard = (Button) v.findViewById(R.id.buttonLeaders);
+        Button friendReq = (Button) v.findViewById(R.id.buttonRequests);
+
+        ListView friendsListView = (ListView) v.findViewById(R.id.listFriendRequests);
+        friendsListView.setDivider(null);
 
         adapter = new LeaderArrayAdapterItem(getActivity().getApplicationContext(),
                 R.layout.list_running_row, leaders);
         runningListView.setAdapter(adapter);
+
+
+        adapterForReq = new RequestsArrayAdapterItem(getActivity().getApplicationContext(),
+                R.layout.list_request_row, friendRequests);
+        friendsListView.setAdapter(adapterForReq);
 
 
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -123,9 +146,36 @@ public class FrgShowChallenge extends BaseFragment {
             }
         });
 
+        leaderBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vs.setDisplayedChild(0);
+            }
+        });
+        friendReq.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vs.setDisplayedChild(1);
+            }
+        });
 
 
 
+
+    }
+
+    private void refreshRequests(){
+
+        friendRequests.clear();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+
+
+        String[] friendList = app_preferences.getString("friendRequests","").split(" ");
+        for (String fr:friendList){
+            if (!fr.equals("null")&& !fr.equals("") && !fr.equals(" ")) friendRequests.add(fr);
+        }
+        adapterForReq.notifyDataSetChanged();
     }
 
     private void fetchFriend() {
@@ -689,10 +739,10 @@ public class FrgShowChallenge extends BaseFragment {
 
         @Override
         protected List<User> doInBackground(Void... unused) {
-            SyncHelper sh = new SyncHelper(activity);
 
 
-                return sh.getLeaderBoardOrFriend(friends, type);
+
+               return sh.getLeaderBoardOrFriend(friends, type);
 
 
         }
@@ -706,6 +756,46 @@ public class FrgShowChallenge extends BaseFragment {
                 setAdapter(users);
             else if (type==1)
                 refreshAdapter(users);
+
+
+        }
+
+
+    }
+
+
+    private class acceptRequest extends AsyncTask<Void, Void, User> {
+        private Activity activity;
+        String friend;
+
+
+        public acceptRequest(Activity activity, String friend) {
+            this.activity = activity;
+            this.friend = friend;
+        }
+
+        protected void onPreExecute() {
+            addFriend.setClickable(false);
+        }
+
+        @Override
+        protected User doInBackground(Void... unused) {
+
+
+
+                return      sh.getMongoUserByUsernameForFriend(friend, 0);
+
+
+
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+
+            addFriend.setClickable(true);
+            refreshRequests();
+
+
 
 
         }
@@ -780,9 +870,67 @@ public class FrgShowChallenge extends BaseFragment {
 
     }
 
+    // here's our beautiful adapter
+    public class RequestsArrayAdapterItem extends ArrayAdapter<String> {
+
+        Context mContext;
+        int layoutResourceId;
+        List<String> data;
+
+        public RequestsArrayAdapterItem(Context mContext, int layoutResourceId,
+                                      List<String> data) {
+
+            super(mContext, layoutResourceId, data);
+            this.layoutResourceId = layoutResourceId;
+            this.mContext = mContext;
+            this.data = data;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+
+            leaderViewHolder holder =null;
+            if (convertView == null || !(convertView.getTag() instanceof leaderViewHolder)) {
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.list_request_row, parent, false);
+
+                holder = new leaderViewHolder();
+
+                holder.username = (TextView) convertView
+                        .findViewById(R.id.friend_name);
+
+                holder.add = (ImageView) convertView.findViewById(R.id.trImageAdd);
+
+
+                convertView.setTag(holder);
+            } else {
+                holder = (leaderViewHolder) convertView.getTag();
+
+            }
+
+            // object item based on the position
+          final  String friend= data.get(position);
+
+
+          holder.username.setText(friend+" wants to add you as a friend!");
+            holder.add.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new acceptRequest(getActivity(),friend).execute();
+
+                }
+            });
+
+
+            return convertView;
+
+        }
+
+    }
+
     private class leaderViewHolder{
         TextView username;
         TextView score;
+        ImageView add;
     }
 
 }
