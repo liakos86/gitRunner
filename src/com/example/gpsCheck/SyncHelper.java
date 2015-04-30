@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.JsonReader;
 import android.util.Log;
+import android.widget.Toast;
 import com.example.gpsCheck.dbObjects.User;
 import com.example.gpsCheck.model.Database;
 import com.google.gson.Gson;
@@ -497,6 +498,8 @@ public class SyncHelper {
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putString("friendRequests", newFriendRequests);
                 editor.commit();
+
+                Toast.makeText(getApplication(), "Friend added!", Toast.LENGTH_LONG).show();
 
 
 

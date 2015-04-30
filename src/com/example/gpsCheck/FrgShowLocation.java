@@ -62,6 +62,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     int type;//0 personal, 1 challenge
 
+    List<String>usernames;
+
 
 
 
@@ -127,7 +129,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private void setSpinner(View v) {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
         String[]names = user.getFriends().split(" ");
-        List<String>usernames=new ArrayList<String>();
+        usernames=new ArrayList<String>();
         for (String name:names) usernames.add(name);
 
         MyAdapter adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
@@ -138,6 +140,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
 //                android.R.layout.simple_spinner_item, names);
 //        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        addListenerOnSpinnerItemSelection(v);
         selectUsernameSpinner.setAdapter(adapter);
     }
 
@@ -312,6 +316,26 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
+    public void addListenerOnSpinnerItemSelection(View v) {
+        Spinner spinner1 = (Spinner) v.findViewById(R.id.friendsSpinner);
+        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+    }
+
+    class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
+            opponentUsername = usernames.get(pos);
+
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // Nothing
+        }
+
+    }
+
     public void setListeners(View v){
 
 
@@ -398,10 +422,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         try {
 
             targetDistance = Float.parseFloat(et.getText().toString());
-            if (targetDistance<1000){
-                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=1000)", Toast.LENGTH_LONG).show();
-                return;
-            }
+//            if (targetDistance<1000){
+//                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=1000)", Toast.LENGTH_LONG).show();
+//                return;
+//            }
 
         }catch (Exception e){
             Toast.makeText(getActivity(),"Enter a valid distance in meters", Toast.LENGTH_LONG).show();
@@ -739,7 +763,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 holder = new ViewHolderFriend();
                 holder.name = (TextView) convertView.findViewById(R.id.name);
                 holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
-                holder.info = (TextView) convertView.findViewById(R.id.msisdn);
 
                 convertView.setTag(holder);
             } else {
@@ -747,7 +770,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             }
 
             String friend = names.get(position);
-            holder.info.setText(friend);//FIXME Only for the first account
+            holder.name.setText(friend);//FIXME Only for the first account
             holder.profileImg.setBackgroundResource(android.R.drawable.ic_dialog_email);
             return convertView;
         }

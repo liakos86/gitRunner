@@ -87,6 +87,19 @@ public class ActMainTest extends FragmentActivity {
                 mPager.setCurrentItem(position);
                 setSelectedBottomButton(bottomButtons,position);
 
+                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
+
+                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoard();
+                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
+
+
+                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile){
+
+                    ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), position)).startAsyncGetOrInsert(1);
+
+
+                }
+
                 invalidateOptionsMenu();
             }
 

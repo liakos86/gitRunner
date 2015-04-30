@@ -13,25 +13,14 @@
             android:text=""
 
             android:textStyle="bold"
-            android:textSize="@dimen/medium_text"
-            android:textColor="#fff"
+            android:textSize="@dimen/small_text"
+            android:textColor="#000"
             />
     <ImageView
             android:id="@+id/like"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/msisdn"
-            />
-    <TextView
-            android:id="@+id/msisdn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:gravity="center_vertical"
-            android:text="6912345678"
-            android:minHeight="35dp"
+            android:layout_alignParentRight="true"            />
 
-            android:textColor="#000"
-          />
 </RelativeLayout>

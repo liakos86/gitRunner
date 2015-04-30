@@ -218,7 +218,7 @@ public class FrgShowProfile  extends BaseFragment {
 
             if (result==0){
                 setTextValues();
-                ((ActMainTest)getActivity()).getmPager().setCurrentItem(1);
+//                ((ActMainTest)getActivity()).getmPager().setCurrentItem(1);
             }else if (result==-1){
                 Toast.makeText(getActivity(), "Invalid credentials", Toast.LENGTH_LONG).show();
             }else if (result==-2){

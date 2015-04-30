@@ -95,7 +95,7 @@ public class FrgShowChallenge extends BaseFragment {
         return  v;
     }
 
-    private void getLeaderBoard(){
+    public void getLeaderBoard(){
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
@@ -164,7 +164,7 @@ public class FrgShowChallenge extends BaseFragment {
 
     }
 
-    private void refreshRequests(){
+    public void refreshRequests(){
 
         friendRequests.clear();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -576,6 +576,8 @@ public class FrgShowChallenge extends BaseFragment {
     private void setAdapter(List<User>users) {
         //todo maybe empty and refill
 
+        leaders.clear();
+
         for (User user: users) leaders.add(user);
         int num = users.size();
         int score = user.getTotalScore();
@@ -933,4 +935,7 @@ public class FrgShowChallenge extends BaseFragment {
         ImageView add;
     }
 
+
 }
+
+
