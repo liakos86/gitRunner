@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:background="@android:color/white" android:paddingLeft="10dp"
+                android:paddingRight="10dp" android:paddingTop="10dp" android:minHeight="54dp"
+        >
+
+    <ImageView android:layout_width="30dp" android:layout_height="30dp"
+               android:layout_centerVertical="true" android:layout_alignParentLeft="true"
+               android:id="@+id/trImageAdd" android:src="@android:drawable/ic_input_add"/>
+
+
+        <TextView  android:layout_toRightOf="@+id/trImageAdd" android:id="@+id/friend_name" android:textColor="@android:color/black" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_toRightOf="@+id/friend_name"
+               android:id="@+id/deleteRequest" android:src="@android:drawable/ic_delete" android:layout_alignParentRight="true"
+               android:layout_centerVertical="true"/>
+
+
+    <View android:layout_width="fill_parent" android:layout_height="1dp" android:background="@color/mthSmsColor" android:layout_alignParentBottom="true"
+          android:layout_marginLeft="5dp" android:layout_marginRight="5dp" />
+</RelativeLayout>

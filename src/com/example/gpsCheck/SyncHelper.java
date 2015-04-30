@@ -190,7 +190,6 @@ public class SyncHelper {
                 editor.commit();
                returnCode = 2;
             }else if (email==null&&user!=null){
-
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putInt("totalScore", user.getTotalScore());
                 editor.putString("username", user.getUsername());
@@ -376,11 +375,11 @@ public class SyncHelper {
                         new TypeToken<List<User>>() {
                         }.getType());
 
+
+                //add a new friend request to the other user
                 if (type==1&&users.size()==1){
 
-                    getMongoUserByUsername(users.get(0).getUsername());
-
-//                    uploadNewFriendOrRequest(app_preferences.getString("friends",null)+" "+users.get(0).getUsername(), 0);
+                    getMongoUserByUsernameForFriend(users.get(0).getUsername(), 1);
                 }
 
 //            dbHelper.deleteAllStores();
@@ -407,7 +406,7 @@ public class SyncHelper {
 
     }
 
-    public User getMongoUserByUsername(String username) {
+    public User getMongoUserByUsernameForFriend(String username, int type) {// 1 send request, 0 accept
 
         Log.v(TAG, "Fetching user");
 
@@ -478,8 +477,30 @@ public class SyncHelper {
                     new TypeToken<User>() {
                     }.getType());
 
-            uploadNewFriendOrRequest(user.getFriendRequests()+" "+app_preferences.getString("username",""), user.getUsername(), 1);
+            // refresh other users requests
+            if (type==1)
+                uploadNewFriendOrRequest(user.getFriendRequests()+" "+app_preferences.getString("username",""), user.getUsername(), type);
 
+            //refresh other users friends
+            else if (type==0) {
+
+                //add friend to both users list
+                uploadNewFriendOrRequest(user.getFriends() + " " + app_preferences.getString("username", ""), user.getUsername(), type);
+                uploadNewFriendOrRequest(app_preferences.getString("friends","") + " " + user.getUsername(), app_preferences.getString("username",""), type);
+
+                //remove his name
+                String  newFriendRequests = app_preferences.getString("friendRequests","").replace(" " + user.getUsername() + " ", " ");
+                newFriendRequests = newFriendRequests.replace(user.getUsername() + " ", " ");
+                newFriendRequests = newFriendRequests.replace(" "+user.getUsername(), " ");
+                uploadNewFriendOrRequest(newFriendRequests, app_preferences.getString("username", ""), 1);
+
+                SharedPreferences.Editor editor = app_preferences.edit();
+                editor.putString("friendRequests", newFriendRequests);
+                editor.commit();
+
+
+
+            }
 
             Log.v(TAG, String.format("Fetching parts - ready to insert 1 user", 1));
 
@@ -502,11 +523,7 @@ public class SyncHelper {
 
         Log.v(TAG, "Uploading new friend");
 
-        String query;
-        if (username==null)
-         query = "{'username': '"+app_preferences.getString("username", null)+"'}";
-        else
-            query = "{'username': '"+username+"'}";
+        String query = "{'username': '"+username+"'}";
 
 
 

@@ -5,16 +5,23 @@
               android:orientation="vertical" >
 
 
-
     <EditText android:id="@+id/editNewFriend" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="search friend"/>
-    <Button  android:id="@+id/buttonAddFriend" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Add" android:layout_height="wrap_content" />
+    <Button  android:id="@+id/buttonAddFriend" android:layout_marginBottom="8dp" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Add" android:layout_height="wrap_content" />
 
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+    <Button  android:id="@+id/buttonLeaders" android:layout_weight="1" android:layout_width="0dp" android:background="@android:color/holo_green_dark" android:text="Leaders" android:layout_height="wrap_content" />
+    <Button  android:id="@+id/buttonRequests" android:layout_weight="1" android:layout_width="0dp" android:background="@android:color/holo_green_dark" android:text="New Friends" android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <ViewSwitcher android:id="@+id/chalSwitcher" android:layout_width="fill_parent" android:layout_height="fill_parent">
 
 
         <ListView android:id="@+id/listLeaders" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
+        <ListView android:id="@+id/listFriendRequests" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 
 
 
+    </ViewSwitcher>
 
 
     <!--fixme commit-->
