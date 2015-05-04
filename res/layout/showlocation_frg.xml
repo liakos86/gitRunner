@@ -45,17 +45,18 @@
                     android:layout_below="@+id/textChalSpeedAvg"
                     android:text="Select type" />
 
-            <Spinner android:id="@+id/friendsSpinner"
-                     android:drawSelectorOnTop="true"
-                     android:layout_below="@id/textChalTimer"
-                     android:layout_width="match_parent"
-                     android:layout_height="56dp"
-                     style="@style/spinner_style"/>
 
 
 
 
-            <LinearLayout android:layout_below="@+id/friendsSpinner" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+
+            <LinearLayout android:layout_below="@+id/textChalTimer" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+                <Spinner android:id="@+id/friendsSpinner"
+                         android:drawSelectorOnTop="true"
+                         android:layout_width="match_parent"
+                         android:layout_height="56dp"
+                         style="@style/spinner_style"/>
+
                 <EditText android:id="@+id/targetValue" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="target distance"/>
                 <Button  android:id="@+id/buttonTarget" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
 

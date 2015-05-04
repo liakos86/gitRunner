@@ -123,7 +123,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     private void setSpinner(View v) {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
-        selectUsernameSpinner.setVisibility(View.INVISIBLE);
         String[]names = user.getFriends().split(" ");
         usernames=new ArrayList<String>();
         for (String name:names)if (name!=null && !name.equals(""))  usernames.add(name);
@@ -343,12 +342,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                                          boolean isChecked) {
                     if (isChecked) {
                         type=0;
-                        selectUsernameSpinner.setVisibility(View.INVISIBLE);
+                        ll.setVisibility(View.GONE);
                         goalReached=true;
                     }
                     else {
                         type=1;
-                        selectUsernameSpinner.setVisibility(View.VISIBLE);
+                        ll.setVisibility(View.VISIBLE);
                         goalReached=false;
 
                     }
@@ -362,6 +361,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
           buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
           ll = (LinearLayout) v.findViewById(R.id.targetWindow);
+          ll.setVisibility(View.GONE);
           et = (EditText) v.findViewById(R.id.targetValue);
 
         buttonTarget.setOnClickListener(new View.OnClickListener() {
