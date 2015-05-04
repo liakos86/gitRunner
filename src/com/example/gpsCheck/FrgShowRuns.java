@@ -39,7 +39,8 @@ public class FrgShowRuns  extends BaseFragment {
             ContentDescriptor.Running.Cols.TIME,
             ContentDescriptor.Running.Cols.DISTANCE,
             ContentDescriptor.Running.Cols.TYPE,
-            ContentDescriptor.Running.Cols.OPPONENT_ID,
+            ContentDescriptor.Running.Cols.OPPONENT_NAME,
+            ContentDescriptor.Running.Cols.USER_NAME,
             ContentDescriptor.Running.Cols.LAT_LON_LIST
 
 
@@ -51,8 +52,9 @@ public class FrgShowRuns  extends BaseFragment {
     static final int sTimePosition = 3;
     static final int sDistPosition = 4;
     static final int sTypePosition = 5;
-    static final int sOppIdPosition = 6;
-    static final int sLatLonListPosition = 7;
+    static final int sOppNamePosition = 6;
+    static final int sUserNamePosition = 7;
+    static final int sLatLonListPosition = 8;
 
 
 
@@ -198,7 +200,7 @@ public class FrgShowRuns  extends BaseFragment {
                 St.add(new Running(c.getLong(sIdPosition), c
                         .getString(sDescPosition), c.getLong(sTimePosition),
                         c.getString(sDatePosition),  c.getFloat(sDistPosition),
-                        c.getInt(sTypePosition), c.getString(sOppIdPosition),  c.getString(sLatLonListPosition)));
+                        c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition)));
             }
         }
         c.close();
