@@ -2,36 +2,26 @@ package com.example.gpsCheck;
 
         import android.app.Activity;
         import android.content.Context;
-        import android.content.SharedPreferences;
         import android.graphics.Color;
-        import android.location.Criteria;
         import android.location.Location;
         import android.location.LocationListener;
         import android.location.LocationManager;
-        import android.net.wifi.WifiManager;
         import android.os.AsyncTask;
         import android.os.Bundle;
         import android.os.Handler;
         import android.os.SystemClock;
-        import android.preference.PreferenceManager;
-        import android.support.v4.app.Fragment;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
         import android.view.inputmethod.InputMethodManager;
         import android.widget.*;
         import com.example.gpsCheck.dbObjects.Running;
-        import com.example.gpsCheck.dbObjects.User;
-        import com.example.gpsCheck.model.ContentDescriptor;
         import com.example.gpsCheck.model.Database;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.SupportMapFragment;
         import com.google.android.gms.maps.model.*;
-        import org.json.JSONException;
-        import org.json.JSONObject;
 
-        import java.security.Provider;
         import java.util.ArrayList;
         import java.util.Date;
         import java.util.List;
@@ -136,16 +126,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         selectUsernameSpinner.setVisibility(View.INVISIBLE);
         String[]names = user.getFriends().split(" ");
         usernames=new ArrayList<String>();
-        for (String name:names) usernames.add(name);
+        for (String name:names)if (name!=null && !name.equals(""))  usernames.add(name);
 
         MyAdapter adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
         adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
-        selectUsernameSpinner.setSelection(0);
-
-
-//        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
-//                android.R.layout.simple_spinner_item, names);
-//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         addListenerOnSpinnerItemSelection(v);
         selectUsernameSpinner.setAdapter(adapter);
@@ -412,14 +396,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 }else{
                     getUpdates(false);
-                    if (totalDistance>=targetDistance){
 
-                        goalReached=true;
-                        running=false;
-                        getUpdates(false);
-                        save.setText("upload");
+//                    if (totalDistance>=targetDistance){
+//
+//                        goalReached=true;
+//                        running=false;
+//                        getUpdates(false);
+//                        save.setText("upload");
 //                start.performClick();
-                    }
+//                    }
 
                 }
 
@@ -754,17 +739,17 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             ViewHolderFriend holder;
             if (convertView == null || !(convertView.getTag() instanceof ViewHolderFriend)) {
 
-                convertView = inflater.inflate(R.layout.customspinneritem, null);
+                convertView = inflater.inflate(R.layout.custom_spinner_header, null);
                 holder = new ViewHolderFriend();
-                holder.name = (TextView) convertView.findViewById(R.id.name);
-                holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
+                holder.name = (TextView) convertView.findViewById(R.id.spinnerHeaderName);
+//                holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
 
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolderFriend) convertView.getTag();
             }
-            holder.name.setText(opponentUsername);
-            holder.profileImg.setBackgroundResource(R.drawable.ic_launcher);
+            holder.name.setText(names.get(position));
+//            holder.profileImg.setBackgroundResource(R.drawable.ic_launcher);
 
             return convertView;
         }

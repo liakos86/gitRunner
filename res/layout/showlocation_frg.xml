@@ -45,7 +45,14 @@
                     android:layout_below="@+id/textChalSpeedAvg"
                     android:text="Select type" />
 
-            <Spinner android:id="@+id/friendsSpinner"  android:layout_marginTop="30dp" android:layout_marginBottom="30dp"  android:drawSelectorOnTop="true" android:layout_below="@id/switcher" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            <Spinner android:id="@+id/friendsSpinner"
+                     android:drawSelectorOnTop="true"
+                     android:layout_below="@id/textChalTimer"
+                     android:layout_width="match_parent"
+                     android:layout_height="56dp"
+                     style="@style/spinner_style"/>
+
+
 
 
             <LinearLayout android:layout_below="@+id/friendsSpinner" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
