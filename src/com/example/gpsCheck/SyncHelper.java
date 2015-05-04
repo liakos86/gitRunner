@@ -313,7 +313,7 @@ public class SyncHelper {
 
     }
 
-    public int createMongoChallenge(JSONObject workout) {
+    public void createMongoChallenge(String opponentName, long totalTime, float totalDistance, String latLonList) {
 
         Log.v(TAG, "inserting challenge");
 
@@ -331,15 +331,19 @@ public class SyncHelper {
 
 
         try {
-            JSONObject runner = new JSONObject();
-            runner.put("user_name", "hgfhgfghfhj");
-            runner.put("distance", "10");
-            runner.put("time", "100000");
-            runner.put("date", "15apr2015 23:52:22");
-            runner.put("opponent_name", "asdjnjfej");
+
+            Date now = new Date();
+            JSONObject workout = new JSONObject();
+            workout.put("user_name", app_preferences.getString("username",""));
+            workout.put("distance", totalDistance);
+            workout.put("time", totalTime);
+            workout.put("date", now.toString());
+            workout.put("opponent_name", opponentName);
+            workout.put("latLonList", latLonList);
 
 
-            StringEntity se = new StringEntity( runner.toString());
+
+            StringEntity se = new StringEntity( workout.toString());
             setDefaultPostHeaders(httpPost);
             httpPost.setEntity(se);
 
@@ -377,12 +381,10 @@ public class SyncHelper {
 
         } catch (Exception e) {
             Log.e(TAG, "Exception fetching stores", e);
-            return -1;
         }
 
         Log.v(TAG, String.format("Fetching stores - done"));
 
-        return 0;
 
     }
 

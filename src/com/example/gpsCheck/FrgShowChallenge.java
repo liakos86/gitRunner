@@ -54,6 +54,7 @@ public class FrgShowChallenge extends BaseFragment {
 
 
 
+
         setList(v);
 
         getLeaderBoardAndChallenges();

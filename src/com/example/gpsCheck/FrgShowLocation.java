@@ -2,6 +2,7 @@ package com.example.gpsCheck;
 
         import android.app.Activity;
         import android.content.Context;
+        import android.content.SharedPreferences;
         import android.graphics.Color;
         import android.location.Criteria;
         import android.location.Location;
@@ -12,6 +13,7 @@ package com.example.gpsCheck;
         import android.os.Bundle;
         import android.os.Handler;
         import android.os.SystemClock;
+        import android.preference.PreferenceManager;
         import android.support.v4.app.Fragment;
         import android.view.LayoutInflater;
         import android.view.View;
@@ -53,7 +55,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     List<Polyline>mapLines;
 
     private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
-    float totalDistance=0, targetDistance=15;
+    float totalDistance=0, targetDistance;
 
 
     String opponentUsername;
@@ -123,11 +125,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         setSpinner(v);
 
+
+
+
         return  v;
     }
 
     private void setSpinner(View v) {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
+        selectUsernameSpinner.setVisibility(View.INVISIBLE);
         String[]names = user.getFriends().split(" ");
         usernames=new ArrayList<String>();
         for (String name:names) usernames.add(name);
@@ -227,7 +233,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             running=false;
 
             if (goalReached){
-                save.setText("Upload challenge");
+
+                if (type==1)
+                    save.setText("Upload challenge");
+                else if (type==0)
+                    save.setText("Save Workout");
 
             }else {
                 save.setText("Start");
@@ -242,7 +252,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    public void uploadChallenge(){
+    public void uploadChallengeOrSaveWorkout(){
 
 
 
@@ -250,32 +260,29 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             Toast.makeText(getActivity(),"Saving...",Toast.LENGTH_LONG).show();
 
-            Date now = new Date();
-            Running tr = new Running(-1, "I am running",
-                    totalTime,
-                    now.toString(),totalDistance, 1, "opponent_name","user_name", latLonList);
 
 
 
-            Database db = new Database(getActivity().getBaseContext());
-            db.addRunning(tr);
-
-            try {
-
-                JSONObject workout = new JSONObject();
-                workout.put("user_id", "hgfhgfghfhj");
-                workout.put("distance", String.valueOf(totalDistance));
-                workout.put("time", String.valueOf(totalTime));
-                workout.put("date", now.toString());
-                workout.put("type", "1");
-                workout.put("opponent_id", "asdjnjfej");
-                workout.put("latLonList", latLonList);
-
-                new uploadMongoChallenge(getActivity(), workout).execute();
+            if (type==0) {
+                Date now = new Date();
+                Running tr = new Running(-1, "I am running alone",
+                        totalTime,
+                        now.toString(),totalDistance, 1, "",user.getUsername(), latLonList);
+                Database db = new Database(getActivity().getBaseContext());
+                db.addRunning(tr);
+            }else {
 
 
-            }catch (JSONException e){
-                Toast.makeText(getActivity(),"Error uploading!", Toast.LENGTH_LONG).show();
+                try {
+
+
+
+                    new uploadMongoChallenge(getActivity()).execute();
+
+
+                } catch (Exception e) {
+                    Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
+                }
             }
 
         }else{
@@ -287,11 +294,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     private class uploadMongoChallenge extends AsyncTask<Void, Void, Integer> {
         private Activity activity;
-        JSONObject workout;
 
-        public uploadMongoChallenge(Activity activity, JSONObject workout) {
+        public uploadMongoChallenge(Activity activity) {
             this.activity = activity;
-            this.workout = workout;
         }
 
         protected void onPreExecute() {
@@ -303,9 +308,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             SyncHelper sh = new SyncHelper(activity);
 
 
-            int ll_rows = sh.createMongoChallenge(workout);
+                sh.createMongoChallenge(opponentUsername, totalTime, totalDistance, latLonList);
 
             return 0;
+
         }
 
         @Override
@@ -353,11 +359,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                                          boolean isChecked) {
                     if (isChecked) {
                         type=0;
-                        selectUsernameSpinner.setClickable(false);
+                        selectUsernameSpinner.setVisibility(View.INVISIBLE);
+                        goalReached=true;
                     }
                     else {
                         type=1;
-                        selectUsernameSpinner.setClickable(true);
+                        selectUsernameSpinner.setVisibility(View.VISIBLE);
+                        goalReached=false;
 
                     }
 
@@ -390,7 +398,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
                     if (goalReached){
-                        uploadChallenge();
+                        uploadChallengeOrSaveWorkout();
                         getUpdates(false);
 
                     }else {
@@ -404,6 +412,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 }else{
                     getUpdates(false);
+                    if (totalDistance>=targetDistance){
+
+                        goalReached=true;
+                        running=false;
+                        getUpdates(false);
+                        save.setText("upload");
+//                start.performClick();
+                    }
 
                 }
 
@@ -736,19 +752,18 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         public View getCustomView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             ViewHolderFriend holder;
-            if (convertView == null) {
+            if (convertView == null || !(convertView.getTag() instanceof ViewHolderFriend)) {
+
                 convertView = inflater.inflate(R.layout.customspinneritem, null);
                 holder = new ViewHolderFriend();
                 holder.name = (TextView) convertView.findViewById(R.id.name);
                 holder.profileImg = (ImageView) convertView.findViewById(R.id.like);
-                holder.info = (TextView) convertView.findViewById(R.id.msisdn);
 
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolderFriend) convertView.getTag();
             }
-            holder.name.setText(user.getUsername());
-            holder.info.setText(user.getTotalScore()+" points");//FIXME Only for the first account
+            holder.name.setText(opponentUsername);
             holder.profileImg.setBackgroundResource(R.drawable.ic_launcher);
 
             return convertView;
