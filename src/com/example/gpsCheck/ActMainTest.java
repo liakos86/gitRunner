@@ -87,18 +87,23 @@ public class ActMainTest extends FragmentActivity {
                 mPager.setCurrentItem(position);
                 setSelectedBottomButton(bottomButtons,position);
 
+                //todo not on every change, set timer!!!
+                ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
+
+
                 if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
 
-                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoard();
+                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoardAndChallenges();
                     ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
 
 
-                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile){
-
-                    ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), position)).startAsyncGetOrInsert(1);
-
-
                 }
+// else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile){
+
+//                    ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), position)).startAsyncGetOrInsert(1);
+
+
+//                }
 
                 invalidateOptionsMenu();
             }
@@ -249,5 +254,7 @@ public class ActMainTest extends FragmentActivity {
         super.onResume();
 
     }
+
+
 
 }

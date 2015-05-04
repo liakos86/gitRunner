@@ -253,7 +253,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             Date now = new Date();
             Running tr = new Running(-1, "I am running",
                     totalTime,
-                    now.toString(),totalDistance, 1, "opponent_id", latLonList);
+                    now.toString(),totalDistance, 1, "opponent_name","user_name", latLonList);
 
 
 

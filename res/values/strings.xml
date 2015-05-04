@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">gpsCheck</string>
-    <string name="workout_url">https://api.mongolab.com/api/1/databases/auction/collections/workout?apiKey=fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz</string>
-    <string name="challenge_url">https://api.mongolab.com/api/1/databases/auction/collections/challenge?apiKey=fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz</string>
+    <string name="challenge_path">/api/1/databases/auction/collections/workout</string>
     <string name="runner_url">https://api.mongolab.com/api/1/databases/auction/collections/runner?apiKey=fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz</string>
     <string name="apiKey">fft3Q2J8bB2l-meOoBHZK_z3E_b5cuBz</string>
     <string name="auth_url">api.mongolab.com</string>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:background="@android:color/white" android:paddingLeft="10dp"
+                android:paddingRight="10dp" android:paddingTop="10dp" android:minHeight="54dp"
+        >
+
+    <ImageView android:layout_width="30dp" android:layout_height="30dp"
+               android:layout_centerVertical="true" android:layout_alignParentLeft="true"
+               android:id="@+id/opponentIcon" android:src="@android:drawable/btn_star"/>
+
+
+    <TextView  android:layout_toRightOf="@+id/opponentIcon" android:id="@+id/text_chal" android:textColor="@android:color/black" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    <TextView  android:text="touch to respond" android:layout_toRightOf="@+id/opponentIcon" android:layout_below="@+id/text_chal" android:id="@+id/text_respond" android:textColor="@android:color/black" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+
+    <View android:layout_width="fill_parent" android:layout_height="1dp" android:background="@color/mthSmsColor" android:layout_alignParentBottom="true"
+          android:layout_marginLeft="5dp" android:layout_marginRight="5dp" />
+</RelativeLayout>

@@ -24,21 +24,23 @@ public class Running {
     private long running_id;
     private long time;
     private String description;
-    private String opponent_id;
+    private String opponent_name;
+    private String user_name;
     private int type; // 0=simple run , 1=outgoing challenge run, 2=incoming challenge run
     private String LatLonList;
 
 
     public Running(){}
 
-    public Running(long running_id, String description,long time, String date, float distance, int type, String opponent_id, String LatLonList){
+    public Running(long running_id, String description,long time, String date, float distance, int type, String opponent_name, String user_name, String LatLonList){
         this.running_id = running_id;
         this.time = time;
         this.date = date;
         this.description = description;
         this.distance = distance;
         this.type = type;
-        this.opponent_id = opponent_id;
+        this.opponent_name = opponent_name;
+        this.user_name = user_name;
         this.LatLonList = LatLonList;
     }
 
@@ -82,13 +84,6 @@ public class Running {
         this.distance = distance;
     }
 
-    public String getOpponent_id() {
-        return opponent_id;
-    }
-
-    public void setOpponent_id(String opponent_id) {
-        this.opponent_id = opponent_id;
-    }
 
     public int getType() {
         return type;
@@ -104,6 +99,22 @@ public class Running {
 
     public void setLatLonList(String latLonList) {
         LatLonList = latLonList;
+    }
+
+    public String getOpponent_name() {
+        return opponent_name;
+    }
+
+    public void setOpponent_name(String opponent_name) {
+        this.opponent_name = opponent_name;
+    }
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
     }
 
     public static Running getFromId(Context context, long id) {
@@ -135,7 +146,8 @@ public class Running {
             toRet.put(ContentDescriptor.Running.Cols.TIME, item.time);
             toRet.put(ContentDescriptor.Running.Cols.DISTANCE, item.distance);
             toRet.put(ContentDescriptor.Running.Cols.TYPE, item.type);
-            toRet.put(ContentDescriptor.Running.Cols.OPPONENT_ID, item.opponent_id);
+            toRet.put(ContentDescriptor.Running.Cols.OPPONENT_NAME, item.opponent_name);
+            toRet.put(ContentDescriptor.Running.Cols.USER_NAME, item.user_name);
             toRet.put(ContentDescriptor.Running.Cols.LAT_LON_LIST, item.LatLonList);
 
 
@@ -156,7 +168,9 @@ public class Running {
             toRet.time = cursor.getLong(cursor.getColumnIndex(ContentDescriptor.Running.Cols.TIME));
             toRet.distance = cursor.getFloat(cursor.getColumnIndex(ContentDescriptor.Running.Cols.DISTANCE));
             toRet.type = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.TYPE));
-            toRet.opponent_id = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.OPPONENT_ID));
+            toRet.opponent_name = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.OPPONENT_NAME));
+            toRet.user_name = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.USER_NAME));
+
 
 
             return toRet;

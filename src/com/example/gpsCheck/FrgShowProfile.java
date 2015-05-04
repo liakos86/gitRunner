@@ -123,10 +123,12 @@ public class FrgShowProfile  extends BaseFragment {
 
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
 
-        textTotalChallenges.setText("Total Challenges: "+user.getTotalChallenges());
-        textTotalScore.setText("Total Score: "+user.getTotalScore());
+
+        textTotalChallenges.setText("Total Challenges: "+app_preferences.getInt("totalChallenges", 0));
+        textTotalScore.setText("Total Score: "+app_preferences.getInt("totalScore",0));
 
 
 

@@ -85,7 +85,8 @@ public class ContentDescriptor {
             public static final String TIME = "time";
             public static final String DESCRIPTION = "description";
             public static final String TYPE = "type";
-            public static final String OPPONENT_ID = "opponent_id";
+            public static final String OPPONENT_NAME = "opponent_name";
+            public static final String USER_NAME = "user_name";
             public static final String LAT_LON_LIST = "lat_lon_list";
 
 
@@ -108,7 +109,8 @@ public class ContentDescriptor {
                       + String.format(sFrmTextNotNull, Cols.TIME) + " , "
                     + String.format(sFrmTextNotNull, Cols.DISTANCE) + " , "
                     + String.format(sFrmTextNotNull, Cols.TYPE) + " , "
-                    + String.format(sFrmTextNotNull, Cols.OPPONENT_ID) + " , "
+                    + String.format(sFrmTextNotNull, Cols.OPPONENT_NAME) + " , "
+                    + String.format(sFrmTextNotNull, Cols.USER_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.LAT_LON_LIST) + " , "
 
                     + String.format(sFrmPrimaryKey, Cols.ID) + ")";
