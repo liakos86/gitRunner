@@ -31,37 +31,13 @@ import java.util.List;
  */
 public class FrgShowRuns  extends BaseFragment {
 
-    static final String[] FROM = {
-            // ! beware. I mark the position of the fields
-            ContentDescriptor.Running.Cols.DESCRIPTION,
-            ContentDescriptor.Running.Cols.DATE,
-            ContentDescriptor.Running.Cols.ID,
-            ContentDescriptor.Running.Cols.TIME,
-            ContentDescriptor.Running.Cols.DISTANCE,
-            ContentDescriptor.Running.Cols.TYPE,
-            ContentDescriptor.Running.Cols.OPPONENT_NAME,
-            ContentDescriptor.Running.Cols.USER_NAME,
-            ContentDescriptor.Running.Cols.LAT_LON_LIST
 
-
-
-    };
-    static final int sDescPosition = 0;
-    static final int sDatePosition = 1;
-    static final int sIdPosition = 2;
-    static final int sTimePosition = 3;
-    static final int sDistPosition = 4;
-    static final int sTypePosition = 5;
-    static final int sOppNamePosition = 6;
-    static final int sUserNamePosition = 7;
-    static final int sLatLonListPosition = 8;
 
 
 
     List<Running> runnings;
     ListView runningListView;
     ArrayAdapterItem adapter;
-    Database db;
 
     ViewFlipper viewFlipper;
     GoogleMap googleMap;
@@ -82,8 +58,6 @@ public class FrgShowRuns  extends BaseFragment {
         viewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
 
         closeButton = (Button) v.findViewById(R.id.buttonCloseRun);
-
-        db = new Database(getActivity().getBaseContext());
 
         setList(v);
         initializeMap();
@@ -106,7 +80,8 @@ public class FrgShowRuns  extends BaseFragment {
         runningListView = (ListView) v.findViewById(R.id.listRunning);
         runningListView.setDivider(null);
 
-        runnings = fetchFromDb();
+        Database db = new Database(getActivity());
+        runnings = db.fetchRunsByTypeFromDb(0);
 
 
         adapter = new ArrayAdapterItem(getActivity().getApplicationContext(),
@@ -174,41 +149,7 @@ public class FrgShowRuns  extends BaseFragment {
         return truitonList;
     }
 
-    private List<Running> fetchFromDb() {
 
-
-        // trTime = "app";
-
-        Cursor c = getActivity().getContentResolver().query(
-                ContentDescriptor.Running.CONTENT_URI,
-                FROM, null, null, null);
-
-        // Cursor c =
-        // getContentResolver().query(ContentDescriptor.Running.CONTENT_URI,
-        // proj,
-        // ContentDescriptor.Running.Cols.PROFILE_ID+" = "+pr.getProfileId(),
-        // null, ContentDescriptor.Running.Cols.ID+" DESC");
-
-        List<Running> St = new ArrayList<Running>();
-
-        if (c.getCount() > 0) {
-
-            while (c.moveToNext()) {
-
-
-
-                St.add(new Running(c.getLong(sIdPosition), c
-                        .getString(sDescPosition), c.getLong(sTimePosition),
-                        c.getString(sDatePosition),  c.getFloat(sDistPosition),
-                        c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition)));
-            }
-        }
-        c.close();
-        c = null;
-
-        return St;
-
-    }
 
 
 
