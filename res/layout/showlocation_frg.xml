@@ -20,9 +20,23 @@
 
         <RelativeLayout android:layout_margin="16dp" android:background="@color/circle_grey" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-            <TextView android:textColor="@android:color/holo_red_light"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="fill_parent" android:layout_height="wrap_content" />
-            <TextView android:textColor="@android:color/holo_red_light" android:layout_below="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-            <TextView android:textColor="@android:color/holo_red_light"  android:layout_below="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+            <Switch
+
+                    android:id="@+id/switcher"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="10dp"
+                    android:text="Challenge" />
+
+            <RelativeLayout android:layout_below="@+id/switcher" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+            <TextView android:textColor="@android:color/holo_red_light"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <TextView android:textColor="@android:color/holo_red_light" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <TextView android:textColor="@android:color/holo_red_light"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+
 
             <TextView
                     android:layout_below="@+id/textChalSpeedAvg"
@@ -35,35 +49,23 @@
                     android:textColor="#FFFFFF"
                     android:textSize="20dp" />
 
-            <Switch
-                    android:id="@+id/switcher"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="20dp"
-                    android:layout_below="@+id/textChalSpeedAvg"
-                    android:text="Select type" />
 
+            </RelativeLayout>
 
-
-
-
-
-            <LinearLayout android:layout_below="@+id/textChalTimer" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+            <LinearLayout android:layout_below="@+id/textViews" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
                 <Spinner android:id="@+id/friendsSpinner"
                          android:drawSelectorOnTop="true"
                          android:layout_width="match_parent"
                          android:layout_height="56dp"
                          style="@style/spinner_style"/>
 
-                <EditText android:id="@+id/targetValue" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="target distance"/>
+                <EditText android:layout_marginBottom="8dp" android:layout_marginTop="8dp" android:id="@+id/targetValue" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="target distance"/>
                 <Button  android:id="@+id/buttonTarget" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
 
 
             </LinearLayout>
 
-            <Button android:layout_below="@+id/targetWindow" android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
+            <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
 
 
 

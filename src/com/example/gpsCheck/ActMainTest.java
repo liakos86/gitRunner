@@ -3,6 +3,8 @@ package com.example.gpsCheck;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.*;
@@ -10,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import com.example.gpsCheck.dbObjects.Running;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -98,12 +101,7 @@ public class ActMainTest extends FragmentActivity {
 
 
                 }
-// else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile){
 
-//                    ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), position)).startAsyncGetOrInsert(1);
-
-
-//                }
 
                 invalidateOptionsMenu();
             }
@@ -128,6 +126,16 @@ public class ActMainTest extends FragmentActivity {
             }
         });
 
+    }
+
+    public void respondToChal(Running run){
+
+            final String name = "android:switcher:" + mPager.getId()+ ":" + 1;
+            final Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(name);
+
+
+       ((FrgShowLocation) fragmentByTag).beginChallenge(run);
+        getmPager().setCurrentItem(1);
     }
 
 
@@ -236,13 +244,17 @@ public class ActMainTest extends FragmentActivity {
     }
 
 
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     public ViewPager getmPager() {
         return mPager;
     }
 
-    public void setmPager(ViewPager mPager) {
-        this.mPager = mPager;
-    }
 
     @Override
     protected void onPause() {

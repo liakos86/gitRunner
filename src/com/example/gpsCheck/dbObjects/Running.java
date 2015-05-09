@@ -26,8 +26,8 @@ public class Running {
     private String description;
     private String opponent_name;
     private String user_name;
-    private int type; // 0=simple run , 1=outgoing challenge run, 2=incoming challenge run
-    private String LatLonList;
+    private int type; // 0=simple run, 1=challenge run
+    private String latLonList;
 
 
     public Running(){}
@@ -41,7 +41,7 @@ public class Running {
         this.type = type;
         this.opponent_name = opponent_name;
         this.user_name = user_name;
-        this.LatLonList = LatLonList;
+        this.latLonList = LatLonList;
     }
 
     public String getDate() {
@@ -94,11 +94,11 @@ public class Running {
     }
 
     public String getLatLonList() {
-        return LatLonList;
+        return latLonList;
     }
 
     public void setLatLonList(String latLonList) {
-        LatLonList = latLonList;
+        latLonList = latLonList;
     }
 
     public String getOpponent_name() {
@@ -148,7 +148,7 @@ public class Running {
             toRet.put(ContentDescriptor.Running.Cols.TYPE, item.type);
             toRet.put(ContentDescriptor.Running.Cols.OPPONENT_NAME, item.opponent_name);
             toRet.put(ContentDescriptor.Running.Cols.USER_NAME, item.user_name);
-            toRet.put(ContentDescriptor.Running.Cols.LAT_LON_LIST, item.LatLonList);
+            toRet.put(ContentDescriptor.Running.Cols.LAT_LON_LIST, item.latLonList);
 
 
             return toRet;

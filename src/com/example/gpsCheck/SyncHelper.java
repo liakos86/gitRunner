@@ -4,6 +4,7 @@ package com.example.gpsCheck;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 import com.example.gpsCheck.dbObjects.User;
+import com.example.gpsCheck.model.ContentDescriptor;
 import com.example.gpsCheck.model.Database;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -287,6 +289,18 @@ public class SyncHelper {
             challenges = (List<Running>) gson.fromJson(resultString,
                     new TypeToken<List<Running>>() {
                     }.getType());
+
+            dbHelper.deleteAllChallenges();
+
+//            Log.v(TAG, String.format("Fetching parts - ready to insert [%d] parts", StoreList.size()));
+            int size = challenges.size();
+            for (int i = 0; i < size; i++) {
+
+                challenges.get(i).setType(1);
+                challenges.get(i).setRunning_id(-1);
+                dbHelper.addRunning(challenges.get(i));
+//                ll_rows++;
+            }
 
 
 //            dbHelper.deleteAllStores();
@@ -731,6 +745,7 @@ public class SyncHelper {
         return true;
 
     }
+
 
     private void setDefaultGetHeaders(HttpGet httpRequest) throws UnsupportedEncodingException {
         httpRequest.setHeader("Accept", "application/json");

@@ -15,6 +15,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.example.gpsCheck.dbObjects.Running;
 import com.example.gpsCheck.dbObjects.User;
+import com.example.gpsCheck.model.ContentDescriptor;
+import com.example.gpsCheck.model.Database;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,12 +72,22 @@ public class FrgShowChallenge extends BaseFragment {
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         String friends = app_preferences.getString("friends",null);
-        if (friends!=null && !friends.equals("")){
-            new getLeaderBoardOrFriend(getActivity(),friends, 0).execute();
-        }
 
-        if (app_preferences.getString("username",null)!=null)
-        new getChallenges(getActivity()).execute();
+
+        if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+            if (friends != null && !friends.equals("")) {
+                new getLeaderBoardOrFriend(getActivity(), friends, 0).execute();
+            }
+
+            if (app_preferences.getString("username", null) != null) {
+
+
+                new getChallenges(getActivity()).execute();
+
+            }
+        } else {
+            Toast.makeText(getActivity(), "Connection lost", Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -84,7 +97,8 @@ public class FrgShowChallenge extends BaseFragment {
         friendName = (EditText) v.findViewById(R.id.editNewFriend);
         leaders = new ArrayList<User>();
         friendRequests = new ArrayList<String>();
-        challenges = new ArrayList<Running>();
+        Database db = new Database(getActivity());
+        challenges = db.fetchRunsByTypeFromDb(1);
 
 
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -537,7 +551,10 @@ public class FrgShowChallenge extends BaseFragment {
                     @Override
                     public void onClick(View view) {
 
-                        ((ActMainTest)getActivity()).getmPager().setCurrentItem(1);
+
+                        beginChallenge(run);
+
+
                     }
                 });
             }
@@ -556,6 +573,12 @@ public class FrgShowChallenge extends BaseFragment {
     }
 
 
+    private void beginChallenge(Running run){
+
+
+        ((ActMainTest) getActivity()).respondToChal(run);
+
+    }
 }
 
 

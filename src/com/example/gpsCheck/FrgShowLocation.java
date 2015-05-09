@@ -34,12 +34,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     GoogleMap googleMap;
     Marker runnerMarker, startMarker;
     Location lastLocation;
-    ViewFlipper viewFlipper;
+//    ViewFlipper viewFlipper;
     Button   save, buttonTarget;
     boolean running=false, firstChange=false, goalReached=false;
     String timerStop1;
     String latLonList="";
     LinearLayout ll;
+    RelativeLayout rl;
     EditText et ;
 
     List<Polyline>mapLines;
@@ -52,7 +53,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     Spinner selectUsernameSpinner;
     Switch typeSwitch;
 
-    int type;//0 personal, 1 challenge
+    int type=1;//1 personal, 0 challenge
 
     List<String>usernames;
 
@@ -125,7 +126,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
         String[]names = user.getFriends().split(" ");
         usernames=new ArrayList<String>();
-        for (String name:names)if (name!=null && !name.equals(""))  usernames.add(name);
+        for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
 
         MyAdapter adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
         adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
@@ -215,14 +216,19 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             running=false;
 
-            if (goalReached){
+            if (goalReached&&type==0){
 
-                if (type==1)
+
                     save.setText("Upload challenge");
-                else if (type==0)
-                    save.setText("Save Workout");
 
-            }else {
+
+
+            }else if (!goalReached&&type==0){
+
+                save.setText("Restart challenge");
+            }
+
+            else if (type==1) {
                 save.setText("Start");
             }
 
@@ -246,11 +252,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
 
-            if (type==0) {
+            if (type==1) {
                 Date now = new Date();
-                Running tr = new Running(-1, "I am running alone",
-                        totalTime,
-                        now.toString(),totalDistance, 1, "",user.getUsername(), latLonList);
+                Running tr = new Running(-1, "I am running alone", totalTime,
+                        now.toString(),totalDistance, 0, "",user.getUsername(), latLonList);
                 Database db = new Database(getActivity().getBaseContext());
                 db.addRunning(tr);
             }else {
@@ -331,9 +336,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         typeSwitch = (Switch) v.findViewById(R.id.switcher);
 
         //set the switch to ON 
-        typeSwitch.setChecked(true);
-        typeSwitch.setTextOn("Personal");
-        typeSwitch.setTextOff("Challenge");
+        typeSwitch.setChecked(false);
+//        typeSwitch.setTextOn("Personal");
+//        typeSwitch.setTextOff("Challenge");
         //attach a listener to check for changes in state
         typeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -341,14 +346,17 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             public void onCheckedChanged(CompoundButton buttonView,
                                          boolean isChecked) {
                     if (isChecked) {
-                        type=0;
-                        ll.setVisibility(View.GONE);
-                        goalReached=true;
-                    }
-                    else {
                         type=1;
                         ll.setVisibility(View.VISIBLE);
+                        save.setVisibility(View.GONE);
                         goalReached=false;
+//                        goalReached=true;
+                    }
+                    else {
+                        type=0;
+                        ll.setVisibility(View.GONE);
+                        save.setVisibility(View.VISIBLE);
+
 
                     }
 
@@ -362,6 +370,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
           buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
           ll = (LinearLayout) v.findViewById(R.id.targetWindow);
           ll.setVisibility(View.GONE);
+          rl = (RelativeLayout) v.findViewById(R.id.textViews);
+          rl.setVisibility(View.GONE);
           et = (EditText) v.findViewById(R.id.targetValue);
 
         buttonTarget.setOnClickListener(new View.OnClickListener() {
@@ -380,12 +390,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 if (!running) {
 
-
-                    if (goalReached){
+                    if (goalReached&&type==0) {
                         uploadChallengeOrSaveWorkout();
                         getUpdates(false);
 
                     }else {
+
+                        rl.setVisibility(View.VISIBLE);
 
                         if (provider != null)
                             getUpdates(true);
@@ -396,6 +407,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 }else{
                     getUpdates(false);
+                    if (type==1){
+
+                    }
 
 //                    if (totalDistance>=targetDistance){
 //
@@ -433,9 +447,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             return;
         }
         ll.setVisibility(View.GONE);
+
         InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(buttonTarget.getWindowToken(), 0);
+
+        save.setVisibility(View.VISIBLE);
     }
 
 //    public void setListeners(){
@@ -533,11 +550,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
     /* Request updates at startup */
-//    @Override
-//    public void onResume() {
-//        super.onResume();
+    @Override
+    public void onResume() {
+        super.onResume();
 //        locationManager.requestLocationUpdates(provider, 2000, 0, this);
-//    }
+    }
 //
 //    /* Remove the locationlistener updates when Activity is paused */
 //    @Override
@@ -584,7 +601,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
 
-
+        //the first polyline is the distance between my last location and my current
+        //so it might be kilometers away and should not be accounted for
         if (firstChange) {
 
             totalDistance += location.distanceTo(lastLocation);
@@ -613,7 +631,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+targetDistance);
 
 
-            if (totalDistance>=targetDistance){
+            if (totalDistance>=targetDistance &&type==0){
 
                 goalReached=true;
                 running=false;
@@ -780,6 +798,51 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         TextView name;
         ImageView profileImg;
         TextView info;
+    }
+
+
+
+
+    public void beginChallenge(Running run){
+
+        Toast.makeText(getActivity(),"This is "+run.getUser_name()+"'s run!",Toast.LENGTH_LONG).show();
+
+
+
+        String[] pointsList = run.getLatLonList().split(",");
+
+        List<LatLng> locationList = new ArrayList<LatLng>();
+
+        int pointsLength = pointsList.length;
+
+        for (int i=0; i<pointsLength-1; i+=2){
+
+            locationList.add(new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1])));
+
+        }
+        int latlonLength = locationList.size();
+
+
+        for (int i=0; i<latlonLength-1; i++){
+
+
+            googleMap.addPolyline(
+                    new PolylineOptions().add(locationList.get(i), locationList.get(i + 1))
+                            .width(5).color(Color.RED)
+            );
+
+        }
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[pointsLength-2]), Double.parseDouble(pointsList[pointsLength - 1])), 18));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 2000, null);
+
+//        viewFlipper.setDisplayedChild(1);
+
+
+
+
+
+
     }
 
 
