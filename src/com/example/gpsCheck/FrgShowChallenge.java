@@ -528,6 +528,8 @@ public class FrgShowChallenge extends BaseFragment {
                 holder.username = (TextView) convertView
                         .findViewById(R.id.text_chal);
 
+                holder.add = (ImageView) convertView.findViewById(R.id.opponentIcon);
+
                 holder.score = (TextView) convertView.findViewById(R.id.text_respond);
 
 
@@ -541,11 +543,30 @@ public class FrgShowChallenge extends BaseFragment {
             final  Running run= data.get(position);
 
             if (run.getUser_name().equals(user.getUsername())){
-                holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond");
-                holder.score.setVisibility(View.GONE);
+
+                if (run.getStatus()==1){
+                    if (run.getWinner()!=null&&run.getWinner().equals(run.getOpponent_name())){
+                        holder.username.setText("LOOSER! "+run.getOpponent_name()+" won the challenge!");
+                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.looser));
+                    }else{
+                        holder.username.setText("HOORAY! "+"You beat "+run.getOpponent_name());
+                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.winner));
+
+                    }
+
+                }else{
+                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+
+                    holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond");
+                    holder.score.setVisibility(View.GONE);
+                }
+
+
             }else{
                 holder.username.setText(run.getUser_name()+" challenged you for "+run.getDistance()+" meters");
                 holder.score.setVisibility(View.VISIBLE);
+                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+
 
                 convertView.setOnClickListener(new View.OnClickListener() {
                     @Override

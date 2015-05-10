@@ -8,7 +8,7 @@
 
     <ImageView android:layout_width="30dp" android:layout_height="30dp"
                android:layout_centerVertical="true" android:layout_alignParentLeft="true"
-               android:id="@+id/opponentIcon" android:src="@android:drawable/btn_star"/>
+               android:id="@+id/opponentIcon" />
 
 
     <TextView  android:layout_toRightOf="@+id/opponentIcon" android:id="@+id/text_chal" android:textColor="@android:color/black" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content" />
