@@ -25,9 +25,11 @@ public class Running {
     private long time;
     private String description;
     private String opponent_name;
+    private String winner;
     private String user_name;
     private int type; // 0=simple run, 1=challenge run
     private String latLonList;
+    private int status; // 0= open, 1=closed - After challenge reply we set status=1, then the other user deletes it on view
 
 
     public Running(){}
@@ -42,6 +44,22 @@ public class Running {
         this.opponent_name = opponent_name;
         this.user_name = user_name;
         this.latLonList = LatLonList;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getWinner() {
+        return winner;
+    }
+
+    public void setWinner(String winner) {
+        this.winner = winner;
     }
 
     public String getDate() {

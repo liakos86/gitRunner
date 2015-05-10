@@ -226,10 +226,16 @@ public class SyncHelper {
         List<Running>challenges = new ArrayList<Running>();
 
 
-        String query = "{ $or: [";
+        String query = "  " +
+                "{   $or: [";
+
         query += "{ 'user_name': '" + app_preferences.getString("username","") + "'},";
+
         query += "{ 'opponent_name': '" + app_preferences.getString("username","") + "'}";
-        query += "] }";
+
+        query += "]  } ";
+//todo add status query
+//        query += ", 'status': '0'     }   ";
 
           Uri  uri = new Uri.Builder()
                     .scheme("https")
@@ -296,9 +302,17 @@ public class SyncHelper {
             int size = challenges.size();
             for (int i = 0; i < size; i++) {
 
-                challenges.get(i).setType(1);
-                challenges.get(i).setRunning_id(-1);
-                dbHelper.addRunning(challenges.get(i));
+
+                //if closed challenge and user has responded to it (not created!)
+                if ( challenges.get(i).getStatus()==1 && challenges.get(i).getOpponent_name().equals(app_preferences.getString("username",""))){
+                    challenges.remove(i);
+                    --i;
+                    --size;
+                }else  {
+                    challenges.get(i).setType(1);
+                    challenges.get(i).setRunning_id(-1);
+                    dbHelper.addRunning(challenges.get(i));
+                }
 //                ll_rows++;
             }
 
@@ -745,6 +759,92 @@ public class SyncHelper {
         return true;
 
     }
+
+
+    public void replyToChallenge(String opponentName, boolean won) {
+
+        Log.v(TAG, "replying to challenge");
+
+//        Toast.makeText(getApplication(), opponentName+"  "+won, Toast.LENGTH_LONG).show();
+
+
+        String query = "{ $and: [";
+        query = "{ 'user_name': '" + opponentName + "' ,";
+        query += " 'opponent_name': '" + app_preferences.getString("username","") + "'}";
+//        query += "] }";
+
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .authority(authUrl)
+                .path(workoutPath)
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("apiKey", apiKey)
+                .build();
+
+//        HashMap  params = new HashMap();
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+        HttpPut httpPut = new HttpPut(uri.toString());
+
+
+        try {
+
+            JSONObject obj = new JSONObject();
+            obj.put("winner" , won?app_preferences.getString("username",""):opponentName);
+            obj.put("status" , 1);
+            JSONObject lastObj = new JSONObject();
+            lastObj.put("$set", obj);
+
+            StringEntity se = new StringEntity(lastObj.toString());
+
+
+            setDefaultPutHeaders(httpPut);
+            httpPut.setEntity(se);
+
+            Log.v(TAG, "Fetching runs - requesting");
+            HttpResponse response = client.execute(httpPut);
+            Log.v(TAG, "Fetching runs - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG,statusLine.getStatusCode()+" - "+statusLine.getReasonPhrase());
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+
+
+
+                instream.close();
+            }
+
+//            Toast.makeText(getApplication(), "Challenged updated", Toast.LENGTH_LONG).show();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception fetching stores", e);
+        }
+
+        Log.v(TAG, String.format("Fetching stores - done"));
+
+
+    }
+
 
 
     private void setDefaultGetHeaders(HttpGet httpRequest) throws UnsupportedEncodingException {
