@@ -28,16 +28,16 @@
                     android:text="Run"
                     style="@style/BottomTabText"/>
         </LinearLayout>
-        <LinearLayout
-                android:id="@+id/btn_my_runs"
-                style="@style/BottomTab">
-            <ImageView
-                    android:src="@android:drawable/ic_btn_speak_now"
-                    style="@style/BottomTabImage"/>
-            <TextView
-                    android:text="Old Runs"
-                    style="@style/BottomTabText"/>
-        </LinearLayout>
+        <!--<LinearLayout-->
+                <!--android:id="@+id/btn_my_runs"-->
+                <!--style="@style/BottomTab">-->
+            <!--<ImageView-->
+                    <!--android:src="@android:drawable/ic_btn_speak_now"-->
+                    <!--style="@style/BottomTabImage"/>-->
+            <!--<TextView-->
+                    <!--android:text="Old Runs"-->
+                    <!--style="@style/BottomTabText"/>-->
+        <!--</LinearLayout>-->
         <LinearLayout
                 android:id="@+id/btn_my_chal"
                 style="@style/BottomTab">

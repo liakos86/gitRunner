@@ -28,8 +28,8 @@ public class ActMainTest extends FragmentActivity {
 
     static final int DEFAULT_PAGER_POSITION = 1;
     static final int MY_RUNS_PAGER_POSITION = 2;
-    static final int PAGER_SIZE = 4;
-    private static ActMain instace;
+    static final int PAGER_SIZE = 3;//4;
+    private static ActMainTest instace;
     private String[] pagerTitles;
     Map<Integer, Integer> bottomButtons;
     private SharedPreferences app_preferences;
@@ -135,6 +135,9 @@ public class ActMainTest extends FragmentActivity {
 
 
        ((FrgShowLocation) fragmentByTag).beginChallenge(run);
+
+//        ((FrgShowLocation) fragmentByTag).changeSaveListener(run);
+
         getmPager().setCurrentItem(1);
     }
 
@@ -150,7 +153,7 @@ public class ActMainTest extends FragmentActivity {
 
     protected void setBottomButtons(ViewPager mPager) {
         initBottomButtons();
-        for (int counter = 0; counter < ActMain.PAGER_SIZE; counter++) {
+        for (int counter = 0; counter < PAGER_SIZE; counter++) {
             setBottomButtonListener(mPager, bottomButtons.get(counter), counter);
         }
     }
@@ -159,8 +162,8 @@ public class ActMainTest extends FragmentActivity {
         bottomButtons = new HashMap<Integer, Integer>();
         bottomButtons.put(0, R.id.btn_my_profile);
         bottomButtons.put(1, R.id.btn_new_run);
-        bottomButtons.put(2, R.id.btn_my_runs);
-        bottomButtons.put(3, R.id.btn_my_chal);
+//        bottomButtons.put(2, R.id.btn_my_runs);
+        bottomButtons.put(2, R.id.btn_my_chal);
 
     }
 
@@ -211,10 +214,10 @@ public class ActMainTest extends FragmentActivity {
                 case 1: {
                    return FrgShowLocation.init(position);
                 }
+//                case 2: {
+//                    return FrgShowRuns.init(position);
+//                }
                 case 2: {
-                    return FrgShowRuns.init(position);
-                }
-                case 3: {
                     return FrgShowChallenge.init(position);
                 }
                 default: return FrgShowRuns.init(position);
@@ -236,7 +239,7 @@ public class ActMainTest extends FragmentActivity {
 
     private void startMainWhenNoPager(int position) {
         ((ExtApplication)getApplication()).setPosition(position);
-        Intent intent = new Intent(this, ActMain.class);
+        Intent intent = new Intent(this, ActMainTest.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         startActivity(intent);
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);

@@ -51,6 +51,7 @@ public class ContentDescriptor {
 
        
         Running.addToUriMatcher(authority, matcher);
+        User.addToUriMatcher(authority, matcher);
         
      
 
@@ -112,6 +113,51 @@ public class ContentDescriptor {
                     + String.format(sFrmTextNotNull, Cols.OPPONENT_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.USER_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.LAT_LON_LIST) + " , "
+
+                    + String.format(sFrmPrimaryKey, Cols.ID) + ")";
+        }
+    }
+
+
+    public static class User {
+        public static final String TABLE_NAME = "user";
+        public static final String PATH = "user";
+        public static final int PATH_TOKEN = 20;
+        public static final String PATH_FOR_ID = "user/#";
+        public static final String PATH_FOR_ID_WA = "user/*";
+        public static final int PATH_FOR_ID_TOKEN = 21;
+        public static final String PATH_START_LETTERS = "user/startletters";
+        public static final int PATH_START_LETTERS_TOKEN = 22;
+
+        public static final Uri CONTENT_URI = BASE_URI.buildUpon().appendPath(PATH).build();
+
+        public static final String CONTENT_TYPE_DIR = "vnd.android.cursor.dir/vnd.com.example.gpsCheck.app";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.com.example.gpsCheck.app";
+
+        public static class Cols {
+            public static final String ID = BaseColumns._ID; // by convention
+            public static final String USERNAME = "username";
+            public static final String TOTAL_CHALLENGES = "totalChallenges";
+            public static final String WON_CHALLENGES = "wonChallenges";
+            public static final String TOTAL_SCORE = "description";
+
+        }
+
+        protected static UriMatcher addToUriMatcher(String authority, UriMatcher matcher) {
+            matcher.addURI(authority, User.PATH, User.PATH_TOKEN);
+            matcher.addURI(authority, User.PATH_FOR_ID, User.PATH_FOR_ID_TOKEN);
+            matcher.addURI(authority, User.PATH_FOR_ID_WA, User.PATH_FOR_ID_TOKEN);
+            matcher.addURI(authority, User.PATH_START_LETTERS, User.PATH_START_LETTERS_TOKEN);
+            return matcher;
+        }
+
+        public static String createTable() {
+            return "CREATE TABLE " + User.TABLE_NAME + " ( "
+                    + String.format(sFrmIdAutoinc, Cols.ID) + " , "
+                    + String.format(sFrmTextNotNull, Cols.USERNAME) + " , "
+                    + String.format(sFrmText, Cols.TOTAL_CHALLENGES) + " , "
+                    + String.format(sFrmTextNotNull, Cols.WON_CHALLENGES) + " , "
+                    + String.format(sFrmTextNotNull, Cols.TOTAL_SCORE) + " , "
 
                     + String.format(sFrmPrimaryKey, Cols.ID) + ")";
         }
