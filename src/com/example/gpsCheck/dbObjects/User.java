@@ -1,6 +1,14 @@
 package com.example.gpsCheck.dbObjects;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+import com.example.gpsCheck.model.ContentDescriptor;
+import com.example.gpsCheck.model.Database;
 
 import java.util.List;
 
@@ -9,14 +17,18 @@ import java.util.List;
  */
 public class User {
 
+    private static final String TAG = Thread.currentThread().getStackTrace()[2].getClassName();
+
+
     private String username;
     private ObjectId _id;
+    private long user_id;
     private float totalDistance;
     private long totalTime;
-    private int totalRuns; //from device db
+    private int wonChallenges; 
     private int totalChallenges;
     private int totalScore;
-    private List<Running> challenges;
+    private List<User> challenges;
     private String friends; //email list as it is unique
     private String email;
     private String friendRequests;
@@ -24,14 +36,15 @@ public class User {
     public User(){}
 
     public User(
-//             float totalDistance,
-//             long totalTime,
-            int totalRuns,
-//             int totalChallenges,
-            int totalScore,
-            List<Running> challenges){
-        this.challenges = challenges;
-        this.totalRuns = totalRuns;
+            long user_id,
+            String username,
+             int totalChallenges,
+            int wonChallenges,
+            int totalScore){
+        this.user_id = user_id;
+        this.username = username;
+        this.totalChallenges = totalChallenges;
+        this.wonChallenges = wonChallenges;
         this.totalScore = totalScore;
 
     }
@@ -53,6 +66,22 @@ public class User {
 
     public void setFriendRequests(String friendRequests) {
         this.friendRequests = friendRequests;
+    }
+
+    public long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(long user_id) {
+        this.user_id = user_id;
+    }
+
+    public int getWonChallenges() {
+        return wonChallenges;
+    }
+
+    public void setWonChallenges(int wonChallenges) {
+        this.wonChallenges = wonChallenges;
     }
 
     public ObjectId get_id() {
@@ -87,12 +116,12 @@ public class User {
         this.totalTime = totalTime;
     }
 
-    public int getTotalRuns() {
-        return totalRuns;
+    public int getwonChallenges() {
+        return wonChallenges;
     }
 
-    public void setTotalRuns(int totalRuns) {
-        this.totalRuns = totalRuns;
+    public void setwonChallenges(int wonChallenges) {
+        this.wonChallenges = wonChallenges;
     }
 
     public int getTotalChallenges() {
@@ -103,11 +132,11 @@ public class User {
         this.totalChallenges = totalChallenges;
     }
 
-    public List<Running> getChallenges() {
+    public List<User> getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(List<Running> challenges) {
+    public void setChallenges(List<User> challenges) {
         this.challenges = challenges;
     }
 
@@ -134,4 +163,78 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+    public static User getFromId(Context context, long id) {
+        Log.v(TAG, String.format("Requesting item [%d]", id));
+        synchronized (context) {
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver()
+                        .query(Uri.withAppendedPath(ContentDescriptor.User.CONTENT_URI,
+                                String.valueOf(id)), null, null, null, null);
+                cursor.moveToFirst();
+                return createFromCursor(cursor);
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
+        }
+    }
+
+    public static ContentValues asContentValues(User item) {
+        if (item == null)
+            return null;
+        synchronized (item) {
+            ContentValues toRet = new ContentValues();
+
+            toRet.put(ContentDescriptor.User.Cols.ID, item.user_id);
+            toRet.put(ContentDescriptor.User.Cols.USERNAME, item.username);
+            toRet.put(ContentDescriptor.User.Cols.TOTAL_CHALLENGES, item.totalChallenges);
+            toRet.put(ContentDescriptor.User.Cols.WON_CHALLENGES, item.wonChallenges);
+            toRet.put(ContentDescriptor.User.Cols.TOTAL_SCORE, item.totalScore);
+
+
+            return toRet;
+        }
+    }
+
+    public static User createFromCursor(Cursor cursor) {
+        synchronized (cursor) {
+            if (cursor.isClosed() || cursor.isAfterLast() || cursor.isBeforeFirst()) {
+                Log.v(TAG, String.format("Requesting entity but no valid cursor"));
+                return null;
+            }
+            User toRet = new User();
+            toRet.user_id = cursor.getLong(cursor.getColumnIndex(ContentDescriptor.User.Cols.ID));
+            toRet.username = cursor.getString(cursor.getColumnIndex(ContentDescriptor.User.Cols.USERNAME));
+            toRet.totalChallenges = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.User.Cols.TOTAL_CHALLENGES));
+            toRet.wonChallenges = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.User.Cols.WON_CHALLENGES));
+            toRet.totalScore = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.User.Cols.TOTAL_SCORE));
+
+            return toRet;
+        }
+    }
+
+    /**
+     * let the id decide if we have an insert or an update
+     *
+     * @param resolver
+     * @param item
+     */
+    public static void save(ContentResolver resolver, User item) {
+        if (item.user_id == Database.INVALID_ID)
+            resolver.insert(ContentDescriptor.User.CONTENT_URI, User.asContentValues(item));
+        else
+            resolver.update(ContentDescriptor.User.CONTENT_URI, User.asContentValues(item),
+                    String.format("%s=?", ContentDescriptor.User.Cols.ID),
+                    new String[]{
+                            String.valueOf(item.user_id)
+                    });
+    }
+
+
+
+
 }
+

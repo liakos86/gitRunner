@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical" >
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout android:id="@+id/frameWithMap" xmlns:android="http://schemas.android.com/apk/res/android"
                  xmlns:tools="http://schemas.android.com/tools"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
@@ -20,34 +20,26 @@
 
         <RelativeLayout android:layout_margin="16dp" android:background="@color/circle_grey" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-            <Switch
 
-                    android:id="@+id/switcher"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="10dp"
-                    android:text="Challenge" />
 
-            <RelativeLayout android:layout_below="@+id/switcher" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <RelativeLayout android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-            <TextView android:textColor="@android:color/holo_red_light"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-            <TextView android:textColor="@android:color/holo_red_light" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <TextView android:textColor="@android:color/holo_red_light"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:textColor="@android:color/holo_red_light"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <TextView android:textColor="@android:color/holo_red_light" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:textColor="@android:color/holo_red_light"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
 
 
-            <TextView
-                    android:layout_below="@+id/textChalSpeedAvg"
-                    android:id="@+id/textChalTimer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp"
-                    android:text="0.00"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20dp" />
+                <TextView
+                        android:layout_below="@+id/textChalSpeedAvg"
+                        android:id="@+id/textChalTimer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="10dp"
+                        android:text="0.00"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20dp" />
 
 
             </RelativeLayout>
@@ -65,6 +57,8 @@
 
             </LinearLayout>
 
+            <TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>
+
             <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
 
 
@@ -73,6 +67,23 @@
 
 
     </FrameLayout>
+
+    <LinearLayout
+            android:id="@+id/actionButtons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+        <EditText android:visibility="gone"  android:layout_marginTop="30dp" android:id="@+id/chalDesc" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
+
+        <Button android:layout_marginTop="30dp" android:id="@+id/buttonResume" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Resume" android:layout_height="wrap_content" />
+        <!--<Button android:layout_marginTop="30dp" android:id="@+id/buttonSaveRun" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Save" android:layout_height="wrap_content" />-->
+        <Button android:layout_marginTop="30dp"  android:id="@+id/buttonChalClear" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Clear" android:layout_height="wrap_content" />
+
+
+
+    </LinearLayout>
 
 
 

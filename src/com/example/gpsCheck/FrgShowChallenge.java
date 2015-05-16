@@ -95,9 +95,11 @@ public class FrgShowChallenge extends BaseFragment {
 
         addFriend = (Button) v.findViewById(R.id.buttonAddFriend);
         friendName = (EditText) v.findViewById(R.id.editNewFriend);
-        leaders = new ArrayList<User>();
+
         friendRequests = new ArrayList<String>();
         Database db = new Database(getActivity());
+
+        leaders = db.fetchLeadersFromDb();
         challenges = db.fetchRunsByTypeFromDb(1);
 
 

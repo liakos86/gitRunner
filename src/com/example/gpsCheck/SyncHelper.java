@@ -341,7 +341,7 @@ public class SyncHelper {
 
     }
 
-    public void createMongoChallenge(String opponentName, long totalTime, float totalDistance, String latLonList) {
+    public void createMongoChallenge(String opponentName, long totalTime, float totalDistance, String latLonList, String description) {
 
         Log.v(TAG, "inserting challenge");
 
@@ -368,6 +368,7 @@ public class SyncHelper {
             workout.put("date", now.toString());
             workout.put("opponent_name", opponentName);
             workout.put("latLonList", latLonList);
+            workout.put("description", description);
 
 
 
@@ -514,6 +515,16 @@ public class SyncHelper {
                 if (type==1&&users.size()==1){
 
                     getMongoUserByUsernameForFriend(users.get(0).getUsername(), 1);
+                }else if (type==0){
+
+                    dbHelper.deleteLeaderboard();
+                    if (users.size()>0){
+                        for (User u:users) {
+                            u.setUser_id(-1l);
+                            dbHelper.addLeader(u);
+                        }
+                    }
+
                 }
 
 //            dbHelper.deleteAllStores();
@@ -540,7 +551,7 @@ public class SyncHelper {
 
     }
 
-    public User getMongoUserByUsernameForFriend(String username, int type) {// 1 send request, 0 accept
+    public User getMongoUserByUsernameForFriend(String username, int type) {// 1 send request, 0 accept, else just get user
 
         Log.v(TAG, "Fetching user");
 
@@ -828,6 +839,11 @@ public class SyncHelper {
                 resultString = Utils.convertStreamToString(instream);
 
 
+                fixScoreAndChallenges(app_preferences.getString("username",""), won);
+                fixScoreAndChallenges(opponentName, won);
+
+
+
 
 
                 instream.close();
@@ -842,6 +858,118 @@ public class SyncHelper {
 
         Log.v(TAG, String.format("Fetching stores - done"));
 
+
+    }
+
+    private void fixScoreAndChallenges(String username, boolean won){
+
+        User user = getMongoUserByUsernameForFriend(username, -1);
+
+
+        if (user!=null) {
+
+            user.setTotalChallenges(user.getTotalChallenges() + 1);
+            if (won) {
+                user.setWonChallenges(user.getwonChallenges() + 1);
+                user.setTotalScore(user.getTotalScore() + 1000);
+            } else {
+                if (user.getTotalScore() - 500 > 0)
+                    user.setTotalScore(user.getTotalScore() - 500);
+                else
+                    user.setTotalScore(0);
+
+            }
+
+            setScoreAndChallenges(user);
+
+        }
+
+    }
+
+    private void setScoreAndChallenges(User user){
+
+        Log.v(TAG, "Uploading new friend");
+
+        String query = "{'username': '"+user.getUsername()+"'}";
+
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .authority(authUrl)
+                .path(runnerPath)
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("apiKey", apiKey)
+                .build();
+
+
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+
+
+        try {
+            JSONObject obj = new JSONObject();
+
+
+            obj.put("totalScore" , user.getTotalScore());
+
+            obj.put("totalChallenges" , user.getTotalChallenges());
+
+            obj.put("wonChallenges" , user.getWonChallenges());
+
+            JSONObject lastObj = new JSONObject();
+            lastObj.put("$set", obj);
+
+            StringEntity se = new StringEntity(lastObj.toString());
+
+
+
+            HttpPut httpRequest = new HttpPut(uri.toString());
+
+            httpRequest.setEntity(se);
+
+
+            setDefaultPutHeaders(httpRequest);
+
+            Log.v(TAG, "setting user stats - requesting");
+            HttpResponse response = client.execute(httpRequest);
+            Log.v(TAG, "setting finished - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG, statusLine.getStatusCode() + " - " + statusLine.getReasonPhrase());
+                return;
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+                instream.close();
+            }
+
+            Log.v(TAG, String.format("Deserialising [%s]", resultString));
+
+
+
+//            dbHelper.deleteAllStores();
+
+            Log.v(TAG, String.format("Uploaded user score and challenges"));
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception uploading user stats", e);
+        }
 
     }
 

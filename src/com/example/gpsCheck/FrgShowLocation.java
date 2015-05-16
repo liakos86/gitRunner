@@ -1,30 +1,32 @@
 package com.example.gpsCheck;
 
-        import android.app.Activity;
-        import android.content.Context;
-        import android.graphics.Color;
-        import android.location.Location;
-        import android.location.LocationListener;
-        import android.location.LocationManager;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.os.Handler;
-        import android.os.SystemClock;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.view.inputmethod.InputMethodManager;
-        import android.widget.*;
-        import com.example.gpsCheck.dbObjects.Running;
-        import com.example.gpsCheck.model.Database;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.*;
+import com.example.gpsCheck.dbObjects.Running;
+import com.example.gpsCheck.model.Database;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.*;
 
-        import java.util.ArrayList;
-        import java.util.Date;
-        import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class FrgShowLocation extends BaseFragment implements LocationListener {
     private long mStartTime = 0L, totalTime=0L;
@@ -34,33 +36,27 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     GoogleMap googleMap;
     Marker runnerMarker, startMarker;
     Location lastLocation;
-//    ViewFlipper viewFlipper;
-    Button   save, buttonTarget;
+    Button buttonStartStop, buttonTarget, clear, buttonResume;
     boolean running=false, firstChange=false, goalReached=false;
     String timerStop1;
     String latLonList="";
-    LinearLayout ll;
+    LinearLayout ll, actionButtons;
     RelativeLayout rl;
-    EditText et ;
+    FrameLayout fl;
+    EditText targetDist, description ;
 
     Running challenge;
 
     List<Polyline>mapLines;
 
     private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
-    float totalDistance=0, targetDistance;
+    float totalDistance=0, targetDistance, targetTime;
 
 
-    String opponentUsername;
+    String opponentUsername, descriptionForChallenge;
     Spinner selectUsernameSpinner;
-    Switch typeSwitch;
-
-    int type=1;//1 personal, 0 challenge
 
     List<String>usernames;
-
-
-
 
 
 
@@ -76,29 +72,21 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         super.onCreateView(inflater, container, savedInstanceState);
 
 
-
         View v = inflater.inflate(R.layout.showlocation_frg, container, false);
 
         textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
         textChalSpeedAvg = (TextView) v.findViewById(R.id.textChalSpeedAvg);
         textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
         textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
-        save = (Button) v.findViewById(R.id.buttonChalSave);
-
-
-
-
-
+        buttonStartStop = (Button) v.findViewById(R.id.buttonChalSave);
+        clear = (Button) v.findViewById(R.id.buttonChalClear);
+        buttonResume = (Button) v.findViewById(R.id.buttonResume);
+//        buttonSaveRun = (Button) v.findViewById(R.id.buttonSaveRun);
 
         mapLines = new ArrayList<Polyline>();
-
-
-
         setListeners(v);
 
         selectProvider();
-
-
 
         if (provider==null){
 
@@ -118,8 +106,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         setSpinner(v);
 
-
-
+        //default is personal run
+        setSaveListener();
 
         return  v;
     }
@@ -180,6 +168,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void getUpdates(boolean shouldUpdate){
         if (shouldUpdate) {
 
+            selectUsernameSpinner.setClickable(false);
+
             firstChange=false;
 
             if (googleMap!=null){
@@ -192,7 +182,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //            googleMap.clear();
             running=true;
             locationManager.requestLocationUpdates(provider, 2000, 3, this);
-            save.setText("Stop");
+            buttonStartStop.setText("Stop");
 
 
             startMarker=null;
@@ -204,35 +194,21 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             totalTime = 0L;
 
-                    if(mStartTime == 0L){
-                        mStartTime = SystemClock.uptimeMillis();
-                        mHandler.removeCallbacks(mUpdateTimeTask);
-                        mHandler.postDelayed(mUpdateTimeTask, 100);
+            if(mStartTime == 0L){
+                mStartTime = SystemClock.uptimeMillis();
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                mHandler.postDelayed(mUpdateTimeTask, 100);
 
-                    }
+            }
 
 
 
         }else{
             locationManager.removeUpdates(this);
+            selectUsernameSpinner.setClickable(true);
 
             running=false;
 
-            if (goalReached&&type==1){
-
-
-                    save.setText("Upload challenge");
-
-
-
-            }else if (!goalReached&&type==1){
-
-                save.setText("Restart challenge");
-            }
-
-            else if (type==0) {
-                save.setText("Start");
-            }
 
             mHandler.removeCallbacks(mUpdateTimeTask);
 
@@ -243,51 +219,52 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    public void uploadChallengeOrSaveWorkout(){
+    public void uploadChallenge(){
 
 
 
         if (!running){
 
+
             Toast.makeText(getActivity(),"Saving...",Toast.LENGTH_LONG).show();
+            descriptionForChallenge = description.getText().toString().trim();
+
+//            if (type==0) {
+//                Date now = new Date();
+//                Running tr = new Running(-1, "I am running alone", totalTime,
+//                        now.toString(),totalDistance, 0, "",user.getUsername(), latLonList);
+//                Database db = new Database(getActivity().getBaseContext());
+//                db.addRunning(tr);
+//            }else {
 
 
-
-
-            if (type==0) {
-                Date now = new Date();
-                Running tr = new Running(-1, "I am running alone", totalTime,
-                        now.toString(),totalDistance, 0, "",user.getUsername(), latLonList);
-                Database db = new Database(getActivity().getBaseContext());
-                db.addRunning(tr);
-            }else {
-
-
-                if (challenge==null) {
+//                if (challenge==null) {// i am creating a chal now
 
                     try {
 
 
-                        new uploadMongoChallenge(getActivity(), 1).execute();
+                        new uploadMongoChallenge(getActivity(), 1, true).execute();
 
 
                     } catch (Exception e) {
                         Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
                     }
-                }else{
-
-                    Toast.makeText(getActivity(), "Successful challenge end!", Toast.LENGTH_LONG).show();
-                    try {
-
-
-                        new uploadMongoChallenge(getActivity(), 2).execute();
-                    } catch (Exception e) {
-                        Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
-                    }
-
-
-                }
-            }
+//                }
+        
+//        else{
+//
+//                    Toast.makeText(getActivity(), "Successful challenge end!", Toast.LENGTH_LONG).show();
+//                    try {
+//
+//
+//                        new uploadMongoChallenge(getActivity(), 2).execute();
+//                    } catch (Exception e) {
+//                        Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
+//                    }
+//
+//
+//                }
+////            }
 
         }else{
             Toast.makeText(getActivity(), "Still running!",
@@ -299,10 +276,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private class uploadMongoChallenge extends AsyncTask<Void, Void, Integer> {
         private Activity activity;
         private int challengeType;
+        boolean won;
 
-        public uploadMongoChallenge(Activity activity, int challengeType) {
+        public uploadMongoChallenge(Activity activity, int challengeType, boolean won) {
             this.activity = activity;
             this.challengeType = challengeType;
+            this.won = won;
         }
 
         protected void onPreExecute() {
@@ -315,20 +294,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             if (challengeType==1)
 
-                sh.createMongoChallenge(opponentUsername, totalTime, totalDistance, latLonList);
+                sh.createMongoChallenge(opponentUsername, totalTime, totalDistance, latLonList, descriptionForChallenge);
 
             else if (challengeType==2){
 
 
-                boolean won = false;//totalTime<=challenge.getTime();
-
-
-
                 sh.replyToChallenge(challenge.getUser_name(), won);
 
-
-
-
+                
             }
 
 
@@ -366,73 +339,115 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
 
-    public void changeSaveListener(Running run){
+//    public void changeSaveListener(){
+//        buttonStartStop.setVisibility(View.VISIBLE);
+//        buttonStartStop.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                Toast.makeText(getActivity(), "Successful challenge end!", Toast.LENGTH_LONG).show();
+//                try {
+//
+//
+//                    new uploadMongoChallenge(getActivity(), 2, true).execute();
+//                } catch (Exception e) {
+//                    Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
+//                }
+//
+//            }
+//        });
+//    }
 
-        challenge = run;
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Toast.makeText(getActivity(), "Successful challenge end!", Toast.LENGTH_LONG).show();
-                try {
-
-
-                    new uploadMongoChallenge(getActivity(), 2).execute();
-                } catch (Exception e) {
-                    Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
+    private void resetValues(){
+        targetDistance=0;
+        totalDistance=0;
+        totalTime=0;
+        goalReached=false;
+        googleMap.clear();
     }
 
 
     public void setListeners(View v){
 
 
-        typeSwitch = (Switch) v.findViewById(R.id.switcher);
-
-        //set the switch to ON 
-        typeSwitch.setChecked(false);
-//        typeSwitch.setTextOn("Personal");
-//        typeSwitch.setTextOff("Challenge");
-        //attach a listener to check for changes in state
-        typeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
+        //clear will always set everyhing to default
+        clear.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked) {
-                    if (isChecked) {
-                        type=1;
+            public void onClick(View view) {
 
-                        if (challenge==null) {
-                            ll.setVisibility(View.VISIBLE);
-                            save.setVisibility(View.GONE);
-                        }
-                        goalReached=false;
-//                        goalReached=true;
-                    }
-                    else {
-                        type=0;
-                        ll.setVisibility(View.GONE);
-                        save.setVisibility(View.VISIBLE);
-
-
-                    }
-
-
+//                if (!app_prefs.getBoolean("hidePopup", false)){
+//
+//
+//                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+//                            getActivity());
+//
+//                    // set title
+//                    alertDialogBuilder.setTitle("Are you sure?");
+//
+//                    // set dialog message
+//                    alertDialogBuilder
+//                            .setMessage("Clear map and lose your progress?")
+//                            .setCancelable(false)
+//                            .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
+//                                    dialog.cancel();
+//                                }
+//                            })
+//                            .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
+//                                    resetValues();
+//                                }
+//                            });
+//
+//                    // create alert dialog
+//                    AlertDialog alertDialog = alertDialogBuilder.create();
+//
+//                    // show it
+//                    alertDialog.show();
+//
+//
+//
+//                }else{
+                resetValues();
+                showFrame();
+                clearViews();
+//                }
             }
         });
 
 
 
+        buttonResume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (goalReached) {
+                    uploadChallenge();
+                    clearViews();
+                    resetValues();
+                    showFrame();
 
-          buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
-          ll = (LinearLayout) v.findViewById(R.id.targetWindow);
-          ll.setVisibility(View.GONE);
-          rl = (RelativeLayout) v.findViewById(R.id.textViews);
-          rl.setVisibility(View.GONE);
-          et = (EditText) v.findViewById(R.id.targetValue);
+                } else {
+
+                    resumeRun();
+                }
+            }
+        });
+
+
+        actionButtons = (LinearLayout) v.findViewById(R.id.actionButtons);
+        actionButtons.setVisibility(View.GONE);
+
+        fl = (FrameLayout) v.findViewById(R.id.frameWithMap);
+
+
+        buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
+        ll = (LinearLayout) v.findViewById(R.id.targetWindow);
+        rl = (RelativeLayout) v.findViewById(R.id.textViews);
+        buttonStartStop.setVisibility(View.GONE);
+        rl.setVisibility(View.GONE);
+        targetDist = (EditText) v.findViewById(R.id.targetValue);
+        description = (EditText) v.findViewById(R.id.chalDesc);
+
 
         buttonTarget.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -444,49 +459,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         });
 
 
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (!running) {
-
-                    if (goalReached&&type==1) {
-                        uploadChallengeOrSaveWorkout();
-                        getUpdates(false);
-
-                    }else {
-
-                        rl.setVisibility(View.VISIBLE);
-
-                        if (provider != null)
-                            getUpdates(true);
-                        else
-                            selectProvider();
-                    }
-
-
-                }else{
-                    getUpdates(false);
-                    if (type==0){
-
-                    }
-
-//                    if (totalDistance>=targetDistance){
-//
-//                        goalReached=true;
-//                        running=false;
-//                        getUpdates(false);
-//                        save.setText("upload");
-//                start.performClick();
-//                    }
-
-                }
-
-            }
-        });
-
-
-
     }
 
     private void validateDistance(){
@@ -496,7 +468,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         try {
 
-            targetDistance = Float.parseFloat(et.getText().toString());
+            targetDistance = Float.parseFloat(targetDist.getText().toString());
 //            if (targetDistance<1000){
 //                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=1000)", Toast.LENGTH_LONG).show();
 //                return;
@@ -512,78 +484,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(buttonTarget.getWindowToken(), 0);
 
-        save.setVisibility(View.VISIBLE);
+        buttonStartStop.setVisibility(View.VISIBLE);
     }
-
-//    public void setListeners(){
-//
-//        save.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//               saveRun(totalDistance, totalTime);
-//            }
-//        });
-//
-//
-//
-//
-//
-//
-//        start.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                if (!running) {
-//
-//                    if (provider!=null)
-//                        getUpdates(true);
-//                    else
-//                        selectProvider();
-//
-//
-//                }else{
-//                    getUpdates(false);
-//
-//                }
-//
-//            }
-//        });
-//
-//        clear.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (googleMap!=null)
-//                    googleMap.clear();
-//            }
-//        });
-//
-//
-//    }
-
-//    public void saveRun(float totalDistance, long totalTime){
-//
-//
-//
-//        if (!running){
-//
-//
-//            Date now = new Date();
-//            Running tr = new Running(-1, "I am running",
-//                    totalTime,
-//                    now.toString(), totalDistance, 0, "-", latLonList);
-//
-//
-//
-//            Database db = new Database(getActivity().getBaseContext());
-//
-//            db.addRunning(tr);
-//
-//        }else{
-//            Toast.makeText(getActivity(), "Still running!",
-//                    Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
 
     public void initializeMap(){
         SupportMapFragment fm = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapChalKostas);
@@ -639,14 +541,36 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .title("You are here")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
             );
             return;
         }
+        //runner marker gets moved every time we move, while start marker displays our first position
+        if (runnerMarker!=null) {
+            runnerMarker.remove();
+        }
+        else{//this is the first update so we moe our start marker to be sure
+            googleMap.clear();
+            startMarker = googleMap.addMarker(new MarkerOptions()
+//                        .infoWindowAnchor(0.48f, 4.16f)
 
-        if (runnerMarker!=null)
-        runnerMarker.remove();
+                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .title("You are here")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+            );
+            runnerMarker = googleMap.addMarker(new MarkerOptions()
+//                        .infoWindowAnchor(0.48f, 4.16f)
 
+                            .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .title("You are here")
+            );
+//            runnerMarker.setVisible(false);
+            firstChange=true;
+            lastLocation = location;
+            return;
+        }
+
+//        runnerMarker.setVisible(true);
         runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
 
@@ -691,14 +615,29 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+targetDistance);
 
 
-            if (totalDistance>=targetDistance &&type==1){
+            if (totalDistance>=targetDistance){
 
                 goalReached=true;
                 running=false;
                 getUpdates(false);
-//                start.performClick();
-            }
+                //he has achieved the distance and it is a challenge
 
+
+                if (challenge==null) {
+
+                    buttonResume.setText("Upload challenge");
+
+                    buttonStartStop.setText("Start");
+
+                    hideFrame();
+                }else{//he won the challenge
+
+                    showWinLoseDialog(true);
+
+                }
+            }
+            
+            
         }else{
             firstChange = true;
         }
@@ -777,6 +716,17 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                     + String.format("%02d", seconds);
 
             mHandler.postDelayed(this, 200);
+
+            if (challenge!=null && totalTime>targetTime){
+                getUpdates(false);
+
+                showWinLoseDialog(false);
+
+
+
+                
+            }
+
 
         }
     };
@@ -861,17 +811,26 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
 
-
-
     public void beginChallenge(Running run){
 
+
+        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
+        opponentComment.setText(run.getDescription());
+        if (run.getDescription().length()>1)
+            opponentComment.setVisibility(View.VISIBLE);
+
+
+        ll.setVisibility(View.GONE);
+        resetValues();
         challenge = run;
         targetDistance = challenge.getDistance();
+        targetTime = challenge.getTime();
 
-        typeSwitch.performClick();
-        typeSwitch.setClickable(false);
+//        changeSaveListener();
 
-        save.setBackgroundColor(getResources().getColor(R.color.runner_red));
+
+        buttonStartStop.setVisibility(View.VISIBLE);
+        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 
         Toast.makeText(getActivity(),"This is "+run.getUser_name()+"'s run!",Toast.LENGTH_LONG).show();
 
@@ -894,7 +853,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         for (int i=0; i<latlonLength-1; i++){
 
 
-          PolylineOptions line  = new PolylineOptions().add(locationList.get(i), locationList.get(i + 1)).width(5).color(Color.RED);
+            PolylineOptions line  = new PolylineOptions().add(locationList.get(i), locationList.get(i + 1)).width(5).color(Color.RED);
 
             Polyline pline = googleMap.addPolyline(line);
 
@@ -905,15 +864,139 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[pointsLength-2]), Double.parseDouble(pointsList[pointsLength - 1])), 18));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18), 2000, null);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[(pointsLength)-2]), Double.parseDouble(pointsList[pointsLength - 1])), 18));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
 
-//        viewFlipper.setDisplayedChild(1);
-
-
+    }
 
 
+    private void resumeRun(){
+        showFrame();
 
+        running=true;
+
+        if(mStartTime == 0L){
+            mStartTime = SystemClock.uptimeMillis()-totalTime;
+            mHandler.removeCallbacks(mUpdateTimeTask);
+            mHandler.postDelayed(mUpdateTimeTask, 100);
+
+        }
+        locationManager.requestLocationUpdates(provider, 2000, 3, this);
+        buttonStartStop.setText("Stop");
+
+
+
+
+    }
+
+    private void clearViews(){
+
+        textChalSpeed.setText("Speed: 0.0");
+
+        textChalSpeedAvg.setText("Avg Speed: 0.0");
+
+        textChalDistance.setText("Distance: 0.0");
+
+        textChalTimer.setText("0:00");
+
+        ll.setVisibility(View.VISIBLE);
+        buttonStartStop.setVisibility(View.GONE);
+
+        rl.setVisibility(View.GONE);
+
+        //todo animate the camera to where i am
+
+
+
+    }
+
+
+    private void hideFrame(){
+
+        if (challenge==null&&goalReached) {
+            description.setVisibility(View.VISIBLE);
+            description.setHint("Tell something to " + opponentUsername);
+        }
+
+        fl.setVisibility(View.GONE);
+        actionButtons.setVisibility(View.VISIBLE);
+    }
+
+    private void showFrame(){
+        fl.setVisibility(View.VISIBLE);
+        actionButtons.setVisibility(View.GONE);
+    }
+
+    public void setSaveListener(){
+
+
+            buttonStartStop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    if (!running) {
+                        // if he is not running means either that:
+                        // 1) he has reached his goal and it has stopped automatically
+                        // 2) he has not yet started the challenge
+
+
+                            rl.setVisibility(View.VISIBLE);
+
+                            if (provider != null)
+                                getUpdates(true);
+                            else
+                                selectProvider();
+
+
+                    } else {
+
+                        //he quits the challenge!!
+
+                        // alert dialog to ask if he wants to quit!
+                        getUpdates(false);
+                        hideFrame();
+
+                    }
+
+                }
+            });
+
+
+    }
+
+    private void showWinLoseDialog(boolean won){
+
+        String message = "Well done! You beat "+challenge.getUser_name();
+        new uploadMongoChallenge(getActivity(),2,won).execute();
+
+        if (!won) message = "Oh no! You lost to "+challenge.getUser_name();
+
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                            getActivity());
+
+                    // set title
+                    alertDialogBuilder.setTitle("Challenge ended");
+
+                    // set dialog message
+        alertDialogBuilder
+                            .setMessage(message)
+                            .setCancelable(false)
+                .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        resetValues();
+                        clearViews();
+                        dialog.cancel();
+                    }
+                            });
+
+
+                    // create alert dialog
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    // show it
+                    alertDialog.show();
 
     }
 
