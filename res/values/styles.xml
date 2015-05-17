@@ -10,7 +10,8 @@
     </style>
 
     <style name="BottomTab.Inactive">
-        <item name="android:background">@android:color/holo_red_dark</item>
+        <!--<item name="android:background">@android:color/holo_red_dark</item>-->
+        <item name="android:background">@color/disable_grey</item>
     </style>
 
     <style name="BottomTabImage">

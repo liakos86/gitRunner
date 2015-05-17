@@ -27,10 +27,10 @@
                 android:layout_height="fill_parent"
                 android:orientation="vertical">
 
-            <TextView android:id="@+id/textTotalChallenges" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Challenges: 0"/>
-            <TextView android:id="@+id/textTotalDistance" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Distance: 0"/>
-            <TextView android:id="@+id/textTotalTime" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Time: 0"/>
-            <TextView android:id="@+id/textTotalScore" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Score: 0"/>
+            <TextView android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@color/runner_green" android:id="@+id/textTotalChallenges" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Challenges: 0"/>
+            <TextView android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@color/runner_green" android:id="@+id/textTotalDistance" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Distance: 0"/>
+            <TextView android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@color/runner_green" android:id="@+id/textTotalTime" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Time: 0"/>
+            <TextView android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@color/runner_green" android:id="@+id/textTotalScore" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Total Score: 0"/>
 
 
 

@@ -186,6 +186,7 @@ public class SyncHelper {
                 editor.putString("username", user2.getUsername());
                 editor.putInt("totalScore", user2.getTotalScore());
                editor.putInt("totalChallenges", user2.getTotalChallenges());
+                editor.putInt("wonChallenges", user2.getwonChallenges());
                 editor.putString("friends", user2.getFriends());
                 editor.putString("friendRequests", user2.getFriendRequests());
                 editor.commit();
@@ -195,6 +196,7 @@ public class SyncHelper {
                 editor.putInt("totalScore", user2.getTotalScore());
                 editor.putString("username", user2.getUsername());
                 editor.putInt("totalChallenges", user2.getTotalChallenges());
+                editor.putInt("wonChallenges", user2.getwonChallenges());
                 editor.putString("friends", user2.getFriends());
                 editor.putString("friendRequests", user2.getFriendRequests());
                 editor.commit();
@@ -853,7 +855,7 @@ public class SyncHelper {
 
 
         } catch (Exception e) {
-            Log.e(TAG, "Exception fetching stores", e);
+            Log.e(TAG, "Exception replying to challenge", e);
         }
 
         Log.v(TAG, String.format("Fetching stores - done"));

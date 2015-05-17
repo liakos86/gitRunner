@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,6 +170,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void getUpdates(boolean shouldUpdate){
         if (shouldUpdate) {
 
+            ((ActMainTest)getActivity()).togglePagerClickable(false);
+
             selectUsernameSpinner.setClickable(false);
 
             firstChange=false;
@@ -204,6 +208,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
         }else{
+            ((ActMainTest)getActivity()).togglePagerClickable(true);
+
             locationManager.removeUpdates(this);
             selectUsernameSpinner.setClickable(true);
 
@@ -240,15 +246,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 //                if (challenge==null) {// i am creating a chal now
 
-                    try {
+                new uploadMongoChallenge(getActivity(), 1, true).execute();
 
-
-                        new uploadMongoChallenge(getActivity(), 1, true).execute();
-
-
-                    } catch (Exception e) {
-                        Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
-                    }
 //                }
         
 //        else{
@@ -421,10 +420,17 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             @Override
             public void onClick(View view) {
                 if (goalReached) {
-                    uploadChallenge();
-                    clearViews();
-                    resetValues();
-                    showFrame();
+
+
+                    if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+
+                        uploadChallenge();
+                        clearViews();
+                        resetValues();
+                        showFrame();
+                    }else{
+                        Toast.makeText(getActivity(),"Please connect to the internet to upload",Toast.LENGTH_LONG).show();
+                    }
 
                 } else {
 
@@ -469,10 +475,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         try {
 
             targetDistance = Float.parseFloat(targetDist.getText().toString());
-//            if (targetDistance<1000){
-//                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=1000)", Toast.LENGTH_LONG).show();
-//                return;
-//            }
+            if (targetDistance<10){
+                Toast.makeText(getActivity(),"Enter a valid distance in meters(>=10)", Toast.LENGTH_LONG).show();
+                return;
+            }
 
         }catch (Exception e){
             Toast.makeText(getActivity(),"Enter a valid distance in meters", Toast.LENGTH_LONG).show();
@@ -632,7 +638,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                     hideFrame();
                 }else{//he won the challenge
 
-                    showWinLoseDialog(true);
+                    showWinLoseDialog(1,true);
 
                 }
             }
@@ -720,7 +726,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             if (challenge!=null && totalTime>targetTime){
                 getUpdates(false);
 
-                showWinLoseDialog(false);
+                showWinLoseDialog(1,false);
 
 
 
@@ -814,10 +820,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void beginChallenge(Running run){
 
 
-        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
-        opponentComment.setText(run.getDescription());
-        if (run.getDescription().length()>1)
-            opponentComment.setVisibility(View.VISIBLE);
+//        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
+//        opponentComment.setText(run.getDescription());
+//        if (run.getDescription().length()>1)
+//            opponentComment.setVisibility(View.VISIBLE);
 
 
         ll.setVisibility(View.GONE);
@@ -825,6 +831,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         challenge = run;
         targetDistance = challenge.getDistance();
         targetTime = challenge.getTime();
+        showWinLoseDialog(2, true);
+
 
 //        changeSaveListener();
 
@@ -871,6 +879,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
     private void resumeRun(){
+        ((ActMainTest)getActivity()).togglePagerClickable(false);
         showFrame();
 
         running=true;
@@ -901,6 +910,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         ll.setVisibility(View.VISIBLE);
         buttonStartStop.setVisibility(View.GONE);
+        description.setVisibility(View.GONE);
+
+//        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
+//
+//        opponentComment.setVisibility(View.GONE);
 
         rl.setVisibility(View.GONE);
 
@@ -964,29 +978,47 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    private void showWinLoseDialog(boolean won){
+    private void showWinLoseDialog(final int type, boolean won){
 
-        String message = "Well done! You beat "+challenge.getUser_name();
-        new uploadMongoChallenge(getActivity(),2,won).execute();
+        String message;
 
-        if (!won) message = "Oh no! You lost to "+challenge.getUser_name();
+        if (type==1) {
+
+            message = "Well done! You beat " + challenge.getUser_name();
+            if (!won) message = "Oh no! You lost to " + challenge.getUser_name();
+
+            if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+                new uploadMongoChallenge(getActivity(), 2, won).execute();
+            }else{
+
+                //todo store action in app prefs variable for next time
+                storeOfflineAction(challenge.getUser_name(), won);
+
+            }
+
+
+        }else{
+            message = challenge.getUser_name()+" says: '"+challenge.getDescription()+"'";
+        }
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                             getActivity());
 
                     // set title
-                    alertDialogBuilder.setTitle("Challenge ended");
+                    alertDialogBuilder.setTitle("Challenge");
 
                     // set dialog message
         alertDialogBuilder
                             .setMessage(message)
                             .setCancelable(false)
-                .setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        resetValues();
-                        clearViews();
+                        if (type==1) {
+                            resetValues();
+                            clearViews();
+                        }
                         dialog.cancel();
                     }
                             });
@@ -997,6 +1029,21 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                     // show it
                     alertDialog.show();
+
+    }
+
+    private void storeOfflineAction(String user, boolean won){
+
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+
+        String offline = app_preferences.getString("offline","");
+        offline+= user+" "+won+"/";
+
+        SharedPreferences.Editor editor = app_preferences.edit();
+        editor.putString("offline", offline);
+        editor.commit();
+
 
     }
 

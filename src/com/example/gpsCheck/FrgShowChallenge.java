@@ -202,7 +202,12 @@ public class FrgShowChallenge extends BaseFragment {
                 InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
                         Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(addFriend.getWindowToken(), 0);
-                new getLeaderBoardOrFriend(getActivity(), friendName.getText().toString(), 1).execute();
+
+                if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+                    new getLeaderBoardOrFriend(getActivity(), friendName.getText().toString(), 1).execute();
+                }else{
+                    Toast.makeText(getActivity(), "Please connect to the internet", Toast.LENGTH_LONG).show();
+                }
             }
         } else {
             Toast.makeText(getActivity(), "Insert valid name", Toast.LENGTH_LONG).show();
@@ -491,7 +496,10 @@ public class FrgShowChallenge extends BaseFragment {
             holder.add.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new acceptRequest(getActivity(),friend).execute();
+
+                    if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+                        new acceptRequest(getActivity(), friend).execute();
+                    }
 
                 }
             });

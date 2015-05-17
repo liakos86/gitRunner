@@ -1,10 +1,12 @@
 package com.example.gpsCheck;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.*;
@@ -22,6 +24,7 @@ import java.util.Map;
 /**
  * Created by KLiakopoulos on 4/6/2015.
  */
+
 public class ActMainTest extends FragmentActivity {
 
     private ViewPager mPager;
@@ -39,7 +42,40 @@ public class ActMainTest extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.act_main);
+
+        checkOfflineActions();
+
         getPager();
+
+    }
+
+    private void checkOfflineActions(){
+
+        if (isNetworkAvailable()) {
+            ExtApplication application = (ExtApplication) getApplication().getApplicationContext();
+            app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            String offline = app_preferences.getString("offline", "");
+            if (!offline.equals("")) {
+
+                String[] offlineActs = offline.split("/");
+
+                for (String act : offlineActs) {
+                    String[] act2 = act.split(" ");
+                    if (act2[1].equals("true")) {
+                        new uploadReplyChallenge(this, act2[0].trim(),true).execute();
+                    } else if (act2[1].equals("false")) {
+                        new uploadReplyChallenge(this, act2[0].trim(),false).execute();
+                    }
+
+                    offline = offline.replace(act+"/", "");
+                    SharedPreferences.Editor editor = app_preferences.edit();
+                    editor.putString("offline", offline);
+                    editor.commit();
+                }
+
+
+            }
+        }
 
     }
 
@@ -176,16 +212,19 @@ public class ActMainTest extends FragmentActivity {
 
     private void setBottomButtonListener(final ViewPager mPager, int btn, final int position) {
         LinearLayout bottomButton = (LinearLayout) findViewById(btn);
-        bottomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
 
-                startMain(mPager,position);
+            bottomButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
 
-            }
-        });
+                    startMain(mPager, position);
+
+
+                }
+            });
+
     }
 
     private class MyPagerAdapter extends FragmentPagerAdapter {
@@ -259,6 +298,39 @@ public class ActMainTest extends FragmentActivity {
     }
 
 
+    private class uploadReplyChallenge extends AsyncTask<Void, Void, Integer> {
+        private Activity activity;
+        private String username;
+        boolean won;
+
+        public uploadReplyChallenge(Activity activity, String username, boolean won) {
+            this.activity = activity;
+            this.username = username;
+            this.won = won;
+        }
+
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Integer doInBackground(Void... unused) {
+            SyncHelper sh = new SyncHelper(activity);
+
+            sh.replyToChallenge(username, won);
+
+            return 0;
+
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+        }
+
+
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -267,6 +339,21 @@ public class ActMainTest extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+    }
+
+    public void togglePagerClickable(boolean show){
+
+//        for (int counter = 0; counter < PAGER_SIZE; counter++) {
+//
+//                setBottomButtonListener(mPager, bottomButtons.get(counter), counter, disable);
+//
+//        }
+
+        LinearLayout bottom = (LinearLayout) findViewById(R.id.bottom);
+
+        if (show)  bottom.setVisibility(View.VISIBLE);
+        else bottom.setVisibility(View.GONE);
 
     }
 

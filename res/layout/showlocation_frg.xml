@@ -57,7 +57,7 @@
 
             </LinearLayout>
 
-            <TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>
+            <!--<TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>-->
 
             <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
 

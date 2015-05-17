@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,10 +40,13 @@ public class FrgShowProfile  extends BaseFragment {
     TextView textLogin;
     ViewFlipper vs;
     String username, password, email;
+    TextView textTotalChallenges;
+    TextView textTotalScore;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -58,10 +62,15 @@ public class FrgShowProfile  extends BaseFragment {
 
         setViewFlipper(v);
 
+        setTextValues();
+
+
+
 
 
         return  v;
     }
+
 
     private void setViewFlipper(View v){
         vs = (ViewFlipper) v.findViewById(R.id.FrgProfileViewSwitcher);
@@ -79,6 +88,9 @@ public class FrgShowProfile  extends BaseFragment {
     }
 
     private void setViewsAndListeners(View v){
+
+        textTotalChallenges = (TextView) v.findViewById(R.id.textTotalChallenges);
+        textTotalScore = (TextView) v.findViewById(R.id.textTotalScore);
 
         buttonRegister = (Button) v.findViewById(R.id.buttonRegister);
         buttonLogin = (Button) v.findViewById(R.id.buttonLogin);
@@ -118,8 +130,7 @@ public class FrgShowProfile  extends BaseFragment {
 
     private void setTextValues(){
 
-        TextView textTotalChallenges = (TextView) getView().findViewById(R.id.textTotalChallenges);
-        TextView textTotalScore = (TextView) getView().findViewById(R.id.textTotalScore);
+
 
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
@@ -127,8 +138,9 @@ public class FrgShowProfile  extends BaseFragment {
 
 
 
-        textTotalChallenges.setText("Total Challenges: "+app_preferences.getInt("totalChallenges", 0));
+        textTotalChallenges.setText("Challenges (won/played): "+app_preferences.getInt("wonChallenges",0)+" / "+app_preferences.getInt("totalChallenges", 0));
         textTotalScore.setText("Total Score: "+app_preferences.getInt("totalScore",0));
+
 
 
 
@@ -144,9 +156,9 @@ public class FrgShowProfile  extends BaseFragment {
     public void startAsyncGetOrInsert(int type){
 
         if (type==userTypes.INSERT_NEW.getValue()){
-            username = editUsername.getText().toString();
-            password = editPassword.getText().toString();
-            email = editEmail.getText().toString();
+            username = editUsername.getText().toString().trim();
+            password = editPassword.getText().toString().trim();
+            email = editEmail.getText().toString().trim();
             if (username.length()==0||password.length()==0||email.length()==0){
                 Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_LONG).show();
                 return;
@@ -156,8 +168,8 @@ public class FrgShowProfile  extends BaseFragment {
                 return;
             }
         }else if (type==userTypes.GET_BY_EMAIL.getValue()){
-            password = editExistingPassword.getText().toString();
-            email = editExistingEmail.getText().toString();
+            password = editExistingPassword.getText().toString().trim();
+            email = editExistingEmail.getText().toString().trim();
             if (password.length()==0||email.length()==0){
                 Toast.makeText(getActivity(), "Please fill in all fields!", Toast.LENGTH_LONG).show();
                 return;
@@ -169,8 +181,10 @@ public class FrgShowProfile  extends BaseFragment {
         }
 
         //if type==1 we get uer by shared prefs id
+        if (((ActMainTest)getActivity()).isNetworkAvailable()) {
 
-        new insertOrGetUser(getActivity(),type).execute();
+            new insertOrGetUser(getActivity(), type).execute();
+        }
     }
 
     static FrgShowProfile init(int val) {
