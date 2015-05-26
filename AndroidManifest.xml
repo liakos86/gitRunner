@@ -38,10 +38,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.google.android.gms.ads.AdActivity"
+                  android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+                  android:theme="@android:style/Theme.Translucent" />
+
         <!--Google Maps Key-->
         <meta-data
                 android:name="com.google.android.maps.v2.API_KEY"
-                android:value="AIzaSyAof5K_wweNrdYM9mt32zM0cCdhAi1kcgs"/>
+                android:value="AIzaSyCZ0RRXVLPKxfeFOjqfHzAZlZARlL49ojM"/>
+        <!--<meta-data android:value="true" android:name="ADMOB_ALLOW_LOCATION_FOR_ADS" />-->
         <!--Google Maps Key END-->
 
         <provider android:name="com.example.gpsCheck.model.DataProvider"

@@ -12,7 +12,7 @@
                 android:id="@+id/btn_my_profile"
                 style="@style/BottomTab">
             <ImageView
-                    android:src="@android:drawable/ic_lock_lock"
+                    android:src="@drawable/ic_profile"
                     style="@style/BottomTabImage"/>
             <TextView
                     android:text="My Profile"
@@ -22,7 +22,7 @@
                 android:id="@+id/btn_new_run"
                 style="@style/BottomTab">
             <ImageView
-                    android:src="@android:drawable/ic_delete"
+                    android:src="@drawable/ic_run"
                     style="@style/BottomTabImage"/>
             <TextView
                     android:text="Run"
@@ -42,7 +42,7 @@
                 android:id="@+id/btn_my_chal"
                 style="@style/BottomTab">
             <ImageView
-                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:src="@drawable/ic_challenge"
                     style="@style/BottomTabImage"/>
             <TextView
                     android:text="Challenge"

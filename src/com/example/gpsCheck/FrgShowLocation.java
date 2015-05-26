@@ -39,14 +39,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     Marker runnerMarker, startMarker;
     Location lastLocation;
     Button buttonStartStop, buttonTarget, clear, buttonResume;
-    boolean running=false, firstChange=false, goalReached=false;
+    boolean running=false, firstChange=false, goalReached=false,paused=false;
     String timerStop1;
     String latLonList="";
-    LinearLayout ll, actionButtons;
+    LinearLayout ll, actionButtons, targetLayout;
     RelativeLayout rl;
     FrameLayout fl;
     EditText targetDist, description ;
-
+    MyAdapter adapter;
     Running challenge;
 
     List<Polyline>mapLines;
@@ -88,6 +88,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         mapLines = new ArrayList<Polyline>();
         setListeners(v);
 
+        setSpinner(v);
         selectProvider();
 
         if (provider==null){
@@ -99,14 +100,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         lastLocation = getLastLocation();// locationManager.getLastKnownLocation(provider);
 
         // Initialize the location fields
-        if (lastLocation != null) {
+//        if (lastLocation != null) {
 
             initializeMap();
 
 
-        }
+//        }
 
-        setSpinner(v);
+//        setSpinner(v);
 
         //default is personal run
         setSaveListener();
@@ -114,13 +115,26 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         return  v;
     }
 
+    public void refreshUsernames(){
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+
+        usernames.clear();
+        String[]names = app_preferences.getString("friends","").split(" ");
+        usernames.add("Select a friend to challenge");
+        for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
+        if (usernames.size()==1) selectUsernameSpinner.setClickable(false);
+
+        if (adapter!=null) adapter.notifyDataSetChanged();
+    }
+
     private void setSpinner(View v) {
         selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
-        String[]names = user.getFriends().split(" ");
-        usernames=new ArrayList<String>();
-        for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
+        usernames=new ArrayList<>();
 
-        MyAdapter adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
+        refreshUsernames();
+
+        adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
         adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
 
         addListenerOnSpinnerItemSelection(v);
@@ -149,6 +163,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }
 
         if (provider==null){
+            selectUsernameSpinner.setClickable(false);
             Toast.makeText(getActivity(), "Please enable location services",
                     Toast.LENGTH_SHORT).show();
         }else {
@@ -327,6 +342,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
             opponentUsername = usernames.get(pos);
+            if (pos==0){
+                targetLayout.setVisibility(View.GONE);
+            }else{
+                targetLayout.setVisibility(View.VISIBLE);
+            }
 
         }
 
@@ -448,6 +468,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         buttonTarget = (Button) v.findViewById(R.id.buttonTarget);
         ll = (LinearLayout) v.findViewById(R.id.targetWindow);
+        targetLayout = (LinearLayout) v.findViewById(R.id.targetLayout);
+
         rl = (RelativeLayout) v.findViewById(R.id.textViews);
         buttonStartStop.setVisibility(View.GONE);
         rl.setVisibility(View.GONE);
@@ -473,6 +495,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
         try {
+
+            if (selectUsernameSpinner.getSelectedItemPosition()==0){
+                Toast.makeText(getActivity(),"You have to select a friend", Toast.LENGTH_LONG).show();
+                return;
+            }
+
 
             targetDistance = Float.parseFloat(targetDist.getText().toString());
             if (targetDistance<10){
@@ -501,18 +529,19 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
 
-        startMarker = googleMap.addMarker(new MarkerOptions()
+        if (lastLocation!=null) {
+            startMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
 
-                        .position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
-                        .title("You are here")
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                            .position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                            .title("You are here")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_marker))
 
-        );
+            );
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 15));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 15));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+        }
         System.out.println("Provider " + provider + " has been selected.");
 //        onLocationChanged(lastLocation);
     }
@@ -547,7 +576,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .title("You are here")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_marker))
             );
             return;
         }
@@ -562,10 +591,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .title("You are here")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_marker))
             );
             runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.runner_marker))
 
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .title("You are here")
@@ -579,6 +609,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //        runnerMarker.setVisible(true);
         runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.runner_marker))
 
                         .position(new LatLng(location.getLatitude(), location.getLongitude()))
                         .title("You are here")
@@ -593,7 +624,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         //the first polyline is the distance between my last location and my current
         //so it might be kilometers away and should not be accounted for
-        if (firstChange) {
+        if (firstChange&&!paused) {
 
             totalDistance += location.distanceTo(lastLocation);
 
@@ -618,7 +649,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             textChalSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
 
-            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+targetDistance);
+            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
 
 
             if (totalDistance>=targetDistance){
@@ -644,8 +675,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             }
             
             
-        }else{
+        }else if (!firstChange){
             firstChange = true;
+        }else if (paused){
+            lastLocation = location;
+            paused = false;
         }
 
 
@@ -690,7 +724,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-//        textChalProvider.setText("Enabled new provider " + provider);
+        Toast.makeText(getActivity(), "Enabled provider " + provider,
+                Toast.LENGTH_SHORT).show();
+        selectUsernameSpinner.setClickable(true);
+        initializeMap();
 
     }
 
@@ -884,6 +921,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         running=true;
 
+
         if(mStartTime == 0L){
             mStartTime = SystemClock.uptimeMillis()-totalTime;
             mHandler.removeCallbacks(mUpdateTimeTask);
@@ -906,10 +944,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         textChalDistance.setText("Distance: 0.0");
 
+        targetDist.setText("");
+
+        selectUsernameSpinner.setSelection(0);
+
         textChalTimer.setText("0:00");
 
         ll.setVisibility(View.VISIBLE);
         buttonStartStop.setVisibility(View.GONE);
+        buttonStartStop.setText("Start");
         description.setVisibility(View.GONE);
 
 //        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
@@ -931,6 +974,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             description.setVisibility(View.VISIBLE);
             description.setHint("Tell something to " + opponentUsername);
         }
+
+        paused=true;
 
         fl.setVisibility(View.GONE);
         actionButtons.setVisibility(View.VISIBLE);

@@ -24,14 +24,16 @@
 
             <RelativeLayout android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
-                <TextView android:textColor="@android:color/holo_red_light"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                <TextView android:textColor="@android:color/holo_red_light" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                <TextView android:textColor="@android:color/holo_red_light"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
+                <LinearLayout android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
+                </LinearLayout>
 
 
                 <TextView
-                        android:layout_below="@+id/textChalSpeedAvg"
+                        android:layout_below="@+id/onMapTexts"
                         android:id="@+id/textChalTimer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -51,9 +53,10 @@
                          android:layout_height="56dp"
                          style="@style/spinner_style"/>
 
-                <EditText android:layout_marginBottom="8dp" android:layout_marginTop="8dp" android:id="@+id/targetValue" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="target distance"/>
-                <Button  android:id="@+id/buttonTarget" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
-
+                <LinearLayout android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <EditText android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center"/>
+                <Button  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
+                </LinearLayout>
 
             </LinearLayout>
 

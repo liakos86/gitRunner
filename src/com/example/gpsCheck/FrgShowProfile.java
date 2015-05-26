@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 
 //fixme commit this
 
@@ -42,10 +45,13 @@ public class FrgShowProfile  extends BaseFragment {
     String username, password, email;
     TextView textTotalChallenges;
     TextView textTotalScore;
+    SyncHelper sh;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
 
     }
 
@@ -55,6 +61,16 @@ public class FrgShowProfile  extends BaseFragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.showprofile_frg, container, false);
 
+//        AdView adView = (AdView) v.findViewById(R.id.adView);
+//        adView.setAdSize(AdSize.BANNER);
+//        adView.setAdUnitId("ca-app-pub-1164456313108704/6840469075");
+//        AdRequest adRequest = new AdRequest.Builder()
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//                .build();
+//        adView.loadAd(adRequest);
+
+        sh = new SyncHelper(getActivity());
+
 
         setViewsAndListeners(v);
 
@@ -62,7 +78,7 @@ public class FrgShowProfile  extends BaseFragment {
 
         setViewFlipper(v);
 
-        setTextValues();
+        setTextValues(null);
 
 
 
@@ -79,6 +95,7 @@ public class FrgShowProfile  extends BaseFragment {
 
         // if mongoID exists, get user and show child 0 / else show child 2 (register or login)
         if (app_preferences.getString("mongoId",null)==null){
+            ((ActMainTest)getActivity()).togglePagerClickable(false);
             vs.setDisplayedChild(2);
         }else{
             startAsyncGetOrInsert(userTypes.GET_BY_ID.getValue());
@@ -128,12 +145,16 @@ public class FrgShowProfile  extends BaseFragment {
 
     }
 
-    private void setTextValues(){
+    private void setTextValues(ExtApplication app){
 
 
 
+        ExtApplication application;
+        if (app==null)
+             application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        else
+            application = app;
 
-        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
 
@@ -183,7 +204,7 @@ public class FrgShowProfile  extends BaseFragment {
         //if type==1 we get uer by shared prefs id
         if (((ActMainTest)getActivity()).isNetworkAvailable()) {
 
-            new insertOrGetUser(getActivity(), type).execute();
+            new insertOrGetUser((ExtApplication)getActivity().getApplication(), type).execute();
         }
     }
 
@@ -199,11 +220,11 @@ public class FrgShowProfile  extends BaseFragment {
     }
 
     private class insertOrGetUser extends AsyncTask<Void, Void, Integer> {
-        private Activity activity;
+        private ExtApplication app;
         private int type;
 
-        public insertOrGetUser(Activity activity, int type) {
-            this.activity = activity;
+        public insertOrGetUser(ExtApplication app, int type) {
+            this.app = app;
             this.type = type;
         }
 
@@ -213,7 +234,7 @@ public class FrgShowProfile  extends BaseFragment {
 
         @Override
         protected Integer doInBackground(Void... unused) {
-            SyncHelper sh = new SyncHelper(activity);
+
 
             switch (type){
                 case 0 :
@@ -233,7 +254,7 @@ public class FrgShowProfile  extends BaseFragment {
         protected void onPostExecute(Integer result) {
 
             if (result==0){
-                setTextValues();
+                setTextValues(app);
 //                ((ActMainTest)getActivity()).getmPager().setCurrentItem(1);
             }else if (result==-1){
                 Toast.makeText(getActivity(), "Invalid credentials", Toast.LENGTH_LONG).show();
@@ -241,8 +262,10 @@ public class FrgShowProfile  extends BaseFragment {
                 Toast.makeText(getActivity(), "Server Error", Toast.LENGTH_LONG).show();
             }else if (result==2){
                 Toast.makeText(getActivity(), "User found", Toast.LENGTH_LONG).show();
-                setTextValues();
+                setTextValues(app);
                 vs.setDisplayedChild(0);
+                ((ActMainTest)getActivity()).togglePagerClickable(true);
+
             }
 
         }

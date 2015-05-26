@@ -127,6 +127,8 @@ public class FrgShowChallenge extends BaseFragment {
 
         adapter = new LeaderArrayAdapterItem(getActivity().getApplicationContext(),
                 R.layout.list_running_row, leaders);
+
+
         runningListView.setAdapter(adapter);
 
 
@@ -137,6 +139,11 @@ public class FrgShowChallenge extends BaseFragment {
         adapterForChal = new ChallengesArrayAdapterItem(getActivity().getApplicationContext(),
                 R.layout.list_challenge_row, challenges);
         chalsListView.setAdapter(adapterForChal);
+
+
+        List<User>users2 = new ArrayList<User>();
+        for (User user:leaders) {users2.add(user);}
+        setAdapter(users2);
 
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override

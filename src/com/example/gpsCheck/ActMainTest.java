@@ -127,19 +127,19 @@ public class ActMainTest extends FragmentActivity {
                 setSelectedBottomButton(bottomButtons,position);
 
                 //todo not on every change, set timer!!!
-                ((FrgShowProfile)getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
-
-
-                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
+                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile) {
+                    ((FrgShowProfile) getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
+                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
 
                     ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoardAndChallenges();
                     ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
-
+                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowLocation) {
+                    ((FrgShowLocation)getActiveFragment(getSupportFragmentManager(), position)).refreshUsernames();
 
                 }
 
 
-                invalidateOptionsMenu();
+                    invalidateOptionsMenu();
             }
 
             public Fragment getActiveFragment(FragmentManager fragmentManager, int position) {
