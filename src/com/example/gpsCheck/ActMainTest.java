@@ -97,6 +97,13 @@ public class ActMainTest extends FragmentActivity {
         setSelectedBottomButton(bottomButtons,position);
     }
 
+    public void refreshShowLocationUsernames(){
+
+//        FrgShowLocation loc = (FrgShowLocation) getSupportFragmentManager().getFragment(getIntent().getExtras(), "1");
+//        loc.refreshUsernames();
+
+            }
+
 
     private void getPager() {
         mPager = (ViewPager) findViewById(R.id.pager);

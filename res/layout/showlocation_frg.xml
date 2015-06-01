@@ -8,6 +8,7 @@
                  xmlns:tools="http://schemas.android.com/tools"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
+                 android:background="@android:color/transparent"
             >
 
         <fragment
@@ -18,7 +19,7 @@
                 android:layout_weight="1"
                 />
 
-        <RelativeLayout android:layout_margin="16dp" android:background="@color/circle_grey" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <RelativeLayout android:layout_margin="16dp" android:background="@android:color/white" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 
 
@@ -40,29 +41,48 @@
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
                         android:text="0.00"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/drawer_grey"
                         android:textSize="20dp" />
 
 
             </RelativeLayout>
 
             <LinearLayout android:layout_below="@+id/textViews" android:id="@+id/targetWindow" android:layout_marginTop="5dp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <Spinner android:id="@+id/friendsSpinner"
-                         android:drawSelectorOnTop="true"
-                         android:layout_width="match_parent"
-                         android:layout_height="56dp"
-                         style="@style/spinner_style"/>
+                <!--<Spinner android:id="@+id/friendsSpinner"-->
+                         <!--android:drawSelectorOnTop="true"-->
+                         <!--android:layout_width="match_parent"-->
+                         <!--android:layout_height="56dp"-->
+                         <!--style="@style/spinner_style"/>-->
+
+                <com.example.gpsCheck.ClearableAutoCompleteTextView
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_width="fill_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:hint="@string/searchFriend"
+                        android:textColorHint="@color/circle_grey"
+                        android:textSize="@dimen/xmedium_text"
+                        android:textColor="@color/drawer_black"
+                        android:id="@+id/friendsAuto"
+                        android:background="@drawable/abroad_search_back"
+                        android:dropDownWidth="match_parent"
+
+                        android:singleLine="true"
+                        />
+
 
                 <LinearLayout android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
-                <EditText android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center"/>
-                <Button  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@android:color/holo_orange_dark" android:text="Set" android:layout_height="wrap_content" />
+                <EditText android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center" android:singleLine="true"/>
+                <Button  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@color/runner_green" android:text="Set" android:layout_height="wrap_content" />
                 </LinearLayout>
 
             </LinearLayout>
 
             <!--<TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>-->
 
-            <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@android:color/holo_orange_dark" android:text="Start" android:layout_height="wrap_content" />
+            <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Start" android:layout_height="wrap_content" />
 
 
 

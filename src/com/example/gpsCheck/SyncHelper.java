@@ -517,6 +517,7 @@ public class SyncHelper {
                 if (type==1&&users.size()==1){
 
                     getMongoUserByUsernameForFriend(users.get(0).getUsername(), 1);
+
                 }else if (type==0){
 
                     dbHelper.deleteLeaderboard();
@@ -625,11 +626,13 @@ public class SyncHelper {
                     }.getType());
 
             // refresh other users requests
-            if (type==1)
-                uploadNewFriendOrRequest(user.getFriendRequests()+" "+app_preferences.getString("username",""), user.getUsername(), type);
-
-            //refresh other users friends
-            else if (type==0) {
+            if (type==1) {
+                uploadNewFriendOrRequest(user.getFriendRequests() + " " + app_preferences.getString("username", ""), user.getUsername(), type);
+                SharedPreferences.Editor editor = app_preferences.edit();
+                editor.putString("sentRequests",  app_preferences.getString("sentRequests","")+user.getUsername());
+                editor.commit();
+                //refresh other users friends
+            }else if (type==0) {
 
                 //add friend to both users list
                 uploadNewFriendOrRequest(user.getFriends() + " " + app_preferences.getString("username", ""), user.getUsername(), type);

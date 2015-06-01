@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="gravity"
+                android:background="#fff"
+                android:padding="8dp"
+                android:minHeight="50dp"
+        >
+
+    <!--<ImageView android:layout_width="15dp" android:layout_height="20dp"-->
+               <!--android:src="@drawable/ic_marker" android:id="@+id/drop_marker" android:layout_marginRight="10dp"/>-->
+
+
+    <TextView
+            android:id="@+id/countryName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="address"
+            android:textSize="@dimen/large_text"
+            />
+
+    <!--<TextView-->
+            <!--android:id="@+id/search_store_name"-->
+            <!--android:layout_below="@+id/search_store_address"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:text="phone"-->
+            <!--android:textSize="@dimen/xsmall_text"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@color/vodafone_dark_blue"-->
+            <!--android:layout_alignLeft="@id/search_store_address"-->
+            <!--/>-->
+
+
+</RelativeLayout>

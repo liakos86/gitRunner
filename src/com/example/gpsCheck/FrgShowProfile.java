@@ -1,6 +1,7 @@
 package com.example.gpsCheck;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -212,6 +213,8 @@ public class FrgShowProfile  extends BaseFragment {
         FrgShowProfile truitonList = new FrgShowProfile();
 
         // Supply val input as an argument.
+//        Intent itwn = new Intent(ActMainTest.class, ActMainTest.class);
+
         Bundle args = new Bundle();
         args.putInt("val", val);
         truitonList.setArguments(args);
@@ -255,7 +258,9 @@ public class FrgShowProfile  extends BaseFragment {
 
             if (result==0){
                 setTextValues(app);
-//                ((ActMainTest)getActivity()).getmPager().setCurrentItem(1);
+                ((ActMainTest) getActivity()).refreshShowLocationUsernames();
+
+//                ((ActMainTest) getActivity()).getmPager().setCurrentItem(1);
             }else if (result==-1){
                 Toast.makeText(getActivity(), "Invalid credentials", Toast.LENGTH_LONG).show();
             }else if (result==-2){

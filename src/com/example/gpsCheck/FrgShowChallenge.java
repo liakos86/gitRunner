@@ -226,11 +226,22 @@ public class FrgShowChallenge extends BaseFragment {
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
         String friends = app_preferences.getString("friends", null);
+        String sentRequests = app_preferences.getString("sentRequests",null);
         if (friends != null && !friends.equals("")) {
             String[] friendsList = friends.split(" ");
             for (String friendEmail : friendsList) {
                 if (friendEmail.equals(friendName)) {
                     Toast.makeText(getActivity(), "Already a friend", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            }
+
+        }
+        if (sentRequests != null && !sentRequests.equals("")) {
+            String[] sentList = sentRequests.split(" ");
+            for (String friendEmail : sentList) {
+                if (friendEmail.equals(friendName)) {
+                    Toast.makeText(getActivity(), "Already sent request to "+friendEmail, Toast.LENGTH_LONG).show();
                     return true;
                 }
             }
@@ -246,9 +257,20 @@ public class FrgShowChallenge extends BaseFragment {
     private void setAdapter(List<User>users) {
         //todo maybe empty and refill
 
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+
+        User user = new User();
+        user.setTotalScore(app_preferences.getInt("totalScore",0));
+        user.setUsername(app_preferences.getString("username", "you"));
+
+
+
+
+
         leaders.clear();
 
-        for (User user: users) leaders.add(user);
+        for (User userAdd: users) leaders.add(userAdd);
         int num = users.size();
         int score = user.getTotalScore();
         for (int i=0; i<num; i++){

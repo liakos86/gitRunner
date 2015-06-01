@@ -32,6 +32,7 @@ public class User {
     private String friends; //email list as it is unique
     private String email;
     private String friendRequests;
+    private String sentRequests;
 
     public User(){}
 
@@ -58,6 +59,14 @@ public class User {
         this.totalTime = prefs.getLong("totalTime",0);
         this.friends = prefs.getString("friends","");
         this.friendRequests = prefs.getString("friendRequests","");
+    }
+
+    public String getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(String sentRequests) {
+        this.sentRequests = sentRequests;
     }
 
     public String getFriendRequests() {

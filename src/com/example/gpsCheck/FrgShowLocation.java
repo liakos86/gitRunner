@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +51,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     MyAdapter adapter;
     Running challenge;
 
+    ImageView searchIcon;
+
     List<Polyline>mapLines;
+    List<String> retList;
+
+
 
     private TextView textChalSpeed, textChalSpeedAvg, textChalDistance, textChalTimer;
     float totalDistance=0, targetDistance, targetTime;
@@ -59,6 +66,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     Spinner selectUsernameSpinner;
 
     List<String>usernames;
+
+    ClearableAutoCompleteTextView friendsAutoComplete;
+
+    ArrayAdapter searchAdapter;
+
 
 
 
@@ -87,8 +99,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         mapLines = new ArrayList<Polyline>();
         setListeners(v);
+        
+        setAutoComplete(v);
 
-        setSpinner(v);
+//        setSpinner(v);
         selectProvider();
 
         if (provider==null){
@@ -104,6 +118,16 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             initializeMap();
 
+        // Get the button view
+        View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
+
+        // and next place it, for exemple, on bottom right (as Google Maps app)
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 20, 200);
+
 
 //        }
 
@@ -115,21 +139,137 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         return  v;
     }
 
+    private class ViewHolder {
+        TextView name;
+
+    }
+
+
+    public void setAutoComplete(View v){
+
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+
+        usernames=new ArrayList<>();
+        String[]names = app_preferences.getString("friends","").split(" ");
+        for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
+
+
+        Point pointSize = new Point();
+
+        getActivity().getWindowManager().getDefaultDisplay().getSize(pointSize);
+
+        friendsAutoComplete = (ClearableAutoCompleteTextView) v.findViewById(R.id.friendsAuto);
+        friendsAutoComplete.setDropDownWidth(pointSize.x);
+        friendsAutoComplete.setDropDownVerticalOffset(5);
+        friendsAutoComplete.getDropDownBackground().setAlpha(150);
+//        friendsAutoComplete.hideClearButton();
+
+        friendsAutoComplete.requestFocus();
+
+        friendsAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // handle clicks on search resaults here
+                opponentUsername=retList.get(position);
+                targetDist.setHint("Meters to challenge "+opponentUsername);
+                toggleSearch(true);
+//                Toast.makeText(getActivity(),retList.get(position),Toast.LENGTH_LONG).show();
+            }
+
+        });
+
+
+
+        // adapter for the search dropdown auto suggest
+        searchAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), R.layout.friends_auto_drop) {
+            private Filter filter;
+
+            @Override
+            public View getView(final int position, View convertView, ViewGroup parent) {
+
+                ViewHolder holder =null;
+                if (convertView == null || !(convertView.getTag() instanceof ViewHolder)) {
+                    convertView = getActivity().getLayoutInflater().inflate(R.layout.friends_auto_drop, parent, false);
+
+                    holder = new ViewHolder();
+
+
+                    holder.name = (TextView) convertView
+                            .findViewById(R.id.countryName);
+                    convertView.setTag(holder);
+                } else {
+                    holder = (ViewHolder) convertView.getTag();
+
+                }
+
+
+                //TODO When typing quickly and pressing backspace
+                //TODO the retList wont be available soon enough
+                if (retList.size() > position) {
+
+                    holder.name.setText(retList.get(position));
+                        holder.name.setTextColor(getResources().getColor(R.color.mthMbColor));
+
+                }
+
+                return convertView;
+            }
+
+            @Override
+            public Filter getFilter() {
+                if (filter == null) {
+                    filter = new friendFilter();
+                }
+                return filter;
+            }
+        };
+
+//       friendsAutoComplete.setThreshold(1);
+
+        friendsAutoComplete.setAdapter(searchAdapter);
+    }
+
+    protected void toggleSearch(boolean reset) {
+//        ImageView searchIcon = (ImageView) findViewById(R.id.search_icon);
+        if (reset) {
+            // hide search box and show search icon
+            friendsAutoComplete.setText("");
+            friendsAutoComplete.setVisibility(View.GONE);
+            targetLayout.setVisibility(View.VISIBLE);
+
+//            searchIcon.setVisibility(View.VISIBLE);
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(friendsAutoComplete.getWindowToken(), 0);
+        } else {
+            // hide search icon and show search box
+//            searchIcon.setVisibility(View.GONE);
+            friendsAutoComplete.setVisibility(View.VISIBLE);
+            friendsAutoComplete.requestFocus();
+            // show the keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(friendsAutoComplete, InputMethodManager.SHOW_IMPLICIT);
+        }
+
+    }
+
     public void refreshUsernames(){
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         usernames.clear();
         String[]names = app_preferences.getString("friends","").split(" ");
-        usernames.add("Select a friend to challenge");
+//        usernames.add("Select a friend to challenge");
         for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
-        if (usernames.size()==1) selectUsernameSpinner.setClickable(false);
+//        if (usernames.size()==1) selectUsernameSpinner.setClickable(false);
 
         if (adapter!=null) adapter.notifyDataSetChanged();
     }
 
     private void setSpinner(View v) {
-        selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
+//        selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
         usernames=new ArrayList<>();
 
         refreshUsernames();
@@ -137,8 +277,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         adapter = new MyAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, usernames);//FIXME Only for the first account
         adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown);
 
-        addListenerOnSpinnerItemSelection(v);
-        selectUsernameSpinner.setAdapter(adapter);
+//        addListenerOnSpinnerItemSelection(v);
+//        selectUsernameSpinner.setAdapter(adapter);
     }
 
 
@@ -187,7 +327,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             ((ActMainTest)getActivity()).togglePagerClickable(false);
 
-            selectUsernameSpinner.setClickable(false);
+//            selectUsernameSpinner.setClickable(false);
 
             firstChange=false;
 
@@ -226,7 +366,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             ((ActMainTest)getActivity()).togglePagerClickable(true);
 
             locationManager.removeUpdates(this);
-            selectUsernameSpinner.setClickable(true);
+//            selectUsernameSpinner.setClickable(true);
 
             running=false;
 
@@ -332,10 +472,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    public void addListenerOnSpinnerItemSelection(View v) {
-        Spinner spinner1 = (Spinner) v.findViewById(R.id.friendsSpinner);
-        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-    }
+//    public void addListenerOnSpinnerItemSelection(View v) {
+//        Spinner spinner1 = (Spinner) v.findViewById(R.id.friendsSpinner);
+//        spinner1.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+//    }
 
     class CustomOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
@@ -383,6 +523,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         totalTime=0;
         goalReached=false;
         googleMap.clear();
+        opponentUsername=null;
     }
 
 
@@ -496,7 +637,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         try {
 
-            if (selectUsernameSpinner.getSelectedItemPosition()==0){
+//            if (selectUsernameSpinner.getSelectedItemPosition()==0){
+//                Toast.makeText(getActivity(),"You have to select a friend", Toast.LENGTH_LONG).show();
+//                return;
+//            }
+
+            if (opponentUsername==null||opponentUsername.equals("")){
                 Toast.makeText(getActivity(),"You have to select a friend", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -726,7 +872,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void onProviderEnabled(String provider) {
         Toast.makeText(getActivity(), "Enabled provider " + provider,
                 Toast.LENGTH_SHORT).show();
-        selectUsernameSpinner.setClickable(true);
+//        selectUsernameSpinner.setClickable(true);
         initializeMap();
 
     }
@@ -922,6 +1068,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         running=true;
 
 
+
         if(mStartTime == 0L){
             mStartTime = SystemClock.uptimeMillis()-totalTime;
             mHandler.removeCallbacks(mUpdateTimeTask);
@@ -946,11 +1093,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         targetDist.setText("");
 
-        selectUsernameSpinner.setSelection(0);
+//        selectUsernameSpinner.setSelection(0);
 
         textChalTimer.setText("0:00");
 
         ll.setVisibility(View.VISIBLE);
+        friendsAutoComplete.setVisibility(View.VISIBLE);
+        targetLayout.setVisibility(View.GONE);
         buttonStartStop.setVisibility(View.GONE);
         buttonStartStop.setText("Start");
         description.setVisibility(View.GONE);
@@ -1089,6 +1238,65 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         editor.putString("offline", offline);
         editor.commit();
 
+
+    }
+
+
+    private class friendFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<String> list = new ArrayList<String>(usernames);
+            FilterResults result = new FilterResults();
+            String substr = null;
+            if (constraint!=null) {
+                substr = constraint.toString().toLowerCase();
+            }
+
+            // if no constraint is given, return the whole list
+            if ((substr == null || substr.length() == 0)) {
+                result.values = list;
+                result.count = list.size();
+                retList = list;
+
+//                result.count =0;
+            }else {
+
+//                friendsAutoComplete.setImgClearButton(getResources().getDrawable(R.drawable.ic_cancel_32));
+                // iterate over the list of stores and find if the store matches the constraint. if it does, add to the result list
+                retList = new ArrayList<String>();
+                for (String friend : list) {
+                    try {
+                        if (friend.toLowerCase().contains(substr)) {
+                            retList.add(friend);
+
+
+                        }
+                    } catch (Exception e) {
+                        Log.i("ERROR", e.getMessage());
+                    }
+                }
+                result.values = retList;
+                result.count = retList.size();
+            }
+
+
+            return result;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            // we clear the adapter and then pupulate it with the new results
+            searchAdapter.clear();
+            if (results.count > 0) {
+
+
+                for (String o : (ArrayList<String>) results.values) {
+                    searchAdapter.add(o);
+                }
+            }
+        }
 
     }
 
