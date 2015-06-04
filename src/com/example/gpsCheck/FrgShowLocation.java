@@ -387,38 +387,26 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         if (!running){
 
 
-            Toast.makeText(getActivity(),"Saving...",Toast.LENGTH_LONG).show();
+            ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+            SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            SharedPreferences.Editor editor = app_preferences.edit();
+
+            editor.putLong("totalTime", app_preferences.getLong("totalTime", 0)+totalTime);
+            editor.putFloat("totalDistance", app_preferences.getFloat("totalDistance", 0) + totalDistance);
+            editor.commit();
+
             descriptionForChallenge = description.getText().toString().trim();
 
-//            if (type==0) {
-//                Date now = new Date();
-//                Running tr = new Running(-1, "I am running alone", totalTime,
-//                        now.toString(),totalDistance, 0, "",user.getUsername(), latLonList);
-//                Database db = new Database(getActivity().getBaseContext());
-//                db.addRunning(tr);
-//            }else {
+            if (((ActMainTest)getActivity()).isNetworkAvailable()) {
 
-
-//                if (challenge==null) {// i am creating a chal now
+                Toast.makeText(getActivity(), "Saving...", Toast.LENGTH_LONG).show();
 
                 new uploadMongoChallenge(getActivity(), 1, true).execute();
+            }else{
+                Toast.makeText(getActivity(), "Will upload challenge when connected...", Toast.LENGTH_LONG).show();
+                storeOfflineAction(opponentUsername, true, 0);
+            }
 
-//                }
-        
-//        else{
-//
-//                    Toast.makeText(getActivity(), "Successful challenge end!", Toast.LENGTH_LONG).show();
-//                    try {
-//
-//
-//                        new uploadMongoChallenge(getActivity(), 2).execute();
-//                    } catch (Exception e) {
-//                        Toast.makeText(getActivity(), "Error uploading!", Toast.LENGTH_LONG).show();
-//                    }
-//
-//
-//                }
-////            }
 
         }else{
             Toast.makeText(getActivity(), "Still running!",
@@ -582,16 +570,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             public void onClick(View view) {
                 if (goalReached) {
 
-
-                    if (((ActMainTest)getActivity()).isNetworkAvailable()) {
-
                         uploadChallenge();
                         clearViews();
                         resetValues();
                         showFrame();
-                    }else{
-                        Toast.makeText(getActivity(),"Please connect to the internet to upload",Toast.LENGTH_LONG).show();
-                    }
 
                 } else {
 
@@ -1186,7 +1168,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             }else{
 
                 //todo store action in app prefs variable for next time
-                storeOfflineAction(challenge.getUser_name(), won);
+                storeOfflineAction(challenge.getUser_name(), won, 1);
 
             }
 
@@ -1226,16 +1208,26 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    private void storeOfflineAction(String user, boolean won){
+    private void storeOfflineAction(String user, boolean won, int type){//0 new chal, 1 respond
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
-
-        String offline = app_preferences.getString("offline","");
-        offline+= user+" "+won+"/";
-
         SharedPreferences.Editor editor = app_preferences.edit();
-        editor.putString("offline", offline);
+
+        if (type==1) {
+
+            String offline = app_preferences.getString("offline", "");
+            offline += user + " " + won + "/";
+
+
+            editor.putString("offline", offline);
+        }else if (type==0){
+            String offline = app_preferences.getString("offlineCreate", "");
+            offline += user + " " + totalTime +" "+totalDistance+" "+descriptionForChallenge+" "+latLonList+ "/";
+
+
+            editor.putString("offlineCreate", offline);
+        }
         editor.commit();
 
 

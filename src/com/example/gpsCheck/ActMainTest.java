@@ -54,7 +54,10 @@ public class ActMainTest extends FragmentActivity {
         if (isNetworkAvailable()) {
             ExtApplication application = (ExtApplication) getApplication().getApplicationContext();
             app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+            SharedPreferences.Editor editor = app_preferences.edit();
+
             String offline = app_preferences.getString("offline", "");
+
             if (!offline.equals("")) {
 
                 String[] offlineActs = offline.split("/");
@@ -62,19 +65,39 @@ public class ActMainTest extends FragmentActivity {
                 for (String act : offlineActs) {
                     String[] act2 = act.split(" ");
                     if (act2[1].equals("true")) {
-                        new uploadReplyChallenge(this, act2[0].trim(),true).execute();
+                        new uploadOfflineChallenge(this, act2[0].trim(),true,0,0,null,null).execute();
                     } else if (act2[1].equals("false")) {
-                        new uploadReplyChallenge(this, act2[0].trim(),false).execute();
+                        new uploadOfflineChallenge(this, act2[0].trim(),false,0,0,null,null).execute();
                     }
 
                     offline = offline.replace(act+"/", "");
-                    SharedPreferences.Editor editor = app_preferences.edit();
                     editor.putString("offline", offline);
-                    editor.commit();
+
                 }
 
 
             }
+            offline = app_preferences.getString("offlineCreate", "");
+
+            if (!offline.equals("")) {
+
+                String[] offlineActs = offline.split("/");
+
+                for (String act : offlineActs) {
+                    String[] act2 = act.split(" ");
+
+                        new uploadOfflineChallenge(this, act2[0].trim(),true,Long.valueOf(act2[1]),Float.valueOf(act2[2]),act2[3],act2[4]).execute();
+
+
+                    offline = offline.replace(act+"/", "");
+                    editor.putString("offlineCreate", offline);
+
+                }
+
+
+            }
+
+            editor.commit();
         }
 
     }
@@ -305,15 +328,23 @@ public class ActMainTest extends FragmentActivity {
     }
 
 
-    private class uploadReplyChallenge extends AsyncTask<Void, Void, Integer> {
+    private class uploadOfflineChallenge extends AsyncTask<Void, Void, Integer> {
         private Activity activity;
         private String username;
         boolean won;
+        long time;
+        float distance;
+        String desc;
+        String latLonList;
 
-        public uploadReplyChallenge(Activity activity, String username, boolean won) {
+        public uploadOfflineChallenge(Activity activity, String username, boolean won, long time, float distance, String desc,String latLonList) {
             this.activity = activity;
             this.username = username;
             this.won = won;
+            this.time=time;
+            this.distance=distance;
+            this.desc=desc;
+            this.latLonList=latLonList;
         }
 
         protected void onPreExecute() {
@@ -324,7 +355,10 @@ public class ActMainTest extends FragmentActivity {
         protected Integer doInBackground(Void... unused) {
             SyncHelper sh = new SyncHelper(activity);
 
-            sh.replyToChallenge(username, won);
+            if (desc==null)
+                sh.replyToChallenge(username, won);
+            else
+                sh.createMongoChallenge(username,time,distance,latLonList,desc);
 
             return 0;
 
@@ -333,6 +367,7 @@ public class ActMainTest extends FragmentActivity {
         @Override
         protected void onPostExecute(Integer result) {
 
+            Toast.makeText(getApplication(), "Uploaded challenge to "+username, Toast.LENGTH_LONG).show();
         }
 
 
