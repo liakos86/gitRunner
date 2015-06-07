@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
@@ -657,13 +658,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
 
-        if (lastLocation!=null) {
+        if (lastLocation!=null && googleMap!=null) {
             startMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
 
                             .position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
                             .title("You are here")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_marker))
+//                            .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap()))
 
             );
 
