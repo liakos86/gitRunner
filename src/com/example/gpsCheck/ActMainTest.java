@@ -122,8 +122,12 @@ public class ActMainTest extends FragmentActivity {
 
     public void refreshShowLocationUsernames(){
 
-//        FrgShowLocation loc = (FrgShowLocation) getSupportFragmentManager().getFragment(getIntent().getExtras(), "1");
-//        loc.refreshUsernames();
+
+        final String name = "android:switcher:" + mPager.getId()+ ":" + 1;
+        final Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(name);
+
+
+        ((FrgShowLocation) fragmentByTag).refreshUsernames();
 
             }
 
@@ -194,13 +198,15 @@ public class ActMainTest extends FragmentActivity {
 
     }
 
-    public void respondToChal(Running run){
+    public void respondToChal(Running run, int type){
+
+        //todo copy to refresh usernames!!!
 
             final String name = "android:switcher:" + mPager.getId()+ ":" + 1;
             final Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(name);
 
 
-       ((FrgShowLocation) fragmentByTag).beginChallenge(run);
+       ((FrgShowLocation) fragmentByTag).beginChallenge(run, type);
 
 //        ((FrgShowLocation) fragmentByTag).changeSaveListener(run);
 

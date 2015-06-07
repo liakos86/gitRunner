@@ -558,6 +558,8 @@ public class SyncHelper {
 
         Log.v(TAG, "Fetching user");
 
+        String myUsername = app_preferences.getString("username", "");
+
         User user = null;
 
         Uri uri=null;
@@ -627,7 +629,7 @@ public class SyncHelper {
 
             // refresh other users requests
             if (type==1) {
-                uploadNewFriendOrRequest(user.getFriendRequests() + " " + app_preferences.getString("username", ""), user.getUsername(), type);
+                uploadNewFriendOrRequest(user.getFriendRequests() + " " + myUsername, user.getUsername(), type);
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putString("sentRequests",  app_preferences.getString("sentRequests","")+user.getUsername());
                 editor.commit();
@@ -635,21 +637,24 @@ public class SyncHelper {
             }else if (type==0) {
 
                 //add friend to both users list
-                uploadNewFriendOrRequest(user.getFriends() + " " + app_preferences.getString("username", ""), user.getUsername(), type);
-                uploadNewFriendOrRequest(app_preferences.getString("friends","") + " " + user.getUsername(), app_preferences.getString("username",""), type);
+                if (!user.getFriends().contains(myUsername) && !app_preferences.getString("friends", "").contains(user.getUsername())){
+                    uploadNewFriendOrRequest(user.getFriends() + " " + myUsername, user.getUsername(), type);
+                    uploadNewFriendOrRequest(app_preferences.getString("friends", "") + " " + user.getUsername(), myUsername, type);
+                }
 
                 //remove his name
                 String  newFriendRequests = app_preferences.getString("friendRequests","").replace(" " + user.getUsername() + " ", " ");
                 newFriendRequests = newFriendRequests.replace(user.getUsername() + " ", " ");
                 newFriendRequests = newFriendRequests.replace(" "+user.getUsername(), " ");
-                uploadNewFriendOrRequest(newFriendRequests, app_preferences.getString("username", ""), 1);
+                newFriendRequests = newFriendRequests.replace(user.getUsername(), "");
+                uploadNewFriendOrRequest(newFriendRequests, myUsername, 1);
 
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putString("friendRequests", newFriendRequests);
                 editor.putString("friends", app_preferences.getString("friends","") + " " + user.getUsername());
                 editor.commit();
 
-                Toast.makeText(getApplication(), "Friend added!", Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplication(), "Friend added!", Toast.LENGTH_LONG).show();
 
 
 

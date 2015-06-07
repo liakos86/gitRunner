@@ -2,8 +2,8 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
-                android:layout_height="wrap_content" android:background="@android:color/white" android:paddingLeft="10dp"
-                android:paddingRight="10dp" android:paddingTop="10dp" android:minHeight="54dp"
+                android:layout_height="wrap_content" android:background="@color/white_back" android:paddingLeft="10dp"
+                android:paddingRight="10dp" android:paddingTop="10dp" android:minHeight="44dp"
         >
 
     <ImageView android:layout_width="30dp" android:layout_height="30dp"
@@ -18,6 +18,6 @@
     </LinearLayout>
 
 
-    <View android:layout_width="fill_parent" android:layout_height="1dp" android:background="@color/mthSmsColor" android:layout_alignParentBottom="true"
+    <View android:layout_width="fill_parent" android:layout_height="1dp" android:background="@color/runner_green_trasp" android:layout_alignParentBottom="true"
           android:layout_marginLeft="5dp" android:layout_marginRight="5dp" />
 </RelativeLayout>

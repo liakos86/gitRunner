@@ -5,6 +5,7 @@
     <color name="runner_dark_blue">#006768</color>
     <color name="runner_orange">#e89624</color>
     <color name="runner_green">#27ae60</color>
+    <color name="runner_green_trasp">#cc27ae60</color>
     <color name="runner_green_pressed">#2ecc71</color>
     <color name="circle_grey">#c6c6c6</color>
     <color name="disable_grey">#ffdedede</color>

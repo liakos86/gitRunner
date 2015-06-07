@@ -36,6 +36,8 @@ public class FrgShowChallenge extends BaseFragment {
 
     SyncHelper sh;
 
+    SharedPreferences app_preferences;
+
 
 
     /** Called when the activity is first created. */
@@ -54,6 +56,8 @@ public class FrgShowChallenge extends BaseFragment {
         View v = inflater.inflate(R.layout.showchallenge_frg, container, false);
         sh = new SyncHelper(getActivity());
 
+        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
+         app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
 
 
@@ -68,8 +72,6 @@ public class FrgShowChallenge extends BaseFragment {
 
     public void getLeaderBoardAndChallenges(){
 
-        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         String friends = app_preferences.getString("friends",null);
 
@@ -93,17 +95,27 @@ public class FrgShowChallenge extends BaseFragment {
 
     private void setList(View v){
 
+
+
+
         addFriend = (Button) v.findViewById(R.id.buttonAddFriend);
         friendName = (EditText) v.findViewById(R.id.editNewFriend);
 
         friendRequests = new ArrayList<String>();
         Database db = new Database(getActivity());
 
-        leaders = db.fetchLeadersFromDb();
-        challenges = db.fetchRunsByTypeFromDb(1);
+        String friends = app_preferences.getString("friends",null);
+        leaders = new ArrayList<>();
+        challenges = new ArrayList<>();
 
 
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            if (friends != null && !friends.equals("")) {
+
+                leaders = db.fetchLeadersFromDb();
+                challenges = db.fetchRunsByTypeFromDb(1);
+            }
+
+
 
         String[] friendList = app_preferences.getString("friendFRequests","").split(" ");
         for (String fr:friendList){
@@ -179,7 +191,6 @@ public class FrgShowChallenge extends BaseFragment {
     public void refreshRequests(){
 
         friendRequests.clear();
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 
 
@@ -223,8 +234,6 @@ public class FrgShowChallenge extends BaseFragment {
 
     private boolean alreadyFriend(String friendName){
 
-        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
         String friends = app_preferences.getString("friends", null);
         String sentRequests = app_preferences.getString("sentRequests",null);
         if (friends != null && !friends.equals("")) {
@@ -257,8 +266,6 @@ public class FrgShowChallenge extends BaseFragment {
     private void setAdapter(List<User>users) {
         //todo maybe empty and refill
 
-        ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
         User user = new User();
         user.setTotalScore(app_preferences.getInt("totalScore",0));
@@ -581,30 +588,52 @@ public class FrgShowChallenge extends BaseFragment {
             // object item based on the position
             final  Running run= data.get(position);
 
-            if (run.getUser_name().equals(user.getUsername())){
+
+            if (run.getUser_name().equals(app_preferences.getString("username",""))){
 
                 if (run.getStatus()==1){
                     if (run.getWinner()!=null&&run.getWinner().equals(run.getOpponent_name())){
                         holder.username.setText("LOOSER! "+run.getOpponent_name()+" won the challenge!");
-                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.looser));
+                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_looser_32));
                     }else{
                         holder.username.setText("HOORAY! "+"You beat "+run.getOpponent_name());
-                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.winner));
+                        holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_winner_32));
 
                     }
 
+                    holder.score.setText("Touch to delete");
+
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+
+//                            deleteChallenge(run);
+
+
+                        }
+                    });
+
+
                 }else{
-                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_32));
 
                     holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond");
-                    holder.score.setVisibility(View.GONE);
+                    holder.score.setText("Touch to see route");
+
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            beginChallenge(run, 1);
+                        }
+                    });
                 }
 
 
             }else{
                 holder.username.setText(run.getUser_name()+" challenged you for "+run.getDistance()+" meters");
-                holder.score.setVisibility(View.VISIBLE);
-                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+                holder.score.setText("Touch to respond");
+                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_me_32));
 
 
                 convertView.setOnClickListener(new View.OnClickListener() {
@@ -612,7 +641,7 @@ public class FrgShowChallenge extends BaseFragment {
                     public void onClick(View view) {
 
 
-                        beginChallenge(run);
+                        beginChallenge(run, 0);
 
 
                     }
@@ -633,10 +662,10 @@ public class FrgShowChallenge extends BaseFragment {
     }
 
 
-    private void beginChallenge(Running run){
+    private void beginChallenge(Running run, int type){
 
 
-        ((ActMainTest) getActivity()).respondToChal(run);
+        ((ActMainTest) getActivity()).respondToChal(run, type);
 
     }
 }

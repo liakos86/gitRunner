@@ -982,7 +982,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
 
-    public void beginChallenge(Running run){
+    public void beginChallenge(Running run, int type){
 
 
 //        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
@@ -994,18 +994,24 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         ll.setVisibility(View.GONE);
         resetValues();
         challenge = run;
-        targetDistance = challenge.getDistance();
-        targetTime = challenge.getTime();
-        showWinLoseDialog(2, true);
+
+        if (type==0) {
+            targetDistance = challenge.getDistance();
+            targetTime = challenge.getTime();
+            showWinLoseDialog(2, true);
 
 
-//        changeSaveListener();
 
+            Toast.makeText(getActivity(), "This is " + run.getUser_name() + "'s run!", Toast.LENGTH_LONG).show();
+        }else{
+
+            targetDistance=-1;
+            buttonStartStop.setText("Close");
+
+        }
 
         buttonStartStop.setVisibility(View.VISIBLE);
         buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
-
-        Toast.makeText(getActivity(),"This is "+run.getUser_name()+"'s run!",Toast.LENGTH_LONG).show();
 
 
 
@@ -1124,10 +1130,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 @Override
                 public void onClick(View view) {
 
-                    if (!running) {
-                        // if he is not running means either that:
-                        // 1) he has reached his goal and it has stopped automatically
-                        // 2) he has not yet started the challenge
+                    if (targetDistance != -1) {
+
+                        if (!running) {
+                            // if he is not running means either that:
+                            // 1) he has reached his goal and it has stopped automatically
+                            // 2) he has not yet started the challenge
 
 
                             rl.setVisibility(View.VISIBLE);
@@ -1138,16 +1146,20 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                                 selectProvider();
 
 
-                    } else {
+                        } else {
 
-                        //he quits the challenge!!
+                            //he quits the challenge!!
 
-                        // alert dialog to ask if he wants to quit!
-                        getUpdates(false);
-                        hideFrame();
+                            // alert dialog to ask if he wants to quit!
+                            getUpdates(false);
+                            hideFrame();
 
+                        }
+
+                    }else{
+                        clearViews();
+                        resetValues();
                     }
-
                 }
             });
 
