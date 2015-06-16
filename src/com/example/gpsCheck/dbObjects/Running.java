@@ -19,6 +19,7 @@ public class Running {
 
     private static final String TAG = Thread.currentThread().getStackTrace()[2].getClassName();
 
+    private ObjectId _id;
     private String date;
     private float distance;
     private long running_id;
@@ -47,6 +48,14 @@ public class Running {
         this.latLonList = LatLonList;
         this.winner = winner;
         this.status = status;
+    }
+
+    public ObjectId get_id() {
+        return _id;
+    }
+
+    public void set_id(ObjectId _id) {
+        this._id = _id;
     }
 
     public int getStatus() {
