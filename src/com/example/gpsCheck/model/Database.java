@@ -98,7 +98,9 @@ public class Database extends SQLiteOpenHelper {
                 ContentDescriptor.Running.Cols.TYPE,
                 ContentDescriptor.Running.Cols.OPPONENT_NAME,
                 ContentDescriptor.Running.Cols.USER_NAME,
-                ContentDescriptor.Running.Cols.LAT_LON_LIST
+                ContentDescriptor.Running.Cols.LAT_LON_LIST,
+                ContentDescriptor.Running.Cols.WINNER,
+                ContentDescriptor.Running.Cols.STATUS
 
 
 
@@ -112,6 +114,8 @@ public class Database extends SQLiteOpenHelper {
         int sOppNamePosition = 6;
         int sUserNamePosition = 7;
         int sLatLonListPosition = 8;
+        int sWinnerPosition = 9;
+        int sStatusPosition = 10;
 
         Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, FROM,
                 ContentDescriptor.Running.Cols.TYPE+" = "+type,
@@ -136,7 +140,8 @@ public class Database extends SQLiteOpenHelper {
                 St.add(new Running(c.getLong(sIdPosition), c
                         .getString(sDescPosition), c.getLong(sTimePosition),
                         c.getString(sDatePosition),  c.getFloat(sDistPosition),
-                        c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition)));
+                        c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition),
+                        c.getString(sWinnerPosition), c.getInt(sStatusPosition)));
             }
         }
         c.close();

@@ -2,11 +2,10 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
-                android:layout_height="wrap_content" android:background="@color/white_back" android:paddingLeft="10dp"
-                android:paddingRight="10dp" android:paddingTop="10dp" android:minHeight="44dp"
+                android:layout_height="wrap_content" android:background="@drawable/grey_gradient"  android:padding="10dp" android:minHeight="44dp"
         >
 
-    <ImageView android:layout_width="30dp" android:layout_height="30dp"
+    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
                android:layout_centerVertical="true" android:layout_alignParentLeft="true"
                android:id="@+id/leader_image"/>
 
@@ -17,7 +16,13 @@
                   android:layout_below="@id/leader_username" android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/leader_chals"
+              android:textColor="@color/drawer_black"
+             android:layout_alignParentRight="true"
+              android:gravity="center_vertical"
+              android:layout_centerVertical="true"
+            />
 
-    <View android:layout_width="fill_parent" android:layout_height="1dp" android:background="@color/runner_green_trasp" android:layout_alignParentBottom="true"
-          android:layout_marginLeft="5dp" android:layout_marginRight="5dp" />
 </RelativeLayout>

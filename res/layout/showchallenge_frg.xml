@@ -15,9 +15,9 @@
 
 
     <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <Button  android:id="@+id/buttonLeaders" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/tab_button" android:text="Leaders" android:layout_height="wrap_content" />
-        <Button  android:id="@+id/buttonRequests" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/tab_button" android:text="New Friends" android:layout_height="wrap_content" />
-        <Button  android:id="@+id/buttonChallenges" android:layout_weight="1" android:layout_width="0dp" android:background="@drawable/tab_button" android:text="Challenges" android:layout_height="wrap_content" />
+        <Button  android:id="@+id/buttonLeaders" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Leaders" android:layout_height="wrap_content" />
+        <Button  android:id="@+id/buttonRequests" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="New Friends" android:layout_height="wrap_content" />
+        <Button  android:id="@+id/buttonChallenges" android:layout_weight="1" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Challenges" android:layout_height="wrap_content" />
 
     </LinearLayout>
 
@@ -32,6 +32,8 @@
 
 
     </ViewFlipper>
+
+    <ImageView android:id="@+id/noDataImg" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone"/>
 
 
     <!--fixme commit-->

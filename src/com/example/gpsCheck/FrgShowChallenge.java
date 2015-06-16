@@ -36,6 +36,8 @@ public class FrgShowChallenge extends BaseFragment {
 
     SyncHelper sh;
 
+    ImageView noDataImage;
+
     SharedPreferences app_preferences;
 
 
@@ -96,6 +98,8 @@ public class FrgShowChallenge extends BaseFragment {
     private void setList(View v){
 
 
+        noDataImage = (ImageView) v.findViewById(R.id.noDataImg);
+
 
 
         addFriend = (Button) v.findViewById(R.id.buttonAddFriend);
@@ -117,16 +121,17 @@ public class FrgShowChallenge extends BaseFragment {
 
 
 
-        String[] friendList = app_preferences.getString("friendFRequests","").split(" ");
+        final String[] friendList = app_preferences.getString("friendFRequests","").split(" ");
         for (String fr:friendList){
             if (!fr.equals("null")&& !fr.equals("") && !fr.equals(" ")) friendRequests.add(fr);
         }
 
         final ViewFlipper vs = (ViewFlipper) v.findViewById(R.id.chalSwitcher);
 
-        Button leaderBoard = (Button) v.findViewById(R.id.buttonLeaders);
-        Button friendReq = (Button) v.findViewById(R.id.buttonRequests);
-        Button chals = (Button) v.findViewById(R.id.buttonChallenges);
+        final Button leaderBoard = (Button) v.findViewById(R.id.buttonLeaders);
+        final Button friendReq = (Button) v.findViewById(R.id.buttonRequests);
+        final Button chals = (Button) v.findViewById(R.id.buttonChallenges);
+        leaderBoard.setSelected(true);
 
         ListView friendsListView = (ListView) v.findViewById(R.id.listFriendRequests);
         friendsListView.setDivider(null);
@@ -168,18 +173,56 @@ public class FrgShowChallenge extends BaseFragment {
             @Override
             public void onClick(View view) {
                 vs.setDisplayedChild(0);
+                leaderBoard.setSelected(true);
+                friendReq.setSelected(false);
+                chals.setSelected(false);
+
+                if (leaders.size()==0){
+                    noDataImage.setVisibility(View.VISIBLE);
+                    vs.setVisibility(View.GONE);
+                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
+                }else{
+                    noDataImage.setVisibility(View.GONE);
+                    vs.setVisibility(View.VISIBLE);
+                }
+
             }
         });
         friendReq.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 vs.setDisplayedChild(1);
+                leaderBoard.setSelected(false);
+                friendReq.setSelected(true);
+                chals.setSelected(false);
+
+                if (friendRequests.size()==0){
+                    noDataImage.setVisibility(View.VISIBLE);
+                    vs.setVisibility(View.GONE);
+                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
+                }else{
+                    noDataImage.setVisibility(View.GONE);
+                    vs.setVisibility(View.VISIBLE);
+                }
+
             }
         });
         chals.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 vs.setDisplayedChild(2);
+                leaderBoard.setSelected(false);
+                friendReq.setSelected(false);
+                chals.setSelected(true);
+
+                if (challenges.size()==0){
+                    noDataImage.setVisibility(View.VISIBLE);
+                    vs.setVisibility(View.GONE);
+                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
+                }else{
+                    noDataImage.setVisibility(View.GONE);
+                    vs.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -450,8 +493,12 @@ public class FrgShowChallenge extends BaseFragment {
 
                 holder.username = (TextView) convertView
                         .findViewById(R.id.leader_username);
+                holder.chals = (TextView) convertView
+                        .findViewById(R.id.leader_chals);
                 holder.score =  (TextView) convertView
                         .findViewById(R.id.leader_points);
+
+                holder.add = (ImageView)convertView.findViewById(R.id.leader_image);
 
 
 
@@ -463,6 +510,14 @@ public class FrgShowChallenge extends BaseFragment {
 
             // object item based on the position
              User user1 = data.get(position);
+
+            if (position<9){
+                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_1_32));
+            }else{
+                holder.add.setImageDrawable(null);
+            }
+
+            holder.chals.setText(user1.getWonChallenges()+" / "+user1.getTotalChallenges());
 
 
             if (user1.getUsername().length()>0)
@@ -478,7 +533,7 @@ public class FrgShowChallenge extends BaseFragment {
 
 
 
-            holder.score.setText(String.valueOf(user1.getTotalScore()));
+            holder.score.setText(String.valueOf(user1.getTotalScore())+" points");
 
 
 
@@ -658,6 +713,7 @@ public class FrgShowChallenge extends BaseFragment {
     private class leaderViewHolder{
         TextView username;
         TextView score;
+        TextView chals;
         ImageView add;
     }
 

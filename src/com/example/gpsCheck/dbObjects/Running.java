@@ -34,7 +34,8 @@ public class Running {
 
     public Running(){}
 
-    public Running(long running_id, String description,long time, String date, float distance, int type, String opponent_name, String user_name, String LatLonList){
+    public Running(long running_id, String description,long time, String date, float distance, int type,
+                   String opponent_name, String user_name, String LatLonList, String winner, int status){
         this.running_id = running_id;
         this.time = time;
         this.date = date;
@@ -44,6 +45,8 @@ public class Running {
         this.opponent_name = opponent_name;
         this.user_name = user_name;
         this.latLonList = LatLonList;
+        this.winner = winner;
+        this.status = status;
     }
 
     public int getStatus() {
@@ -164,6 +167,8 @@ public class Running {
             toRet.put(ContentDescriptor.Running.Cols.TIME, item.time);
             toRet.put(ContentDescriptor.Running.Cols.DISTANCE, item.distance);
             toRet.put(ContentDescriptor.Running.Cols.TYPE, item.type);
+            toRet.put(ContentDescriptor.Running.Cols.WINNER, item.winner);
+            toRet.put(ContentDescriptor.Running.Cols.STATUS, item.status);
             toRet.put(ContentDescriptor.Running.Cols.OPPONENT_NAME, item.opponent_name);
             toRet.put(ContentDescriptor.Running.Cols.USER_NAME, item.user_name);
             toRet.put(ContentDescriptor.Running.Cols.LAT_LON_LIST, item.latLonList);
@@ -188,6 +193,9 @@ public class Running {
             toRet.type = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.TYPE));
             toRet.opponent_name = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.OPPONENT_NAME));
             toRet.user_name = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.USER_NAME));
+            toRet.winner = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.WINNER));
+            toRet.status = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.STATUS));
+
 
 
 

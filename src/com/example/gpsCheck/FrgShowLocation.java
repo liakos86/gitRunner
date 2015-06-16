@@ -304,7 +304,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }
 
         if (provider==null){
-            selectUsernameSpinner.setClickable(false);
+//            selectUsernameSpinner.setClickable(false);
             Toast.makeText(getActivity(), "Please enable location services",
                     Toast.LENGTH_SHORT).show();
         }else {
@@ -664,7 +664,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                             .position(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
                             .title("You are here")
-//                            .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createBitmap()))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_marker))
 
             );
 

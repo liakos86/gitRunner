@@ -89,6 +89,8 @@ public class ContentDescriptor {
             public static final String OPPONENT_NAME = "opponent_name";
             public static final String USER_NAME = "user_name";
             public static final String LAT_LON_LIST = "lat_lon_list";
+            public static final String WINNER = "winner";
+            public static final String STATUS = "status";
 
 
 
@@ -113,7 +115,8 @@ public class ContentDescriptor {
                     + String.format(sFrmTextNotNull, Cols.OPPONENT_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.USER_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.LAT_LON_LIST) + " , "
-
+                    + String.format(sFrmText, Cols.WINNER) + " , "
+                    + String.format(sFrmTextNotNull, Cols.STATUS) + " , "
                     + String.format(sFrmPrimaryKey, Cols.ID) + ")";
         }
     }
