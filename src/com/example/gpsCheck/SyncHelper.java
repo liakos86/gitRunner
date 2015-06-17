@@ -24,6 +24,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -227,6 +228,10 @@ public class SyncHelper {
 
         List<Running>challenges = new ArrayList<Running>();
 
+        List<Running>challengesExtClosed = new ArrayList<Running>();
+
+        List<Running>challengesDBClosed = new ArrayList<Running>();
+
 
         String query = "  " +
                 "{   $or: [";
@@ -298,7 +303,9 @@ public class SyncHelper {
                     new TypeToken<List<Running>>() {
                     }.getType());
 
-            dbHelper.deleteAllChallenges();
+            dbHelper.deleteAllOpenChallenges();
+
+
 
 //            Log.v(TAG, String.format("Fetching parts - ready to insert [%d] parts", StoreList.size()));
             int size = challenges.size();
@@ -306,16 +313,58 @@ public class SyncHelper {
 
 
                 //if closed challenge and user has responded to it (not created!)
-                if ( challenges.get(i).getStatus()==1 && challenges.get(i).getOpponent_name().equals(app_preferences.getString("username",""))){
+                if ( challenges.get(i).getStatus()==1 ){
+                    challengesExtClosed.add(challenges.get(i));
                     challenges.remove(i);
                     --i;
                     --size;
-                }else  {
+                }else if ( challenges.get(i).getStatus()==0)  {
                     challenges.get(i).setType(1);
                     challenges.get(i).setRunning_id(-1);
                     dbHelper.addRunning(challenges.get(i));
                 }
 //                ll_rows++;
+            }
+
+
+            challengesDBClosed = dbHelper.fetchClosedRunsFromDb();
+            int sizeClosed = challengesDBClosed.size();
+
+            size = challengesExtClosed.size();
+            for (int j=0; j<size; j++){
+
+                boolean exists=false;
+
+                for (int k=0; k<sizeClosed; k++){
+
+                    if (challengesExtClosed.get(j).get_id().get$oid().equals(challengesDBClosed.get(k).getMongoId())){
+                        exists=true;
+                        continue;
+                    }
+
+                }
+
+                if (!exists) {
+
+                    challengesExtClosed.get(j).setMongoId(challengesExtClosed.get(j).get_id().get$oid());
+                    challengesExtClosed.get(j).setRunning_id(-1);
+                    challengesExtClosed.get(j).setType(1);
+                    challengesDBClosed.add(challengesExtClosed.get(j));
+                    dbHelper.addRunning(challengesExtClosed.get(j));
+                }
+
+
+
+            }
+
+
+
+            //todo : 404 occurs because we try deleting every time
+            for (Running run:challengesDBClosed){
+                challenges.add(run);
+                if (run.getWinner()!=null && (run.getUser_name().equals(app_preferences.getString("username","")))){
+                    deleteChallenge(run.getMongoId());
+                }
             }
 
 
@@ -983,7 +1032,74 @@ public class SyncHelper {
 
     }
 
+    public void deleteChallenge(String id){
 
+
+//
+//       String query =  "{_'id': '{ '$oid': '"+id+"'}";
+//         query =  "{'description' : 'xaxa'}";
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .authority(authUrl)
+                .path(workoutPath+"/"+id)
+                .appendQueryParameter("apiKey", apiKey)
+                .build();
+
+
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+
+        try{
+            HttpDelete httpDelete = new HttpDelete(uri.toString());
+            HttpResponse response;
+
+
+            setDefaultDeleteHeaders(httpDelete);
+            Log.v(TAG, "deleting run - requesting");
+            response = client.execute(httpDelete);
+
+
+
+            Log.v(TAG, "deleting run - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("deleting run [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG,statusLine.getStatusCode()+" - "+statusLine.getReasonPhrase());
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+                instream.close();
+            }
+
+            Log.v(TAG, String.format("Deserialising [%s]", resultString));
+        }catch (Exception e) {
+            Log.e(TAG, "Exception deleting run", e);
+
+        }
+
+
+    }
+
+    private void setDefaultDeleteHeaders(HttpDelete httpRequest) throws UnsupportedEncodingException {
+        httpRequest.setHeader("Accept", "application/json");
+        httpRequest.setHeader("Content-type", "application/json");
+    }
 
     private void setDefaultGetHeaders(HttpGet httpRequest) throws UnsupportedEncodingException {
         httpRequest.setHeader("Accept", "application/json");

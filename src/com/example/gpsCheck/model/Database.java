@@ -65,9 +65,14 @@ public class Database extends SQLiteOpenHelper {
         resolver.delete(ContentDescriptor.Running.CONTENT_URI, ContentDescriptor.Running.Cols.ID + "=" + String.valueOf(id), null);
     }
 
-    public void deleteAllChallenges(){
+    public void deleteChallenge(String id){
         ContentResolver resolver = mContext.getContentResolver();
-        resolver.delete(ContentDescriptor.Running.CONTENT_URI, ContentDescriptor.Running.Cols.TYPE + "= 1", null);
+        resolver.delete(ContentDescriptor.Running.CONTENT_URI, ContentDescriptor.Running.Cols.MONGO_ID + "= '" + id+"'", null);
+    }
+
+    public void deleteAllOpenChallenges(){
+        ContentResolver resolver = mContext.getContentResolver();
+        resolver.delete(ContentDescriptor.Running.CONTENT_URI, ContentDescriptor.Running.Cols.TYPE + "= 1 AND "+ContentDescriptor.Running.Cols.STATUS + "= 0", null);
     }
 
     public void deleteLeaderboard(){
@@ -83,6 +88,69 @@ public class Database extends SQLiteOpenHelper {
         c=null;
         return toRet;
     }
+
+    public List<Running> fetchClosedRunsFromDb() {
+
+
+
+        String[] FROM = {
+                // ! beware. I mark the position of the fields
+                ContentDescriptor.Running.Cols.DESCRIPTION,
+                ContentDescriptor.Running.Cols.DATE,
+                ContentDescriptor.Running.Cols.ID,
+                ContentDescriptor.Running.Cols.TIME,
+                ContentDescriptor.Running.Cols.DISTANCE,
+                ContentDescriptor.Running.Cols.TYPE,
+                ContentDescriptor.Running.Cols.OPPONENT_NAME,
+                ContentDescriptor.Running.Cols.USER_NAME,
+                ContentDescriptor.Running.Cols.LAT_LON_LIST,
+                ContentDescriptor.Running.Cols.WINNER,
+                ContentDescriptor.Running.Cols.STATUS,
+                ContentDescriptor.Running.Cols.MONGO_ID
+
+
+
+        };
+        int sDescPosition = 0;
+        int sDatePosition = 1;
+        int sIdPosition = 2;
+        int sTimePosition = 3;
+        int sDistPosition = 4;
+        int sTypePosition = 5;
+        int sOppNamePosition = 6;
+        int sUserNamePosition = 7;
+        int sLatLonListPosition = 8;
+        int sWinnerPosition = 9;
+        int sStatusPosition = 10;
+        int sMongoIdPosition = 11;
+
+
+        Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, FROM,
+                ContentDescriptor.Running.Cols.TYPE+" = 1 AND "+ContentDescriptor.Running.Cols.STATUS+" = 1",
+                null, null);
+
+        List<Running> St = new ArrayList<Running>();
+
+        if (c.getCount() > 0) {
+
+            while (c.moveToNext()) {
+
+
+
+                St.add(new Running(c.getLong(sIdPosition), c
+                        .getString(sDescPosition), c.getLong(sTimePosition),
+                        c.getString(sDatePosition),  c.getFloat(sDistPosition),
+                        c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition),
+                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition)));
+            }
+        }
+        c.close();
+        c = null;
+
+        return St;
+
+    }
+
 
     public List<Running> fetchRunsByTypeFromDb( int type) {
 
@@ -100,7 +168,8 @@ public class Database extends SQLiteOpenHelper {
                 ContentDescriptor.Running.Cols.USER_NAME,
                 ContentDescriptor.Running.Cols.LAT_LON_LIST,
                 ContentDescriptor.Running.Cols.WINNER,
-                ContentDescriptor.Running.Cols.STATUS
+                ContentDescriptor.Running.Cols.STATUS,
+                ContentDescriptor.Running.Cols.MONGO_ID
 
 
 
@@ -116,6 +185,7 @@ public class Database extends SQLiteOpenHelper {
         int sLatLonListPosition = 8;
         int sWinnerPosition = 9;
         int sStatusPosition = 10;
+        int sMongoIdPosition = 11;
 
         Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, FROM,
                 ContentDescriptor.Running.Cols.TYPE+" = "+type,
@@ -141,7 +211,7 @@ public class Database extends SQLiteOpenHelper {
                         .getString(sDescPosition), c.getLong(sTimePosition),
                         c.getString(sDatePosition),  c.getFloat(sDistPosition),
                         c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition),
-                        c.getString(sWinnerPosition), c.getInt(sStatusPosition)));
+                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition)));
             }
         }
         c.close();

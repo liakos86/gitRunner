@@ -20,6 +20,7 @@ public class Running {
     private static final String TAG = Thread.currentThread().getStackTrace()[2].getClassName();
 
     private ObjectId _id;
+    private String mongoId;
     private String date;
     private float distance;
     private long running_id;
@@ -35,8 +36,13 @@ public class Running {
 
     public Running(){}
 
+    public Running(String mongoId, int status){
+        this.mongoId = mongoId;
+        this.status = status;
+    }
+
     public Running(long running_id, String description,long time, String date, float distance, int type,
-                   String opponent_name, String user_name, String LatLonList, String winner, int status){
+                   String opponent_name, String user_name, String LatLonList, String winner, int status, String mongoId){
         this.running_id = running_id;
         this.time = time;
         this.date = date;
@@ -48,6 +54,15 @@ public class Running {
         this.latLonList = LatLonList;
         this.winner = winner;
         this.status = status;
+        this.mongoId = mongoId;
+    }
+
+    public String getMongoId() {
+        return mongoId;
+    }
+
+    public void setMongoId(String mongoId) {
+        this.mongoId = mongoId;
     }
 
     public ObjectId get_id() {
@@ -171,6 +186,7 @@ public class Running {
             ContentValues toRet = new ContentValues();
 
             toRet.put(ContentDescriptor.Running.Cols.ID, item.running_id);
+            toRet.put(ContentDescriptor.Running.Cols.MONGO_ID, item._id.get$oid());
             toRet.put(ContentDescriptor.Running.Cols.DATE, item.date);
             toRet.put(ContentDescriptor.Running.Cols.DESCRIPTION, item.description);
             toRet.put(ContentDescriptor.Running.Cols.TIME, item.time);
@@ -204,6 +220,7 @@ public class Running {
             toRet.user_name = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.USER_NAME));
             toRet.winner = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.WINNER));
             toRet.status = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.STATUS));
+            toRet.mongoId = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.MONGO_ID));
 
 
 

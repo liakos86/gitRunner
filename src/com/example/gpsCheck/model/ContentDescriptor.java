@@ -91,6 +91,7 @@ public class ContentDescriptor {
             public static final String LAT_LON_LIST = "lat_lon_list";
             public static final String WINNER = "winner";
             public static final String STATUS = "status";
+            public static final String MONGO_ID = "mongo_id";
 
 
 
@@ -111,6 +112,7 @@ public class ContentDescriptor {
                      + String.format(sFrmText, Cols.DESCRIPTION) + " , "
                       + String.format(sFrmTextNotNull, Cols.TIME) + " , "
                     + String.format(sFrmTextNotNull, Cols.DISTANCE) + " , "
+                    + String.format(sFrmTextNotNull, Cols.MONGO_ID) + " , "
                     + String.format(sFrmTextNotNull, Cols.TYPE) + " , "
                     + String.format(sFrmTextNotNull, Cols.OPPONENT_NAME) + " , "
                     + String.format(sFrmTextNotNull, Cols.USER_NAME) + " , "
