@@ -109,8 +109,8 @@ public class FrgShowChallenge extends BaseFragment {
         Database db = new Database(getActivity());
 
         String friends = app_preferences.getString("friends",null);
-        leaders = new ArrayList<>();
-        challenges = new ArrayList<>();
+        leaders = new ArrayList<User>();
+        challenges = new ArrayList<Running>();
 
 
             if (friends != null && !friends.equals("")) {
@@ -512,7 +512,7 @@ public class FrgShowChallenge extends BaseFragment {
              User user1 = data.get(position);
 
             if (position<9){
-                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_1_32));
+                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_user_32));
             }else{
                 holder.add.setImageDrawable(null);
             }
@@ -602,6 +602,14 @@ public class FrgShowChallenge extends BaseFragment {
 
     }
 
+    private void deleteChallenge(String runId){
+        Database db = new Database(getActivity());
+        db.deleteChallenge(runId);
+        List<Running>challengesNew = db.fetchRunsByTypeFromDb(1);
+
+        refreshChallengeAdapter(challengesNew);
+    }
+
     public class ChallengesArrayAdapterItem extends ArrayAdapter<Running> {
 
         Context mContext;
@@ -663,7 +671,7 @@ public class FrgShowChallenge extends BaseFragment {
                         public void onClick(View view) {
 
 
-//                            deleteChallenge(run);
+                            deleteChallenge(run.getMongoId());
 
 
                         }
