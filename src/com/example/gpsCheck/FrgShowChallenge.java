@@ -1,7 +1,9 @@
 package com.example.gpsCheck;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -602,6 +604,40 @@ public class FrgShowChallenge extends BaseFragment {
 
     }
 
+    private void confirmDeleteChallenge(final String m_id){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                getActivity());
+
+        // set title
+        alertDialogBuilder.setTitle("Delete Challenge");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage("Are you sure?")
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+
+                        deleteChallenge(m_id);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+
+                       dialog.dismiss();
+                    }
+                });
+
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+    }
+
     private void deleteChallenge(String runId){
         Database db = new Database(getActivity());
         db.deleteChallenge(runId);
@@ -671,7 +707,7 @@ public class FrgShowChallenge extends BaseFragment {
                         public void onClick(View view) {
 
 
-                            deleteChallenge(run.getMongoId());
+                            confirmDeleteChallenge(run.getMongoId());
 
 
                         }
