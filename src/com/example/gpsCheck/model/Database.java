@@ -80,6 +80,14 @@ public class Database extends SQLiteOpenHelper {
         resolver.delete(ContentDescriptor.User.CONTENT_URI, null, null);
     }
 
+    public void setDeletedFlag(String mongoId){
+        ContentResolver resolver = mContext.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(ContentDescriptor.Running.Cols.DELETED, "1");
+        resolver.update(ContentDescriptor.Running.CONTENT_URI, values, ContentDescriptor.Running.Cols.MONGO_ID + " = '"+mongoId+"'", null);
+
+    }
+
     public int countRuns(){
         String[] proj = {ContentDescriptor.Running.Cols.ID};
         Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, proj, null, null, null);
@@ -106,7 +114,8 @@ public class Database extends SQLiteOpenHelper {
                 ContentDescriptor.Running.Cols.LAT_LON_LIST,
                 ContentDescriptor.Running.Cols.WINNER,
                 ContentDescriptor.Running.Cols.STATUS,
-                ContentDescriptor.Running.Cols.MONGO_ID
+                ContentDescriptor.Running.Cols.MONGO_ID,
+                ContentDescriptor.Running.Cols.DELETED
 
 
 
@@ -123,6 +132,7 @@ public class Database extends SQLiteOpenHelper {
         int sWinnerPosition = 9;
         int sStatusPosition = 10;
         int sMongoIdPosition = 11;
+        int sDeletedPosition =12;
 
 
         Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, FROM,
@@ -141,7 +151,7 @@ public class Database extends SQLiteOpenHelper {
                         .getString(sDescPosition), c.getLong(sTimePosition),
                         c.getString(sDatePosition),  c.getFloat(sDistPosition),
                         c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition),
-                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition)));
+                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition), c.getInt(sDeletedPosition)));
             }
         }
         c.close();
@@ -169,7 +179,8 @@ public class Database extends SQLiteOpenHelper {
                 ContentDescriptor.Running.Cols.LAT_LON_LIST,
                 ContentDescriptor.Running.Cols.WINNER,
                 ContentDescriptor.Running.Cols.STATUS,
-                ContentDescriptor.Running.Cols.MONGO_ID
+                ContentDescriptor.Running.Cols.MONGO_ID,
+                ContentDescriptor.Running.Cols.DELETED
 
 
 
@@ -186,6 +197,7 @@ public class Database extends SQLiteOpenHelper {
         int sWinnerPosition = 9;
         int sStatusPosition = 10;
         int sMongoIdPosition = 11;
+        int sDeletedPosition =12;
 
         Cursor c = mContext.getContentResolver().query(ContentDescriptor.Running.CONTENT_URI, FROM,
                 ContentDescriptor.Running.Cols.TYPE+" = "+type,
@@ -211,7 +223,7 @@ public class Database extends SQLiteOpenHelper {
                         .getString(sDescPosition), c.getLong(sTimePosition),
                         c.getString(sDatePosition),  c.getFloat(sDistPosition),
                         c.getInt(sTypePosition), c.getString(sOppNamePosition), c.getString(sUserNamePosition),  c.getString(sLatLonListPosition),
-                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition)));
+                        c.getString(sWinnerPosition), c.getInt(sStatusPosition), c.getString(sMongoIdPosition), c.getInt(sDeletedPosition)));
             }
         }
         c.close();

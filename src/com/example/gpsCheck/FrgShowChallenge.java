@@ -513,13 +513,18 @@ public class FrgShowChallenge extends BaseFragment {
             // object item based on the position
              User user1 = data.get(position);
 
-            if (position<9){
-                holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_user_32));
+            if (position<3){
+                if (position==0)
+                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.first_32));
+                else if (position==1)
+                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.second_32));
+                else
+                    holder.add.setImageDrawable(getResources().getDrawable(R.drawable.third_32));
             }else{
                 holder.add.setImageDrawable(null);
             }
 
-            holder.chals.setText(user1.getWonChallenges()+" / "+user1.getTotalChallenges());
+            holder.chals.setText(user1.getWonChallenges()+" / "+user1.getTotalChallenges()+" challenges");
 
 
             if (user1.getUsername().length()>0)
@@ -717,7 +722,7 @@ public class FrgShowChallenge extends BaseFragment {
                 }else{
                     holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_32));
 
-                    holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond");
+                    holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond in "+String.format("%1$,.0f", (run.getDistance()))+" meters");
                     holder.score.setText("Touch to see route");
 
                     convertView.setOnClickListener(new View.OnClickListener() {
@@ -730,7 +735,7 @@ public class FrgShowChallenge extends BaseFragment {
 
 
             }else{
-                holder.username.setText(run.getUser_name()+" challenged you for "+run.getDistance()+" meters");
+                holder.username.setText(run.getUser_name()+" challenged you for "+String.format("%1$,.0f", (run.getDistance())) + " meters");
                 holder.score.setText("Touch to respond");
                 holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_me_32));
 

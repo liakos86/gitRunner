@@ -265,18 +265,18 @@ public class SyncHelper {
 
                 HttpGet httpRequest = new HttpGet(uri.toString());
                 setDefaultGetHeaders(httpRequest);
-                Log.v(TAG, "Fetching runs - requesting");
+                Log.v(TAG, "Fetching challenges - requesting");
                 response = client.execute(httpRequest);
 
 
 
-            Log.v(TAG, "Fetching runs - responce received");
+            Log.v(TAG, "Fetching challenges - responce received");
 
             HttpEntity entity = response.getEntity();
 
             StatusLine statusLine = response.getStatusLine();
 
-            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+            Log.v(TAG, String.format("Fetching challenges - status [%s]", statusLine));
 
             if (statusLine.getStatusCode() >= 300) {
 //                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
@@ -359,32 +359,20 @@ public class SyncHelper {
 
 
 
-            //todo : 404 occurs because we try deleting every time
             for (Running run:challengesDBClosed){
                 challenges.add(run);
-                if (run.getWinner()!=null && (run.getUser_name().equals(app_preferences.getString("username","")))){
+                if (run.getDeleted()!=1 && run.getWinner()!=null && (run.getUser_name().equals(app_preferences.getString("username","")))){
                     deleteChallenge(run.getMongoId());
+                    dbHelper.setDeletedFlag(run.getMongoId());
                 }
             }
 
-
-//            dbHelper.deleteAllStores();
-
-
-
-//                SharedPreferences.Editor editor = app_preferences.edit();
-//
-//                editor.commit();
-
-
-            Log.v(TAG, String.format("Fetching parts - ready to insert 1 user", 1));
-
         } catch (Exception e) {
-            Log.e(TAG, "Exception fetching user", e);
+            Log.e(TAG, "Exception fetching challenges", e);
             return challenges;
         }
 
-        Log.v(TAG, String.format("Fetching stores - done"));
+        Log.v(TAG, String.format("Fetching challenges - done"));
 
 
 

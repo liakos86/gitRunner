@@ -151,7 +151,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
 
-        usernames=new ArrayList<>();
+        usernames=new ArrayList<String>();
         String[]names = app_preferences.getString("friends","").split(" ");
         for (String name:names)if (name!=null && !name.equals("") && !name.equals("null"))  usernames.add(name);
 
@@ -271,7 +271,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     private void setSpinner(View v) {
 //        selectUsernameSpinner = (Spinner) v.findViewById(R.id.friendsSpinner);
-        usernames=new ArrayList<>();
+        usernames=new ArrayList<String>();
 
         refreshUsernames();
 
@@ -513,6 +513,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         goalReached=false;
         googleMap.clear();
         opponentUsername=null;
+        challenge=null;
     }
 
 
@@ -778,7 +779,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             textChalSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
 
-            textChalDistance.setText("Distance: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
+            textChalDistance.setText("Dist: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
 
 
             if (totalDistance>=targetDistance){
@@ -986,12 +987,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void beginChallenge(Running run, int type){
 
 
-//        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
-//        opponentComment.setText(run.getDescription());
-//        if (run.getDescription().length()>1)
-//            opponentComment.setVisibility(View.VISIBLE);
-
-
         ll.setVisibility(View.GONE);
         resetValues();
         challenge = run;
@@ -1000,8 +995,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             targetDistance = challenge.getDistance();
             targetTime = challenge.getTime();
             showWinLoseDialog(2, true);
-
-
 
             Toast.makeText(getActivity(), "This is " + run.getUser_name() + "'s run!", Toast.LENGTH_LONG).show();
         }else{
@@ -1044,8 +1037,23 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[(pointsLength)-2]), Double.parseDouble(pointsList[pointsLength - 1])), 18));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
+         Location first = new Location("gps");
+        first.setLatitude(Double.parseDouble(pointsList[0]));
+        first.setLongitude(Double.parseDouble(pointsList[1]));
+        Location last = new Location("gps");
+        first.setLatitude(Double.parseDouble(pointsList[pointsLength-2]));
+        first.setLongitude(Double.parseDouble(pointsList[pointsLength-1]));
+
+
+        int middle =(int)(pointsLength/2);
+        if (!(middle%2==0)) ++middle;
+        String middleLat = pointsList[middle];
+        String middleLon = pointsList[++middle];
+
+        int zoom = 19 - (int)run.getDistance()/1000;
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(middleLat), Double.parseDouble(middleLon)), 18));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom), 2000, null);
 
     }
 
@@ -1091,6 +1099,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         targetLayout.setVisibility(View.GONE);
         buttonStartStop.setVisibility(View.GONE);
         buttonStartStop.setText("Start");
+        buttonResume.setText("Resume");
         description.setVisibility(View.GONE);
 
 //        TextView opponentComment = (TextView) getView().findViewById(R.id.opponentComment);
@@ -1160,9 +1169,19 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                     }else{
                         clearViews();
                         resetValues();
+                        animateTo(getLastLocation());
                     }
                 }
             });
+
+
+    }
+
+    private void animateTo(Location loc){
+        if (googleMap!=null && loc!=null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLatitude(), loc.getLongitude()), 15));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+        }
 
 
     }

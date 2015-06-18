@@ -31,18 +31,20 @@ public class Running {
     private String user_name;
     private int type; // 0=simple run, 1=challenge run
     private String latLonList;
+    private int deleted;
     private int status; // 0= open, 1=closed - After challenge reply we set status=1, then the other user deletes it on view
 
 
     public Running(){}
 
-    public Running(String mongoId, int status){
+    public Running(String mongoId, int status, int deleted){
         this.mongoId = mongoId;
         this.status = status;
+        this.deleted = deleted;
     }
 
     public Running(long running_id, String description,long time, String date, float distance, int type,
-                   String opponent_name, String user_name, String LatLonList, String winner, int status, String mongoId){
+                   String opponent_name, String user_name, String LatLonList, String winner, int status, String mongoId, int deleted){
         this.running_id = running_id;
         this.time = time;
         this.date = date;
@@ -55,6 +57,15 @@ public class Running {
         this.winner = winner;
         this.status = status;
         this.mongoId = mongoId;
+        this.deleted = deleted;
+    }
+
+    public int getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(int deleted) {
+        this.deleted = deleted;
     }
 
     public String getMongoId() {
@@ -197,6 +208,7 @@ public class Running {
             toRet.put(ContentDescriptor.Running.Cols.OPPONENT_NAME, item.opponent_name);
             toRet.put(ContentDescriptor.Running.Cols.USER_NAME, item.user_name);
             toRet.put(ContentDescriptor.Running.Cols.LAT_LON_LIST, item.latLonList);
+            toRet.put(ContentDescriptor.Running.Cols.DELETED, item.deleted);
 
 
             return toRet;
@@ -221,6 +233,7 @@ public class Running {
             toRet.winner = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.WINNER));
             toRet.status = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.STATUS));
             toRet.mongoId = cursor.getString(cursor.getColumnIndex(ContentDescriptor.Running.Cols.MONGO_ID));
+            toRet.deleted = cursor.getInt(cursor.getColumnIndex(ContentDescriptor.Running.Cols.DELETED));
 
 
 
