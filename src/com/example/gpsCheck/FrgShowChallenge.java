@@ -315,6 +315,9 @@ public class FrgShowChallenge extends BaseFragment {
         User user = new User();
         user.setTotalScore(app_preferences.getInt("totalScore",0));
         user.setUsername(app_preferences.getString("username", "you"));
+        user.setTotalChallenges(app_preferences.getInt("totalChallenges", 0));
+        user.setWonChallenges(app_preferences.getInt("wonChallenges", 0));
+
 
 
 
@@ -381,10 +384,14 @@ public class FrgShowChallenge extends BaseFragment {
 
             addFriend.setClickable(true);
 
-            if (type==0)
+            if (type==0&&users.size()>0)
                 setAdapter(users);
-            else if (type==1)
-                Toast.makeText(getActivity(), "Friend request sent!", Toast.LENGTH_LONG).show();
+            else if (type==1) {
+                if (users.size() == 1)
+                    Toast.makeText(getActivity(), "Friend request sent!", Toast.LENGTH_LONG).show();
+                else if (users.size() == 0)
+                    Toast.makeText(getActivity(), "User does not exist!", Toast.LENGTH_LONG).show();
+            }
 
         }
 
@@ -418,6 +425,7 @@ public class FrgShowChallenge extends BaseFragment {
             addFriend.setClickable(true);
 
 
+            if (challenges.size()>0)
                 refreshChallengeAdapter(challenges);
 
 
@@ -427,14 +435,16 @@ public class FrgShowChallenge extends BaseFragment {
     }
 
 
-    private class acceptRequest extends AsyncTask<Void, Void, User> {
+    private class acceptOrRejectRequest extends AsyncTask<Void, Void, User> {
         private Activity activity;
         String friend;
+        int type;
 
 
-        public acceptRequest(Activity activity, String friend) {
+        public acceptOrRejectRequest(Activity activity, String friend, int type) {
             this.activity = activity;
             this.friend = friend;
+            this.type = type;
         }
 
         protected void onPreExecute() {
@@ -446,7 +456,7 @@ public class FrgShowChallenge extends BaseFragment {
 
 
 
-                return      sh.getMongoUserByUsernameForFriend(friend, 0);
+                return      sh.getMongoUserByUsernameForFriend(friend, type);
 
 
 
@@ -577,7 +587,8 @@ public class FrgShowChallenge extends BaseFragment {
                 holder.username = (TextView) convertView
                         .findViewById(R.id.friend_name);
 
-                holder.add = (ImageView) convertView.findViewById(R.id.trImageAdd);
+                holder.add = (ImageView) convertView.findViewById(R.id.acceptFriend);
+                holder.reject = (ImageView) convertView.findViewById(R.id.rejectFriend);
 
 
                 convertView.setTag(holder);
@@ -590,13 +601,24 @@ public class FrgShowChallenge extends BaseFragment {
           final  String friend= data.get(position);
 
 
-          holder.username.setText(friend+" wants to add you as a friend!");
+          holder.username.setText(friend+" wants to add you as a friend");
             holder.add.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
                     if (((ActMainTest)getActivity()).isNetworkAvailable()) {
-                        new acceptRequest(getActivity(), friend).execute();
+                        new acceptOrRejectRequest(getActivity(), friend, 0).execute();
+                    }
+
+                }
+            });
+
+            holder.reject.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    if (((ActMainTest)getActivity()).isNetworkAvailable()) {
+                        new acceptOrRejectRequest(getActivity(), friend, 2).execute();
                     }
 
                 }
@@ -701,9 +723,12 @@ public class FrgShowChallenge extends BaseFragment {
                         holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_looser_32));
                     }else{
                         holder.username.setText("HOORAY! "+"You beat "+run.getOpponent_name());
+                        holder.username.setText("HOORAY! "+"You beat "+run.getOpponent_name());
                         holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_winner_32));
 
                     }
+
+                    holder.score.setTextColor(getResources().getColor(R.color.runner_red));
 
                     holder.score.setText("Touch to delete");
 
@@ -723,6 +748,8 @@ public class FrgShowChallenge extends BaseFragment {
                     holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_32));
 
                     holder.username.setText("Waiting for "+run.getOpponent_name()+" to respond in "+String.format("%1$,.0f", (run.getDistance()))+" meters");
+                    holder.score.setTextColor(getResources().getColor(R.color.runner_dark_blue));
+
                     holder.score.setText("Touch to see route");
 
                     convertView.setOnClickListener(new View.OnClickListener() {
@@ -737,6 +764,7 @@ public class FrgShowChallenge extends BaseFragment {
             }else{
                 holder.username.setText(run.getUser_name()+" challenged you for "+String.format("%1$,.0f", (run.getDistance())) + " meters");
                 holder.score.setText("Touch to respond");
+                holder.score.setTextColor(getResources().getColor(R.color.runner_green));
                 holder.add.setImageDrawable(getResources().getDrawable(R.drawable.ic_waiting_me_32));
 
 
@@ -764,6 +792,7 @@ public class FrgShowChallenge extends BaseFragment {
         TextView score;
         TextView chals;
         ImageView add;
+        ImageView reject;
     }
 
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res/com.example.gpsCheck"
               xmlns:ads="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
@@ -26,13 +27,97 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
+
                >
 
-            <TextView android:layout_gravity="center" android:textColor="@android:color/white" android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@drawable/bottom_button_background" android:id="@+id/textTotalChallenges" android:layout_width="fill_parent" android:layout_height="44dp" android:text="Total Challenges: 0"/>
-            <TextView android:textColor="@android:color/white" android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@drawable/bottom_button_background" android:id="@+id/textTotalDistance" android:layout_width="fill_parent" android:layout_height="44dp" android:text="Total Distance: 0"/>
-            <TextView android:textColor="@android:color/white" android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@drawable/bottom_button_background" android:id="@+id/textTotalTime" android:layout_width="fill_parent" android:layout_height="44dp" android:text="Total Time: 0"/>
-            <TextView android:textColor="@android:color/white" android:gravity="center" android:layout_margin="8dp" android:drawableLeft="@drawable/running2" android:padding="10dp" android:background="@drawable/bottom_button_background" android:id="@+id/textTotalScore" android:layout_width="fill_parent" android:layout_height="44dp" android:text="Total Score: 0"/>
+            <LinearLayout
+                    android:paddingLeft="10dp"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1.2"
+                    android:orientation="horizontal"
+                    android:background="@color/runner_green"
+                    >
 
+
+
+                <com.example.gpsCheck.CircularImageView
+                        android:layout_gravity="center_vertical|left"
+                        app:border="true"
+                        app:border_color="@color/circle_grey"
+                        app:border_width="2dp"
+                        app:shadow="true"
+                        android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/user_64" />
+                <TextView  android:textStyle="bold|italic" android:textSize="@dimen/xmedium_text" android:layout_gravity="center_vertical" android:textColor="@color/white_back"  android:layout_margin="8dp"  android:padding="10dp"   android:id="@+id/textUser" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="User"/>
+
+
+
+            </LinearLayout>
+            <View android:layout_width="fill_parent" android:layout_height="4dp" android:background="@color/runner_orange" android:layout_gravity="bottom"
+                    />
+
+
+        <LinearLayout
+                android:paddingLeft="10dp"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:background="@color/white_back"
+                >
+
+            <ImageView android:layout_margin="6dp"  android:layout_gravity="center_vertical|left" android:layout_width="wrap_content"  android:layout_height="wrap_content" android:src="@drawable/win_64"/>
+            <TextView  android:textStyle="bold|italic" android:textSize="@dimen/xmedium_text" android:layout_gravity="center_vertical" android:textColor="@color/drawer_black"  android:layout_margin="8dp"  android:padding="10dp"   android:id="@+id/textTotalChallenges" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Challenges: 0"/>
+
+
+        </LinearLayout>
+        <LinearLayout
+                android:paddingLeft="10dp"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                >
+            <ImageView android:layout_marginLeft="10dp" android:layout_margin="6dp" android:layout_gravity="center_vertical|left" android:layout_width="wrap_content"  android:layout_height="wrap_content" android:src="@drawable/distance_64"/>
+
+            <TextView android:textSize="@dimen/xmedium_text"  android:textStyle="bold|italic" android:textColor="@color/drawer_black" android:layout_gravity="center_vertical"  android:layout_margin="8dp" android:padding="10dp"   android:id="@+id/textTotalDistance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Distance: 0"/>
+           </LinearLayout>
+
+        <LinearLayout
+                android:background="@color/white_back"
+                android:paddingLeft="10dp"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                >
+            <ImageView android:layout_margin="6dp" android:layout_marginLeft="10dp" android:layout_gravity="center_vertical|left" android:layout_width="wrap_content"  android:layout_height="wrap_content" android:src="@drawable/timer_64"/>
+
+            <TextView  android:textStyle="bold|italic" android:textSize="@dimen/xmedium_text" android:textColor="@color/drawer_black" android:layout_gravity="center_vertical" android:layout_margin="8dp"  android:padding="10dp"   android:id="@+id/textTotalTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Time: 0"/>
+            </LinearLayout>
+
+        <LinearLayout
+                android:paddingLeft="10dp"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                >
+            <ImageView android:layout_margin="6dp" android:layout_marginLeft="10dp" android:layout_gravity="center_vertical|left" android:layout_width="wrap_content"  android:layout_height="wrap_content" android:src="@drawable/trophy_64"/>
+
+            <TextView  android:textStyle="bold|italic" android:textSize="@dimen/xmedium_text" android:textColor="@color/drawer_black" android:layout_gravity="center_vertical" android:layout_margin="18dp"   android:id="@+id/textTotalScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Score: 0"/>
+        </LinearLayout>
+        <LinearLayout
+                android:paddingLeft="10dp"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:background="@color/white_back"
+                >
+
+
+        </LinearLayout>
 
             <!--<com.google.android.gms.ads.AdView-->
                     <!--android:layout_width="fill_parent"-->

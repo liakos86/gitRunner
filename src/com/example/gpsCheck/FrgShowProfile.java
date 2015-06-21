@@ -44,7 +44,7 @@ public class FrgShowProfile  extends BaseFragment {
     TextView textLogin;
     ViewFlipper vs;
     String username, password, email;
-    TextView textTotalChallenges, textTotalScore, textTotalTime, textTotalDistance;
+    TextView textTotalChallenges, textTotalScore, textTotalTime, textTotalDistance, textUser;
     SyncHelper sh;
 
     @Override
@@ -110,6 +110,7 @@ public class FrgShowProfile  extends BaseFragment {
         textTotalScore = (TextView) v.findViewById(R.id.textTotalScore);
         textTotalTime = (TextView) v.findViewById(R.id.textTotalTime);
         textTotalDistance = (TextView) v.findViewById(R.id.textTotalDistance);
+        textUser = (TextView) v.findViewById(R.id.textUser);
 
         buttonRegister = (Button) v.findViewById(R.id.buttonRegister);
         buttonLogin = (Button) v.findViewById(R.id.buttonLogin);
@@ -165,6 +166,7 @@ public class FrgShowProfile  extends BaseFragment {
         textTotalScore.setText("Total Score: "+app_preferences.getInt("totalScore",0));
         textTotalTime.setText("Total Time: "+app_preferences.getLong("totalTime",0));
         textTotalDistance.setText("Total Distance: "+app_preferences.getFloat("totalDistance",0));
+        textUser.setText(app_preferences.getString("username","User"));
 
 
 

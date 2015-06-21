@@ -19,17 +19,22 @@
                 android:layout_weight="1"
                 />
 
+
         <RelativeLayout android:layout_margin="16dp" android:background="@android:color/white" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 
 
-            <RelativeLayout android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:background="@color/runner_red" android:visibility="gone" android:id="@+id/noLocation" android:layout_width="fill_parent" android:layout_height="48dp">
+                <TextView android:text="Please enable location services" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white_back"
+                          android:layout_gravity="center_vertical" android:gravity="center_horizontal"/>
+            </LinearLayout>
+            <RelativeLayout android:layout_below="@+id/noLocation" android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 
-                <LinearLayout android:background="@drawable/green_gradient"  android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="48dp">
-                <TextView android:textSize="@dimen/small_text" android:layout_gravity="center_vertical" android:layout_weight="1" android:textColor="#fff"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
-                <TextView android:textSize="@dimen/small_text" android:layout_gravity="center_vertical" android:layout_weight="1" android:textColor="#fff" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>
-                <TextView android:textSize="@dimen/small_text" android:layout_gravity="center_vertical" android:layout_weight="1" android:textColor="#fff"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
+                <LinearLayout android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>
+                <TextView android:background="@color/drawer_black" android:layout_weight="1" android:textColor="#fff"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
                 </LinearLayout>
 
 
@@ -74,15 +79,15 @@
 
 
                 <LinearLayout android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
-                <EditText android:textSize="@dimen/small_text" android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center" android:singleLine="true"/>
-                <Button  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@color/runner_green" android:text="Set" android:layout_height="wrap_content" />
+                <EditText android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center" android:singleLine="true"/>
+                <Button android:textColor="@color/white_back"  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@color/runner_green" android:text="Set" android:layout_height="wrap_content" />
                 </LinearLayout>
 
             </LinearLayout>
 
             <!--<TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>-->
 
-            <Button android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Start" android:layout_height="wrap_content" />
+            <Button android:textColor="@color/white_back" android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Start" android:layout_height="wrap_content" />
 
 
 
@@ -100,9 +105,9 @@
 
         <EditText android:visibility="gone"  android:layout_marginTop="30dp" android:id="@+id/chalDesc" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 
-        <Button android:layout_marginTop="30dp" android:id="@+id/buttonResume" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Resume" android:layout_height="wrap_content" />
+        <Button android:textColor="@color/white_back" android:layout_marginTop="30dp" android:id="@+id/buttonResume" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Resume" android:layout_height="wrap_content" />
         <!--<Button android:layout_marginTop="30dp" android:id="@+id/buttonSaveRun" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Save" android:layout_height="wrap_content" />-->
-        <Button android:layout_marginTop="30dp"  android:id="@+id/buttonChalClear" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Clear" android:layout_height="wrap_content" />
+        <Button android:textColor="@color/white_back" android:layout_marginTop="30dp"  android:id="@+id/buttonChalClear" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Clear" android:layout_height="wrap_content" />
 
 
 

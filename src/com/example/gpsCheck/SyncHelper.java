@@ -447,18 +447,110 @@ public class SyncHelper {
             }
 
 
+            updateTimeAndDistance(app_preferences.getString("username",""));
+
         } catch (Exception e) {
-            Log.e(TAG, "Exception fetching stores", e);
+            Log.e(TAG, "Exception creating challenge", e);
         }
 
-        Log.v(TAG, String.format("Fetching stores - done"));
+        Log.v(TAG, String.format("Creating challenge - done"));
 
 
+    }
+
+    public void updateTimeAndDistance(String username){
+
+
+        Log.v(TAG, "Saving time and dist");
+
+        String query = "{'username': '"+username+"'}";
+
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .authority(authUrl)
+                .path(runnerPath)
+                .appendQueryParameter("q", query)
+                .appendQueryParameter("apiKey", apiKey)
+                .build();
+
+
+        DefaultHttpClient client = application.getHttpClient();
+        client.setParams(getMyParams());
+
+
+        try {
+            JSONObject obj = new JSONObject();
+
+
+            obj.put("totalDistance" , app_preferences.getFloat("totalDistance",0));
+
+            obj.put("totalTime" , app_preferences.getLong("totalTime", 0));
+
+
+            JSONObject lastObj = new JSONObject();
+            lastObj.put("$set", obj);
+
+            StringEntity se = new StringEntity(lastObj.toString());
+
+
+
+            HttpPut httpRequest = new HttpPut(uri.toString());
+
+            httpRequest.setEntity(se);
+
+
+            setDefaultPutHeaders(httpRequest);
+
+            Log.v(TAG, "setting user stats - requesting");
+            HttpResponse response = client.execute(httpRequest);
+            Log.v(TAG, "setting finished - responce received");
+
+            HttpEntity entity = response.getEntity();
+
+            StatusLine statusLine = response.getStatusLine();
+
+            Log.v(TAG, String.format("Setting time & dist - status [%s]", statusLine));
+
+            if (statusLine.getStatusCode() >= 300) {
+//                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
+                Log.e(TAG, statusLine.getStatusCode() + " - " + statusLine.getReasonPhrase());
+                return;
+            }
+
+            String resultString = null;
+
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                Header contentEncoding = response.getFirstHeader("Content-Encoding");
+                if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                    instream = new GZIPInputStream(instream);
+                }
+                resultString = Utils.convertStreamToString(instream);
+
+                instream.close();
+            }
+
+            Log.v(TAG, String.format("Deserialising [%s]", resultString));
+
+
+
+//            dbHelper.deleteAllStores();
+
+            Log.v(TAG, String.format("Uploaded user time and dist"));
+
+        } catch (Exception e) {
+            Log.e(TAG, "Exception uploading user stats", e);
+        }
     }
 
     public List<User> getLeaderBoardOrFriend(String friends, int type){
 
         List<User> users = new ArrayList<User>();
+
+        if (type==1)
+            Log.v(TAG, "Fetching user "+friends);
+        else
             Log.v(TAG, "Fetching leaderboard");
 
             String[] friendsArray;
@@ -577,11 +669,11 @@ public class SyncHelper {
 //            }
 
             } catch (Exception e) {
-                Log.e(TAG, "Exception fetching stores", e);
+                Log.e(TAG, "Exception fetching leaderboard or friend", e);
                 return users;
             }
 
-            Log.v(TAG, String.format("Fetching stores - done"));
+            Log.v(TAG, String.format("Fetching leader or friend - done"));
 
 
             return users;
@@ -591,7 +683,7 @@ public class SyncHelper {
 
     }
 
-    public User getMongoUserByUsernameForFriend(String username, int type) {// 1 send request, 0 accept, else just get user
+    public User getMongoUserByUsernameForFriend(String username, int type) {// 1 send request, 0 accept, 2 reject, else just get user
 
         Log.v(TAG, "Fetching user");
 
@@ -626,18 +718,18 @@ public class SyncHelper {
 
                 HttpGet httpRequest = new HttpGet(uri.toString());
                 setDefaultGetHeaders(httpRequest);
-                Log.v(TAG, "Fetching runs - requesting");
+                Log.v(TAG, "Fetching user - requesting");
                 response = client.execute(httpRequest);
 
 
 
-            Log.v(TAG, "Fetching runs - responce received");
+            Log.v(TAG, "Fetching user - responce received");
 
             HttpEntity entity = response.getEntity();
 
             StatusLine statusLine = response.getStatusLine();
 
-            Log.v(TAG, String.format("Fetching stores - status [%s]", statusLine));
+            Log.v(TAG, String.format("Fetching user - status [%s]", statusLine));
 
             if (statusLine.getStatusCode() >= 300) {
 //                Toast.makeText(activity,R.string.server_error,Toast.LENGTH_LONG).show();
@@ -671,10 +763,12 @@ public class SyncHelper {
                 editor.putString("sentRequests",  app_preferences.getString("sentRequests","")+user.getUsername());
                 editor.commit();
                 //refresh other users friends
-            }else if (type==0) {
+            }else if (type==0|| type==2) {
 
                 //add friend to both users list
-                if (!user.getFriends().contains(myUsername) && !app_preferences.getString("friends", "").contains(user.getUsername())){
+
+
+                if ((type==0)&&(!user.getFriends().contains(myUsername) && !app_preferences.getString("friends", "").contains(user.getUsername()))){
                     uploadNewFriendOrRequest(user.getFriends() + " " + myUsername, user.getUsername(), type);
                     uploadNewFriendOrRequest(app_preferences.getString("friends", "") + " " + user.getUsername(), myUsername, type);
                 }
@@ -688,6 +782,7 @@ public class SyncHelper {
 
                 SharedPreferences.Editor editor = app_preferences.edit();
                 editor.putString("friendRequests", newFriendRequests);
+                if (type==0)
                 editor.putString("friends", app_preferences.getString("friends","") + " " + user.getUsername());
                 editor.commit();
 
@@ -697,14 +792,14 @@ public class SyncHelper {
 
             }
 
-            Log.v(TAG, String.format("Fetching parts - ready to insert 1 user", 1));
+//            Log.v(TAG, String.format("Fetching parts - ready to insert 1 user", 1));
 
         } catch (Exception e) {
             Log.e(TAG, "Exception fetching user", e);
             return user;
         }
 
-        Log.v(TAG, String.format("Fetching stores - done"));
+        Log.v(TAG, String.format("Fetching user - done"));
 
 
 
@@ -821,6 +916,8 @@ public class SyncHelper {
 
     public void replyToChallenge(String opponentName, boolean won) {
 
+        updateTimeAndDistance(app_preferences.getString("username",""));
+
         Log.v(TAG, "replying to challenge");
 
 //        Toast.makeText(getApplication(), opponentName+"  "+won, Toast.LENGTH_LONG).show();
@@ -935,7 +1032,7 @@ public class SyncHelper {
 
     private void setScoreAndChallenges(User user){
 
-        Log.v(TAG, "Uploading new friend");
+        Log.v(TAG, "Saving new score");
 
         String query = "{'username': '"+user.getUsername()+"'}";
 

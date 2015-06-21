@@ -1,9 +1,9 @@
 package com.example.gpsCheck;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.*;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -11,10 +11,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
+import android.test.mock.MockApplication;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.example.gpsCheck.dbObjects.Running;
+import com.example.gpsCheck.service.RunningService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -48,6 +50,19 @@ public class ActMainTest extends FragmentActivity {
         getPager();
 
     }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                String string = bundle.getString(RunningService.LATLONLIST);
+                int resultCode = bundle.getInt(RunningService.RESULT);
+
+            }
+        }
+    };
 
     private void checkOfflineActions(){
 
@@ -364,7 +379,10 @@ public class ActMainTest extends FragmentActivity {
             if (desc==null)
                 sh.replyToChallenge(username, won);
             else
-                sh.createMongoChallenge(username,time,distance,latLonList,desc);
+                sh.createMongoChallenge(username, time, distance, latLonList, desc);
+
+            sh.updateTimeAndDistance(app_preferences.getString("username",""));
+
 
             return 0;
 
@@ -380,14 +398,84 @@ public class ActMainTest extends FragmentActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+
+//        if (((ExtApplication) getApplication()).isRunning()) {
+//
+//
+//            NotificationManager mNotifyMgr =
+//                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//            //Builds the notification and issues it.
+//            mNotifyMgr.cancel(001);
+//
+//        }
+//        stopService(getIntent());
+
+
+
+    }
+
+    @Override
     protected void onPause() {
+
+
+//        if (((ExtApplication) getApplication()).isRunning()) {
+//
+//            Intent resultIntent = new Intent(this, ActMainTest.class);
+//            resultIntent.putExtra("latLonList", ((ExtApplication) getApplication()).getLatLonList());
+//            //    Because clicking the notification opens a new ("special") activity, there's
+//            //    no need to create an artificial back stack.
+//            PendingIntent resultPendingIntent =
+//                    PendingIntent.getActivity(
+//                            this,
+//                            0,
+//                            resultIntent,
+//                            PendingIntent.FLAG_UPDATE_CURRENT
+//                    );
+//
+//            ((ExtApplication) getApplication()).setmBuilder(
+//                    new NotificationCompat.Builder(this)
+//                            .setSmallIcon(R.drawable.ic_waiting_me_32)
+//                            .setContentTitle("You are running")
+//                            .setContentText("Go to workout")
+//                            .setOngoing(true)
+//                            .setContentIntent(resultPendingIntent));
+//
+//
+//            //Sets an ID for the notification
+//            int mNotificationId = 001;
+//            //Gets an instance of the NotificationManager service
+//            NotificationManager mNotifyMgr =
+//                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//            //Builds the notification and issues it.
+//            mNotifyMgr.notify(mNotificationId, ((ExtApplication) getApplication()).getmBuilder().build());
+//
+//
+//            Intent intent = new Intent(this, RunningService.class);
+//            // add info for the service which file to download and where to store
+//            intent.putExtra(RunningService.LATLONLIST, ((ExtApplication) getApplication()).getLatLonList());
+//        startService(intent);
+
+//        registerReceiver(receiver, new IntentFilter(RunningService.FILENAME));
+//        }
+
         super.onPause();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStop() {
+        super.onStop();
+    }
 
+
+
+    @Override
+    public void onBackPressed() {
+
+
+        super.onBackPressed();
     }
 
     public void togglePagerClickable(boolean show){

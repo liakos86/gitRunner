@@ -10,6 +10,7 @@ import android.content.Context;
 //import org.acra.annotation.ReportsCrashes;
 //import org.acra.sender.HttpSender;
 //import org.apache.http.client.CookieStore;
+import android.support.v4.app.NotificationCompat;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 
@@ -29,6 +30,35 @@ public class ExtApplication extends Application {
 
 
     private int position;
+
+    public boolean running;
+    String latLonList="";
+
+    public NotificationCompat.Builder mBuilder;
+
+    public NotificationCompat.Builder getmBuilder() {
+        return mBuilder;
+    }
+
+    public void setmBuilder(NotificationCompat.Builder mBuilder) {
+        this.mBuilder = mBuilder;
+    }
+
+    public String getLatLonList() {
+        return latLonList;
+    }
+
+    public void setLatLonList(String latLonList) {
+        this.latLonList = latLonList;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 
     @Override
     public void onCreate() {
