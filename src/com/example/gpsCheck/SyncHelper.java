@@ -187,6 +187,8 @@ public class SyncHelper {
                 editor.putString("username", user2.getUsername());
                 editor.putInt("totalScore", user2.getTotalScore());
                editor.putInt("totalChallenges", user2.getTotalChallenges());
+                editor.putLong("totalTime", user2.getTotalTime());
+                editor.putFloat("totalDistance", user2.getTotalDistance());
                 editor.putInt("wonChallenges", user2.getwonChallenges());
                 editor.putString("friends", user2.getFriends());
                 editor.putString("friendRequests", user2.getFriendRequests());
@@ -197,6 +199,8 @@ public class SyncHelper {
                 editor.putInt("totalScore", user2.getTotalScore());
                 editor.putString("username", user2.getUsername());
                 editor.putInt("totalChallenges", user2.getTotalChallenges());
+                editor.putLong("totalTime", user2.getTotalTime());
+                editor.putFloat("totalDistance", user2.getTotalDistance());
                 editor.putInt("wonChallenges", user2.getwonChallenges());
                 editor.putString("friends", user2.getFriends());
                 editor.putString("friendRequests", user2.getFriendRequests());
