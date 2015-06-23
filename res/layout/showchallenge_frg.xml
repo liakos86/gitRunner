@@ -10,11 +10,13 @@
 
 
     <LinearLayout
+            android:background="@drawable/text_on_map_back"
+            android:padding="2dp" android:layout_margin="4dp"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal" >
-    <EditText android:textColorHint="@color/circle_grey" android:textColor="@color/drawer_black" android:background="@android:color/white" android:layout_weight="2" android:id="@+id/editNewFriend" android:drawableLeft="@drawable/ic_add_friend_32" android:layout_width="0dp" android:layout_height="48dp" android:hint="search friend"/>
-    <Button android:textColor="@color/white_back"   android:layout_weight="1" android:id="@+id/buttonAddFriend" android:layout_marginBottom="8dp" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Add" android:layout_height="wrap_content" />
+    <EditText android:paddingLeft="4dp" android:layout_gravity="center_vertical|left" android:textColorHint="@color/circle_grey" android:textColor="@color/drawer_black" android:background="@android:color/white" android:layout_weight="2" android:id="@+id/editNewFriend" android:drawableLeft="@drawable/ic_add_friend_32" android:drawablePadding="4dp" android:layout_width="0dp" android:layout_height="48dp" android:hint="search friend"/>
+    <Button android:layout_gravity="center_vertical" android:textColor="@color/white_back"   android:layout_weight="1" android:id="@+id/buttonAddFriend"  android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Add" android:layout_height="wrap_content" />
 </LinearLayout>
 
 
