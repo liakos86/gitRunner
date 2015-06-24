@@ -716,8 +716,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void onResume() {
         super.onResume();
 
-//        if (!((ExtApplication) getActivity().getApplication()).isRunning())
-//        getOneLocationUpdate();
+        if (running)
+        getOneLocationUpdate();
     }
 //
 //    /* Remove the locationlistener updates when Activity is paused */

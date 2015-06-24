@@ -8,28 +8,29 @@
                 android:minHeight="50dp"
         >
 
-    <!--<ImageView android:layout_width="15dp" android:layout_height="20dp"-->
-               <!--android:src="@drawable/ic_marker" android:id="@+id/drop_marker" android:layout_marginRight="10dp"/>-->
+    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8dp"
+               android:src="@drawable/ic_run"  android:id="@+id/drop_marker" android:layout_alignParentLeft="true" android:layout_centerVertical="true"/>
 
 
     <TextView
+            android:layout_toRightOf="@+id/drop_marker"
+            android:layout_centerVertical="true"
             android:id="@+id/countryName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="address"
-            android:textSize="@dimen/large_text"
+            android:textSize="@dimen/xmedium_text"
             />
 
-    <!--<TextView-->
-            <!--android:id="@+id/search_store_name"-->
-            <!--android:layout_below="@+id/search_store_address"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:text="phone"-->
-            <!--android:textSize="@dimen/xsmall_text"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="@color/vodafone_dark_blue"-->
-            <!--android:layout_alignLeft="@id/search_store_address"-->
-            <!--/>-->
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentRight="true"
+              android:layout_centerVertical="true"
+              android:textStyle="italic"
+              android:text="Select"
+              android:textSize="12dp"
+            />
+
+
 
 
 </RelativeLayout>
