@@ -31,8 +31,6 @@ public class ExtApplication extends Application {
 
     private int position;
 
-    public boolean running;
-    String latLonList="";
 
     public NotificationCompat.Builder mBuilder;
 
@@ -44,21 +42,7 @@ public class ExtApplication extends Application {
         this.mBuilder = mBuilder;
     }
 
-    public String getLatLonList() {
-        return latLonList;
-    }
 
-    public void setLatLonList(String latLonList) {
-        this.latLonList = latLonList;
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
 
     @Override
     public void onCreate() {

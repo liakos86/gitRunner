@@ -146,6 +146,28 @@ public class ActMainTest extends FragmentActivity {
 
             }
 
+    public void getFirstLeaderboard(){
+
+        if (app_preferences.getString("firstTime",null)==null){
+            final String name = "android:switcher:" + mPager.getId()+ ":" + 2;
+            final Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(name);
+
+
+            ((FrgShowChallenge) fragmentByTag).getLeaderBoardAndChallenges();
+            ((FrgShowChallenge) fragmentByTag).refreshRequests();
+
+        SharedPreferences.Editor editor = app_preferences.edit();
+
+        editor.putString("firstTime", "true");
+        editor.commit();
+        }
+
+
+
+
+    }
+
+
 
     private void getPager() {
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -176,13 +198,15 @@ public class ActMainTest extends FragmentActivity {
                 setSelectedBottomButton(bottomButtons,position);
 
                 //todo not on every change, set timer!!!
-                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile) {
-                    ((FrgShowProfile) getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
-                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
-
-                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoardAndChallenges();
-                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
-                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowLocation) {
+//                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile) {
+//                    ((FrgShowProfile) getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
+//                }else
+//                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
+//
+//                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoardAndChallenges();
+//                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
+//                }else
+                    if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowLocation) {
                     ((FrgShowLocation)getActiveFragment(getSupportFragmentManager(), position)).refreshUsernames();
 
                 }
@@ -398,20 +422,17 @@ public class ActMainTest extends FragmentActivity {
     }
 
     @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+    }
+
+    @Override
     protected void onResume() {
+
+
         super.onResume();
-
-
-//        if (((ExtApplication) getApplication()).isRunning()) {
-//
-//
-//            NotificationManager mNotifyMgr =
-//                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//            //Builds the notification and issues it.
-//            mNotifyMgr.cancel(001);
-//
-//        }
-//        stopService(getIntent());
 
 
 
@@ -421,47 +442,13 @@ public class ActMainTest extends FragmentActivity {
     protected void onPause() {
 
 
-//        if (((ExtApplication) getApplication()).isRunning()) {
-//
-//            Intent resultIntent = new Intent(this, ActMainTest.class);
-//            resultIntent.putExtra("latLonList", ((ExtApplication) getApplication()).getLatLonList());
-//            //    Because clicking the notification opens a new ("special") activity, there's
-//            //    no need to create an artificial back stack.
-//            PendingIntent resultPendingIntent =
-//                    PendingIntent.getActivity(
-//                            this,
-//                            0,
-//                            resultIntent,
-//                            PendingIntent.FLAG_UPDATE_CURRENT
-//                    );
-//
-//            ((ExtApplication) getApplication()).setmBuilder(
-//                    new NotificationCompat.Builder(this)
-//                            .setSmallIcon(R.drawable.ic_waiting_me_32)
-//                            .setContentTitle("You are running")
-//                            .setContentText("Go to workout")
-//                            .setOngoing(true)
-//                            .setContentIntent(resultPendingIntent));
-//
-//
-//            //Sets an ID for the notification
-//            int mNotificationId = 001;
-//            //Gets an instance of the NotificationManager service
-//            NotificationManager mNotifyMgr =
-//                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//            //Builds the notification and issues it.
-//            mNotifyMgr.notify(mNotificationId, ((ExtApplication) getApplication()).getmBuilder().build());
-//
-//
-//            Intent intent = new Intent(this, RunningService.class);
-//            // add info for the service which file to download and where to store
-//            intent.putExtra(RunningService.LATLONLIST, ((ExtApplication) getApplication()).getLatLonList());
-//        startService(intent);
-
-//        registerReceiver(receiver, new IntentFilter(RunningService.FILENAME));
-//        }
-
         super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
     }
 
     @Override

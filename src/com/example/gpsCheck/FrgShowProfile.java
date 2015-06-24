@@ -1,6 +1,7 @@
 package com.example.gpsCheck;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -261,6 +263,9 @@ public class FrgShowProfile  extends BaseFragment {
         @Override
         protected void onPostExecute(Integer result) {
 
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+
             if (result==0){
                 setTextValues(app);
                 ((ActMainTest) getActivity()).refreshShowLocationUsernames();
@@ -271,6 +276,7 @@ public class FrgShowProfile  extends BaseFragment {
             }else if (result==-2){
                 Toast.makeText(getActivity(), "Server Error", Toast.LENGTH_LONG).show();
             }else if (result==2){
+                ((ActMainTest)getActivity()).getFirstLeaderboard();
                 Toast.makeText(getActivity(), "User found", Toast.LENGTH_LONG).show();
                 setTextValues(app);
                 vs.setDisplayedChild(0);

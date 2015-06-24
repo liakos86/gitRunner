@@ -2,8 +2,11 @@ package com.example.gpsCheck;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.example.gpsCheck.dbObjects.Running;
 import com.example.gpsCheck.model.Database;
+import com.example.gpsCheck.service.RunningService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -42,7 +47,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     Marker runnerMarker, startMarker;
     Location lastLocation;
     Button buttonStartStop, buttonTarget, clear, buttonResume;
-    boolean firstChange=false, goalReached=false, paused=false, singleUpdate=false;
+    boolean firstChange=false, goalReached=false, paused=false, singleUpdate=false, running=false;
     String timerStop1;
     LinearLayout ll, actionButtons, targetLayout;
     RelativeLayout rl;
@@ -50,6 +55,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     EditText targetDist, description ;
     MyAdapter adapter;
     Running challenge;
+    String latLonList="";
 
     ImageView searchIcon;
 
@@ -62,8 +68,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     float totalDistance=0, targetDistance, targetTime;
 
 
-    String opponentUsername, descriptionForChallenge;
-    Spinner selectUsernameSpinner;
+    String descriptionForChallenge, opponentUsername;
 
     List<String>usernames;
 
@@ -139,9 +144,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         //default is personal run
         setSaveListener();
 
-        if (((ExtApplication) getActivity().getApplication()).isRunning()){
-            Toast.makeText(getActivity(), "back from out", Toast.LENGTH_LONG).show();
-        }
+//        if (((ExtApplication) getActivity().getApplication()).isRunning()){
+//            Toast.makeText(getActivity(), "back from out", Toast.LENGTH_LONG).show();
+//            drawRoute(((ExtApplication) getActivity().getApplication()).getLatLonList());
+//        }
 
 
 
@@ -348,7 +354,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             }
 //            googleMap.clear();
-            ((ExtApplication) getActivity().getApplication()).setRunning(true);
+            running=true;
+//            ((ExtApplication) getActivity().getApplication()).setRunning(true);
+
+//            Toast.makeText(getActivity(), "motivian",Toast.LENGTH_LONG).show();
+//            startRunningService();
             locationManager.requestLocationUpdates(provider, 2000, 3, this);
             buttonStartStop.setText("Stop");
 
@@ -377,7 +387,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             locationManager.removeUpdates(this);
 //            selectUsernameSpinner.setClickable(true);
 
-            ((ExtApplication) getActivity().getApplication()).setRunning(false);
+            running=false;
+//            ((ExtApplication) getActivity().getApplication()).setRunning(false);
 
 
             mHandler.removeCallbacks(mUpdateTimeTask);
@@ -393,7 +404,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
 
-        if (! ((ExtApplication) getActivity().getApplication()).isRunning()){
+        if (!running){// ((ExtApplication) getActivity().getApplication()).isRunning()){
 
 
             ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
@@ -449,7 +460,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             if (challengeType==1)
 
-                sh.createMongoChallenge(opponentUsername, totalTime, totalDistance, ((ExtApplication) getActivity().getApplication()).getLatLonList(), descriptionForChallenge);
+                sh.createMongoChallenge(opponentUsername, totalTime, totalDistance, latLonList, descriptionForChallenge);
 
             else if (challengeType==2){
 
@@ -527,6 +538,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         googleMap.clear();
         opponentUsername=null;
         challenge=null;
+        running=false;
     }
 
 
@@ -704,8 +716,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void onResume() {
         super.onResume();
 
-        if (!((ExtApplication) getActivity().getApplication()).isRunning())
-        getOneLocationUpdate();
+//        if (!((ExtApplication) getActivity().getApplication()).isRunning())
+//        getOneLocationUpdate();
     }
 //
 //    /* Remove the locationlistener updates when Activity is paused */
@@ -728,9 +740,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         if (startMarker==null){
             lastLocation=location;
 
-            ((ExtApplication) getActivity().getApplication()).setLatLonList("");
+            latLonList="";
+//            ((ExtApplication) getActivity().getApplication()).setLatLonList("");
 
-            ((ExtApplication) getActivity().getApplication()).setLatLonList(String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude()));
+            latLonList = String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude());
+
+//            ((ExtApplication) getActivity().getApplication()).setLatLonList(String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude()));
 
             googleMap.clear();
             startMarker = googleMap.addMarker(new MarkerOptions()
@@ -790,7 +805,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             totalDistance += location.distanceTo(lastLocation);
 
-            ((ExtApplication) getActivity().getApplication()).setLatLonList( ((ExtApplication) getActivity().getApplication()).getLatLonList()+","+String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude()));
+            latLonList+=","+String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude());
+
+//            ((ExtApplication) getActivity().getApplication()).setLatLonList( ((ExtApplication) getActivity().getApplication()).getLatLonList()+","+String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude()));
 
 
             PolylineOptions line =
@@ -817,7 +834,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             if (totalDistance>=targetDistance){
 
                 goalReached=true;
-                ((ExtApplication) getActivity().getApplication()).setRunning(false);
+                running=false;
+//                ((ExtApplication) getActivity().getApplication()).setRunning(false);
                 getUpdates(false);
                 //he has achieved the distance and it is a challenge
 
@@ -1094,13 +1112,52 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
+    private void drawRoute(String list){
+
+
+        list.replace(" ","");
+        String[] pointsList = list.split(",");
+
+        List<LatLng> locationList = new ArrayList<LatLng>();
+
+        int pointsLength = pointsList.length;
+
+
+        for (int i=0; i<pointsLength-1; i+=2){
+
+            locationList.add(new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1])));
+
+        }
+        int latlonLength = locationList.size();
+
+
+        for (int i=0; i<latlonLength-1; i++){
+
+
+            PolylineOptions line  = new PolylineOptions().add(locationList.get(i), locationList.get(i + 1)).width(5).color(Color.RED);
+
+            Polyline pline = googleMap.addPolyline(line);
+
+
+            mapLines.add(pline);
+
+        }
+
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[pointsLength-2]), Double.parseDouble(pointsList[pointsLength-1])), 15));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+
+
+    }
+
 
     private void resumeRun(){
         ((ActMainTest)getActivity()).togglePagerClickable(false);
         showFrame();
 
-        ((ExtApplication) getActivity().getApplication()).setRunning(true);
+        running=true;
 
+//        ((ExtApplication) getActivity().getApplication()).setRunning(true);
 
 
         if(mStartTime == 0L){
@@ -1179,7 +1236,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 if (targetDistance != -1) {
 
-                    if (! ((ExtApplication) getActivity().getApplication()).isRunning()) {
+                    if (!running){// ((ExtApplication) getActivity().getApplication()).isRunning()) {
                         // if he is not running means either that:
                         // 1) he has reached his goal and it has stopped automatically
                         // 2) he has not yet started the challenge
@@ -1302,13 +1359,63 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             editor.putString("offline", offline);
         }else if (type==0){
             String offline = app_preferences.getString("offlineCreate", "");
-            offline += user + " " + totalTime +" "+totalDistance+" "+descriptionForChallenge+" "+((ExtApplication) getActivity().getApplication()).getLatLonList()+ "/";
+            offline += user + " " + totalTime +" "+totalDistance+" "+descriptionForChallenge+" "+latLonList+ "/";
 
 
             editor.putString("offlineCreate", offline);
         }
         editor.commit();
 
+
+    }
+
+    private void stopRunningService(){
+        if (running){//((ExtApplication)getActivity().getApplication()).isRunning()) {
+            getActivity().stopService(new Intent(getActivity().getBaseContext(), RunningService.class));
+        }
+    }
+
+
+    private void startRunningService() {
+
+        // add info for the service which file to download and where to store
+//            intent.putExtra(RunningService.LATLONLIST, ((ExtApplication) getApplication()).getLatLonList());
+
+
+
+//            Intent resultIntent = new Intent(getActivity(), ActMainTest.class);
+//            resultIntent.putExtra("latLonList", ((ExtApplication) getActivity().getApplication()).getLatLonList());
+//            //    Because clicking the notification opens a new ("special") activity, there's
+//            //    no need to create an artificial back stack.
+//            PendingIntent resultPendingIntent =
+//                    PendingIntent.getActivity(
+//                            getActivity(),
+//                            0,
+//                            resultIntent,
+//                            PendingIntent.FLAG_UPDATE_CURRENT
+//                    );
+//
+//            ((ExtApplication) getActivity().getApplication()).setmBuilder(
+//                    new NotificationCompat.Builder(getActivity())
+//                            .setSmallIcon(R.drawable.ic_waiting_me_32)
+//                            .setContentTitle("You are running")
+//                            .setContentText("Go to workout")
+//                            .setOngoing(true)
+//                            .setContentIntent(resultPendingIntent));
+//
+//
+//            //Sets an ID for the notification
+//            int mNotificationId = 001;
+//            //Gets an instance of the NotificationManager service
+//            NotificationManager mNotifyMgr =
+//                    (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+//            //Builds the notification and issues it.
+//            mNotifyMgr.notify(mNotificationId, ((ExtApplication) getApplication()).getmBuilder().build());
+
+
+            Intent intent = new Intent(getActivity().getBaseContext(), RunningService.class);
+            intent.putExtra("username", opponentUsername);
+            getActivity().startService(intent);
 
     }
 
