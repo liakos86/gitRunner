@@ -51,5 +51,8 @@
 
         <provider android:name="com.example.gpsCheck.model.DataProvider"
                   android:authorities="com.example.gpscheck.contentprovider"/>
+
+        <service android:name=".service.RunningService"/>
+
     </application>
 </manifest>

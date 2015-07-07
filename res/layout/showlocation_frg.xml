@@ -80,8 +80,8 @@
                         />
 
 
-                <LinearLayout android:background="@color/white_back" android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
-                <EditText  android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="wrap_content" android:hint="target distance" android:textColor="@color/drawer_black" android:gravity="center" android:singleLine="true"/>
+                <LinearLayout android:padding="2dp" android:layout_margin="4dp" android:background="@drawable/text_on_map_back"  android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <EditText android:drawablePadding="4dp"  android:paddingLeft="4dp" android:layout_gravity="center_vertical|left" android:background="@android:color/white"  android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="48dp" android:hint="target distance" android:textColor="@color/drawer_black" android:singleLine="true"/>
                 <Button android:textColor="@color/white_back"  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@color/runner_green" android:text="Set" android:layout_height="wrap_content" />
                 </LinearLayout>
 

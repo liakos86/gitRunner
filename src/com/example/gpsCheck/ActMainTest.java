@@ -51,18 +51,7 @@ public class ActMainTest extends FragmentActivity {
 
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                String string = bundle.getString(RunningService.LATLONLIST);
-                int resultCode = bundle.getInt(RunningService.RESULT);
-
-            }
-        }
-    };
 
     private void checkOfflineActions(){
 
@@ -200,8 +189,7 @@ public class ActMainTest extends FragmentActivity {
                 //todo not on every change, set timer!!!
 //                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowProfile) {
 //                    ((FrgShowProfile) getActiveFragment(getSupportFragmentManager(), 0)).startAsyncGetOrInsert(1);
-//                }else
-//                if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
+//                }else if (getActiveFragment(getSupportFragmentManager(), position) instanceof FrgShowChallenge){
 //
 //                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).getLeaderBoardAndChallenges();
 //                    ((FrgShowChallenge)getActiveFragment(getSupportFragmentManager(), position)).refreshRequests();
@@ -435,25 +423,52 @@ public class ActMainTest extends FragmentActivity {
         super.onResume();
 
 
+//        if (((ExtApplication) getApplication()).isRunning()) {
+//
+//
+//            NotificationManager mNotifyMgr =
+//                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//            //Builds the notification and issues it.
+//            mNotifyMgr.cancel(001);
+//
+//        }
+//        stopService(getIntent());
+
+
 
     }
+//
+//    @Override
+//    protected void onPause() {
 
-    @Override
-    protected void onPause() {
+
+//        if (((ExtApplication) getApplication()).isRunning()) {
+//
+
+//
+//
 
 
-        super.onPause();
-    }
+//        registerReceiver(receiver, new IntentFilter(RunningService.LATLONLIST));
+//        }
+
+//        super.onPause();
+//    }
 
     @Override
     protected void onStart() {
 
+//        if (((ExtApplication) getApplication()).isRunning()) {
+//            Toast.makeText(getApplication(), ((ExtApplication) getApplication()).isRunning() + " " + ((ExtApplication) getApplication()).getLatLonList(), Toast.LENGTH_LONG).show();
+//            stopService(new Intent(getBaseContext(), RunningService.class));
+//        }
         super.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
     }
 
 
@@ -479,6 +494,25 @@ public class ActMainTest extends FragmentActivity {
         else bottom.setVisibility(View.GONE);
 
     }
+
+//    public ServiceConnection getmServiceConnection() {
+//        return mServiceConnection;
+//    }
+//
+//    private ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            mServiceBound = false;
+//        }
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            RunningService.MyBinder myBinder = (RunningService.MyBinder) service;
+//            mBoundService = myBinder.getService();
+//            mServiceBound = true;
+//        }
+//    };
 
 
 
