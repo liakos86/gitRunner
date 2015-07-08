@@ -1236,12 +1236,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         paused=true;
 
-        fl.setVisibility(View.GONE);
+        buttonStartStop.setVisibility(View.GONE);
+//        fl.setVisibility(View.GONE);
         actionButtons.setVisibility(View.VISIBLE);
     }
 
     private void showFrame(){
-        fl.setVisibility(View.VISIBLE);
+//        fl.setVisibility(View.VISIBLE);
+        buttonStartStop.setVisibility(View.VISIBLE);
         actionButtons.setVisibility(View.GONE);
     }
 

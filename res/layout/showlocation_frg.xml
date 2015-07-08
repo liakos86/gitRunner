@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical" >
 
-    <FrameLayout android:id="@+id/frameWithMap" xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout android:layout_weight="7" android:id="@+id/frameWithMap" xmlns:android="http://schemas.android.com/apk/res/android"
                  xmlns:tools="http://schemas.android.com/tools"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
@@ -100,13 +100,18 @@
         </RelativeLayout>
 
 
+
+
     </FrameLayout>
 
+
     <LinearLayout
+            android:layout_weight="5"
             android:id="@+id/actionButtons"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:background="@android:color/white"
             android:padding="20dp">
 
         <EditText android:visibility="gone"  android:layout_marginTop="30dp" android:id="@+id/chalDesc" android:layout_width="fill_parent" android:layout_height="wrap_content"/>
@@ -118,6 +123,8 @@
 
 
     </LinearLayout>
+
+
 
 
 

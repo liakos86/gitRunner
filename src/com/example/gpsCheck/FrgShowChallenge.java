@@ -38,7 +38,7 @@ public class FrgShowChallenge extends BaseFragment {
 
     SyncHelper sh;
 
-    ImageView noDataImage;
+    TextView noDataImage;
 
     SharedPreferences app_preferences;
 
@@ -100,7 +100,7 @@ public class FrgShowChallenge extends BaseFragment {
     private void setList(View v){
 
 
-        noDataImage = (ImageView) v.findViewById(R.id.noDataImg);
+        noDataImage = (TextView) v.findViewById(R.id.noDataImg);
 
 
 
@@ -182,7 +182,6 @@ public class FrgShowChallenge extends BaseFragment {
                 if (leaders.size()==0){
                     noDataImage.setVisibility(View.VISIBLE);
                     vs.setVisibility(View.GONE);
-                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
                 }else{
                     noDataImage.setVisibility(View.GONE);
                     vs.setVisibility(View.VISIBLE);
@@ -201,7 +200,7 @@ public class FrgShowChallenge extends BaseFragment {
                 if (friendRequests.size()==0){
                     noDataImage.setVisibility(View.VISIBLE);
                     vs.setVisibility(View.GONE);
-                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
+
                 }else{
                     noDataImage.setVisibility(View.GONE);
                     vs.setVisibility(View.VISIBLE);
@@ -220,7 +219,6 @@ public class FrgShowChallenge extends BaseFragment {
                 if (challenges.size()==0){
                     noDataImage.setVisibility(View.VISIBLE);
                     vs.setVisibility(View.GONE);
-                    noDataImage.setImageDrawable(getResources().getDrawable(R.drawable.no_friends));
                 }else{
                     noDataImage.setVisibility(View.GONE);
                     vs.setVisibility(View.VISIBLE);

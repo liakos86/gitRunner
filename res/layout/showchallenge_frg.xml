@@ -8,24 +8,27 @@
               android:layout_height="match_parent"
               android:orientation="vertical" >
 
+    <RelativeLayout android:paddingTop="20dp" android:background="@drawable/forest" android:layout_width="match_parent" android:layout_height="150dp">
 
     <LinearLayout
             android:background="@drawable/text_on_map_back"
-            android:padding="2dp" android:layout_margin="4dp"
+            android:padding="2dp" android:layout_margin="6dp"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal" >
     <EditText android:paddingLeft="4dp" android:layout_gravity="center_vertical|left" android:textColorHint="@color/circle_grey" android:textColor="@color/drawer_black" android:background="@android:color/white" android:layout_weight="2" android:id="@+id/editNewFriend" android:drawableLeft="@drawable/ic_add_friend_32" android:drawablePadding="4dp" android:layout_width="0dp" android:layout_height="48dp" android:hint="search friend"/>
     <Button android:layout_gravity="center_vertical" android:textColor="@color/white_back"   android:layout_weight="1" android:id="@+id/buttonAddFriend"  android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Add" android:layout_height="wrap_content" />
-</LinearLayout>
+    </LinearLayout>
 
 
-    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <Button android:textColor="@color/white_back" android:id="@+id/buttonLeaders" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Leaders" android:layout_height="wrap_content" />
-        <Button android:textColor="@color/white_back"  android:id="@+id/buttonRequests" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="New Friends" android:layout_height="wrap_content" />
-        <Button android:textColor="@color/white_back"  android:id="@+id/buttonChallenges" android:layout_weight="1" android:layout_width="0dp" android:background="@drawable/bottom_button_background" android:text="Challenges" android:layout_height="wrap_content" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content"  android:layout_alignParentBottom="true">
+        <Button android:textColor="@color/white_back"  android:id="@+id/buttonLeaders" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/tab_button_background" android:text="Leaders" android:layout_height="48dp" />
+        <Button android:textColor="@color/white_back"  android:id="@+id/buttonRequests" android:layout_weight="1" android:layout_marginRight="2dp" android:layout_width="0dp" android:background="@drawable/tab_button_background" android:text="New Friends" android:layout_height="48dp" />
+        <Button android:textColor="@color/white_back"  android:id="@+id/buttonChallenges" android:layout_weight="1" android:layout_width="0dp" android:background="@drawable/tab_button_background" android:text="Challenges" android:layout_height="48dp" />
 
     </LinearLayout>
+
+    </RelativeLayout>
 
     <ViewFlipper android:id="@+id/chalSwitcher" android:layout_width="fill_parent" android:layout_height="fill_parent">
 
@@ -39,7 +42,7 @@
 
     </ViewFlipper>
 
-    <ImageView android:id="@+id/noDataImg" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone"/>
+    <TextView android:layout_gravity="center_horizontal|center_vertical" android:drawableLeft="@drawable/empty_list_64" android:id="@+id/noDataImg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" android:text="This list is empty!!!"/>
 
 
     <!--fixme commit-->
