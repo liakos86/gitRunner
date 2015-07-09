@@ -1068,7 +1068,23 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         int pointsLength = pointsList.length;
 
+        double northPoint=-85.05115 , southPoint=85.05115 , eastPoint=-180, westPoint=180;
+
         for (int i=0; i<pointsLength-1; i+=2){
+
+            if (Double.parseDouble(pointsList[i])>northPoint) {
+                northPoint = Double.parseDouble(pointsList[i]);
+            }
+            if (Double.parseDouble(pointsList[i])< southPoint) {
+                southPoint = Double.parseDouble(pointsList[i]);
+            }
+
+            if (Double.parseDouble(pointsList[i+1])>eastPoint) {
+                eastPoint = Double.parseDouble(pointsList[i+1]);
+            }
+            if (Double.parseDouble(pointsList[i+1])< westPoint) {
+                westPoint = Double.parseDouble(pointsList[i+1]);
+            }
 
             locationList.add(new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1])));
 
@@ -1089,6 +1105,27 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }
 
 
+//        LatLng topLeftPoint = new LatLng(northPoint , westPoint);
+//        LatLng bottomRightPoint = new LatLng(southPoint, eastPoint);
+
+//        googleMap.addMarker(new MarkerOptions()
+////                        .infoWindowAnchor(0.48f, 4.16f)
+//
+//                        .position( new LatLng(northPoint , westPoint))
+//                        .title("You are here")
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.error_32))
+//        );
+//
+//        googleMap.addMarker(new MarkerOptions()
+////                        .infoWindowAnchor(0.48f, 4.16f)
+//
+//                        .position(new LatLng(southPoint, eastPoint))
+//                        .title("You are here")
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_list_64))
+//        );
+
+
+
 
         Location first = new Location("gps");
         first.setLatitude(Double.parseDouble(pointsList[0]));
@@ -1103,11 +1140,38 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         String middleLat = pointsList[middle];
         String middleLon = pointsList[++middle];
 
-        int zoom = 19 - (int)run.getDistance()/1000;
+        int zoom = 17 - (int)run.getDistance()/1000;
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(middleLat), Double.parseDouble(middleLon)), zoom));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(midPoint(northPoint, westPoint, southPoint, eastPoint), zoom));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom), 2000, null);
 
+    }
+
+    public LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
+
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        //convert to radians
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+        lon1 = Math.toRadians(lon1);
+
+        double Bx = Math.cos(lat2) * Math.cos(dLon);
+        double By = Math.cos(lat2) * Math.sin(dLon);
+        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
+        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
+
+        //print out in degrees
+        System.out.println(Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
+        googleMap.addMarker(new MarkerOptions()
+//                        .infoWindowAnchor(0.48f, 4.16f)
+
+                        .position(new LatLng(Math.toDegrees(lat3),Math.toDegrees(lon3)))
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.error_32))
+        );
+
+        return new LatLng(Math.toDegrees(lat3),Math.toDegrees(lon3));
     }
 
     private void drawRoute(String list){
