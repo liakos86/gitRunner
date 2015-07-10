@@ -40,7 +40,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     GoogleMap googleMap;
     Marker runnerMarker, startMarker;
     Location lastLocation;
-    Button buttonStartStop, buttonTarget, clear, buttonResume;
+    Button buttonTarget, clear, buttonResume;
+    ImageButton buttonStartStop;
     boolean firstChange=false, goalReached=false, paused=false, singleUpdate=false, running=false;
     String timerStop1;
     LinearLayout ll, actionButtons, targetLayout;
@@ -68,11 +69,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
 
+                Toast.makeText(getActivity(),
+                        "RECEIVER: " + bundle.getString(RunningService.LATLONLIST),
+                        Toast.LENGTH_LONG).show();
+
                 if (latLonList==null || latLonList.trim().equals("")){//if it is empty it is the first change or we come back from out
 
-                    Toast.makeText(getActivity(),
-                            "new list " + latLonList,
-                            Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getActivity(),
+//                            "new list " + latLonList,
+//                            Toast.LENGTH_LONG).show();
                     latLonList = bundle.getString(RunningService.LATLONLIST);
                     goalReached = bundle.getBoolean(RunningService.GOAL_REACHED);
                     if (opponentUsername==null || opponentUsername.equals("")){
@@ -89,9 +94,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 }else {//we get a new location and add it to the existing
 
                     String newLoc = bundle.getString(RunningService.NEW_LOCATION);
-                    Toast.makeText(getActivity(),
-                            "Download complete. Download URI: " + newLoc,
-                            Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getActivity(),
+//                            "Download complete. Download URI: " + newLoc,
+//                            Toast.LENGTH_LONG).show();
                     Location first = new Location("gps");
                     first.setLatitude(Double.parseDouble(newLoc.split(",")[0]));
                     first.setLongitude(Double.parseDouble(newLoc.split(",")[1]));
@@ -119,7 +124,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         textChalSpeedAvg = (TextView) v.findViewById(R.id.textChalSpeedAvg);
         textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
         textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
-        buttonStartStop = (Button) v.findViewById(R.id.buttonChalSave);
+        buttonStartStop = (ImageButton) v.findViewById(R.id.buttonChalSave);
         clear = (Button) v.findViewById(R.id.buttonChalClear);
         buttonResume = (Button) v.findViewById(R.id.buttonResume);
         mapLines = new ArrayList<Polyline>();
@@ -188,7 +193,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private void getInRunningMode(){
 
         buttonStartStop.setVisibility(View.VISIBLE);
-        buttonStartStop.setText("Stop");
+        buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+//        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
+//        buttonStartStop.setText("Stop");
         targetLayout.setVisibility(View.GONE);
         ll.setVisibility(View.GONE);
         rl.setVisibility(View.VISIBLE);
@@ -404,7 +411,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             startRunningService();
 //            locationManager.requestLocationUpdates(provider, 2000, 3, this);
-            buttonStartStop.setText("Stop");
+            buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+//            buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
+//            buttonStartStop.setText("Stop");
 
 
             startMarker=null;
@@ -430,7 +439,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
 
             stopRunningService();
-            getActivity().unregisterReceiver(receiver);
+
 //            locationManager.removeUpdates(this);
 //            selectUsernameSpinner.setClickable(true);
 
@@ -560,6 +569,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private void resetValues(){
         targetDistance=0;
         totalDistance=0;
+        latLonList="";
         totalTime=0;
         goalReached=false;
         if (googleMap!=null)
@@ -580,7 +590,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 resetValues();
                 showFrame();
                 clearViews();
-                stopRunningService();
+//                stopRunningService();
             }
         });
 
@@ -744,7 +754,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         if (startMarker==null){
 
-            Toast.makeText(getActivity(), "start marker", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), "start marker", Toast.LENGTH_SHORT).show();
             lastLocation=location;
 
             latLonList="";
@@ -849,8 +859,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 if (challenge==null) {
 
                     buttonResume.setText("Upload challenge");
-
-                    buttonStartStop.setText("Start");
+                    buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
+//                    buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_green));
+//                    buttonStartStop.setText("Start");
 
                     hideFrame();
                 }else{//he won the challenge
@@ -1053,12 +1064,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }else{
 
             targetDistance=-1;
-            buttonStartStop.setText("Close");
+            buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+//            buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
+//            buttonStartStop.setText("Close");
 
         }
 
         buttonStartStop.setVisibility(View.VISIBLE);
-        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
+        buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+//        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 
 
 
@@ -1244,7 +1258,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         }
         startRunningService();
-        buttonStartStop.setText("Stop");
+        buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+//        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
+//        buttonStartStop.setText("Stop");
 
     }
 
@@ -1266,7 +1282,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         friendsAutoComplete.setVisibility(View.VISIBLE);
         targetLayout.setVisibility(View.GONE);
         buttonStartStop.setVisibility(View.GONE);
-        buttonStartStop.setText("Start");
+        buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
+//        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_green));
+//        buttonStartStop.setText("Start");
         buttonResume.setText("Resume");
         description.setVisibility(View.GONE);
 
@@ -1440,7 +1458,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
     private void stopRunningService(){
+            getActivity().unregisterReceiver(receiver);
             getActivity().stopService(new Intent(getActivity().getBaseContext(), RunningService.class));
+
 
     }
 
