@@ -1069,21 +1069,28 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         int pointsLength = pointsList.length;
 
         double northPoint=-85.05115 , southPoint=85.05115 , eastPoint=-180, westPoint=180;
+        LatLng top=new LatLng(0,0), bottom=new LatLng(0,0), left=new LatLng(0,0), right=new LatLng(0,0);
 
         for (int i=0; i<pointsLength-1; i+=2){
 
+
+            //create a box that contains the run, then take the center of the diagonal
             if (Double.parseDouble(pointsList[i])>northPoint) {
                 northPoint = Double.parseDouble(pointsList[i]);
+                top = new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1]));
             }
             if (Double.parseDouble(pointsList[i])< southPoint) {
                 southPoint = Double.parseDouble(pointsList[i]);
+                bottom = new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1]));
             }
 
             if (Double.parseDouble(pointsList[i+1])>eastPoint) {
                 eastPoint = Double.parseDouble(pointsList[i+1]);
+                right = new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1]));
             }
             if (Double.parseDouble(pointsList[i+1])< westPoint) {
                 westPoint = Double.parseDouble(pointsList[i+1]);
+                left = new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1]));
             }
 
             locationList.add(new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1])));
@@ -1104,46 +1111,25 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         }
 
+        int zoom = 20;
+        boolean allVisible=false;
+        while (zoom>8 && !allVisible) {
 
-//        LatLng topLeftPoint = new LatLng(northPoint , westPoint);
-//        LatLng bottomRightPoint = new LatLng(southPoint, eastPoint);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(midPoint(northPoint, westPoint, southPoint, eastPoint), zoom));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom), 500, null);
 
-//        googleMap.addMarker(new MarkerOptions()
-////                        .infoWindowAnchor(0.48f, 4.16f)
-//
-//                        .position( new LatLng(northPoint , westPoint))
-//                        .title("You are here")
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.error_32))
-//        );
-//
-//        googleMap.addMarker(new MarkerOptions()
-////                        .infoWindowAnchor(0.48f, 4.16f)
-//
-//                        .position(new LatLng(southPoint, eastPoint))
-//                        .title("You are here")
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_list_64))
-//        );
+            if (
+                    googleMap.getProjection().getVisibleRegion().latLngBounds.contains(top)&&
+                    googleMap.getProjection().getVisibleRegion().latLngBounds.contains(bottom)&&
+                    googleMap.getProjection().getVisibleRegion().latLngBounds.contains(left)&&
+                    googleMap.getProjection().getVisibleRegion().latLngBounds.contains(right)
+               ){
+                allVisible=true;
+            }
 
+            --zoom;
 
-
-
-        Location first = new Location("gps");
-        first.setLatitude(Double.parseDouble(pointsList[0]));
-        first.setLongitude(Double.parseDouble(pointsList[1]));
-        Location last = new Location("gps");
-        last.setLatitude(Double.parseDouble(pointsList[pointsLength-2]));
-        last.setLongitude(Double.parseDouble(pointsList[pointsLength-1]));
-
-
-        int middle =(int)(pointsLength/2);
-        if (!(middle%2==0)) ++middle;
-        String middleLat = pointsList[middle];
-        String middleLon = pointsList[++middle];
-
-        int zoom = 17 - (int)run.getDistance()/1000;
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(midPoint(northPoint, westPoint, southPoint, eastPoint), zoom));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(zoom), 2000, null);
+        }
 
     }
 
