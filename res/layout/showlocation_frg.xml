@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical" >
 
-    <FrameLayout android:layout_weight="7" android:id="@+id/frameWithMap" xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout android:layout_weight="5" android:id="@+id/frameWithMap" xmlns:android="http://schemas.android.com/apk/res/android"
                  xmlns:tools="http://schemas.android.com/tools"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
@@ -25,8 +25,8 @@
 
 
             <LinearLayout android:background="@color/runner_red" android:visibility="gone" android:id="@+id/noLocation" android:layout_width="fill_parent" android:layout_height="48dp">
-                <TextView android:text="Please enable location services" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/white_back"
-                          android:layout_gravity="center_vertical" android:gravity="center_horizontal"/>
+                <TextView  android:text="Please enable location services" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textColor="@color/white_back"
+                          android:layout_gravity="center_vertical|center_horizontal" android:gravity="center" android:textStyle="bold" />
             </LinearLayout>
             <RelativeLayout android:layout_below="@+id/noLocation" android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
@@ -104,10 +104,21 @@
                 android:layout_margin="15dp"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
-                android:src="@drawable/ic_cancel_32"
+                android:src="@drawable/replay"
                 android:background="@drawable/circle_green"
                 android:id="@+id/buttonChalSave"
                 android:layout_gravity="left|bottom" />
+
+        <ImageButton
+                android:visibility="gone"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="80dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/trash"
+                android:background="@drawable/circle_red"
+                android:id="@+id/buttonChalClear"
+                android:layout_gravity="left|bottom"/>
 
 
 
@@ -115,7 +126,7 @@
 
 
     <LinearLayout
-            android:layout_weight="5"
+            android:layout_weight="8"
             android:id="@+id/actionButtons"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -127,7 +138,7 @@
 
         <Button android:textColor="@color/white_back" android:layout_marginTop="30dp" android:id="@+id/buttonResume" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Resume" android:layout_height="wrap_content" />
         <!--<Button android:layout_marginTop="30dp" android:id="@+id/buttonSaveRun" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Save" android:layout_height="wrap_content" />-->
-        <Button android:textColor="@color/white_back" android:layout_marginTop="30dp"  android:id="@+id/buttonChalClear" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Clear" android:layout_height="wrap_content" />
+        <!--<Button android:textColor="@color/white_back" android:layout_marginTop="30dp"  android:id="@+id/buttonChalClear" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Clear" android:layout_height="wrap_content" />-->
 
 
 

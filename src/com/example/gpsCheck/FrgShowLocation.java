@@ -40,8 +40,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     GoogleMap googleMap;
     Marker runnerMarker, startMarker;
     Location lastLocation;
-    Button buttonTarget, clear, buttonResume;
-    ImageButton buttonStartStop;
+    Button buttonTarget, buttonResume;
+    ImageButton buttonStartStop, clear;
     boolean firstChange=false, goalReached=false, paused=false, singleUpdate=false, running=false;
     String timerStop1;
     LinearLayout ll, actionButtons, targetLayout;
@@ -87,8 +87,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                     if (goalReached){
                         buttonStartStop.performClick();
                     }else {
-                        if (!latLonList.equals(""))
+                        if (!latLonList.equals("")) {
                             drawRoute(latLonList);
+                        }
                     }
 
                 }else {//we get a new location and add it to the existing
@@ -125,7 +126,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
         textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
         buttonStartStop = (ImageButton) v.findViewById(R.id.buttonChalSave);
-        clear = (Button) v.findViewById(R.id.buttonChalClear);
+        clear = (ImageButton) v.findViewById(R.id.buttonChalClear);
         buttonResume = (Button) v.findViewById(R.id.buttonResume);
         mapLines = new ArrayList<Polyline>();
         setListeners(v);
@@ -194,6 +195,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         buttonStartStop.setVisibility(View.VISIBLE);
         buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+        buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.pause));
 //        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 //        buttonStartStop.setText("Stop");
         targetLayout.setVisibility(View.GONE);
@@ -346,7 +348,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
 
-    public void selectProvider(){
+    public boolean selectProvider(){
 
 
         // Get the location manager
@@ -370,6 +372,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //            selectUsernameSpinner.setClickable(false);
             Toast.makeText(getActivity(), "Please enable location services",
                     Toast.LENGTH_SHORT).show();
+            return false;
         }else {
 
             lastLocation = getLastLocation();// locationManager.getLastKnownLocation(provider);
@@ -378,6 +381,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 initializeMap();
 
             }
+            return true;
 //            else{
 //                locationManager.requestLocationUpdates(provider, 500, 0, this);
 //            }
@@ -412,6 +416,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             startRunningService();
 //            locationManager.requestLocationUpdates(provider, 2000, 3, this);
             buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+            buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.pause));
 //            buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 //            buttonStartStop.setText("Stop");
 
@@ -438,7 +443,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             ((ActMainTest)getActivity()).togglePagerClickable(true);
 
 
-            stopRunningService();
+            stopRunningService(true);
 
 //            locationManager.removeUpdates(this);
 //            selectUsernameSpinner.setClickable(true);
@@ -588,9 +593,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             @Override
             public void onClick(View view) {
                 resetValues();
-                showFrame();
+//                showFrame();
                 clearViews();
-//                stopRunningService();
+                stopRunningService(false);
             }
         });
 
@@ -722,7 +727,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             getActivity().registerReceiver(receiver, new IntentFilter(RunningService.NOTIFICATION));
         }
 
-        if (running && !isMyServiceRunning(RunningService.class))
+//        if (running && !isMyServiceRunning(RunningService.class))
             getOneLocationUpdate();
     }
     //
@@ -859,10 +864,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 if (challenge==null) {
 
                     buttonResume.setText("Upload challenge");
-                    buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
+                    clear.setVisibility(View.VISIBLE);
+//                    buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
 //                    buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_green));
 //                    buttonStartStop.setText("Start");
 
+//                    stopRunningService(true);
                     hideFrame();
                 }else{//he won the challenge
 
@@ -1065,6 +1072,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             targetDistance=-1;
             buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+            buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.close));
 //            buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 //            buttonStartStop.setText("Close");
 
@@ -1072,6 +1080,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         buttonStartStop.setVisibility(View.VISIBLE);
         buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+        buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.close));
 //        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 
 
@@ -1247,9 +1256,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     private void resumeRun(){
         ((ActMainTest)getActivity()).togglePagerClickable(false);
-        showFrame();
+//        showFrame();
 
         running=true;
+        paused=false;
 
         if(mStartTime == 0L){
             mStartTime = SystemClock.uptimeMillis()-totalTime;
@@ -1259,6 +1269,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }
         startRunningService();
         buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_red));
+        buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.pause));
+        clear.setVisibility(View.GONE);
 //        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_red));
 //        buttonStartStop.setText("Stop");
 
@@ -1266,6 +1278,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     private void clearViews(){
 
+        clear.setVisibility(View.GONE);
         textChalSpeed.setText("Speed: 0.0");
 
         textChalSpeedAvg.setText("Avg Speed: 0.0");
@@ -1283,6 +1296,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         targetLayout.setVisibility(View.GONE);
         buttonStartStop.setVisibility(View.GONE);
         buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
+        buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.replay));
 //        buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_green));
 //        buttonStartStop.setText("Start");
         buttonResume.setText("Resume");
@@ -1324,18 +1338,20 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                 if (targetDistance != -1) {
 
-                    if (!running){// ((ExtApplication) getActivity().getApplication()).isRunning()) {
+                    if (paused){
+                        resumeRun();
+                    }else if (!running){// ((ExtApplication) getActivity().getApplication()).isRunning()) {
                         // if he is not running means either that:
                         // 1) he has reached his goal and it has stopped automatically
                         // 2) he has not yet started the challenge
 
-
-                        rl.setVisibility(View.VISIBLE);
-
-                        if (provider != null)
+                        if (provider != null) {
+                            rl.setVisibility(View.VISIBLE);
                             getUpdates(true);
-                        else
-                            selectProvider();
+                        }
+                        else if (selectProvider()) {
+                            rl.setVisibility(View.VISIBLE);
+                        }
 
 
                     } else {
@@ -1344,7 +1360,11 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
                         // alert dialog to ask if he wants to quit!
                         getUpdates(false);
-                        hideFrame();
+                        buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
+                        buttonStartStop.setImageDrawable(getResources().getDrawable(R.drawable.replay));
+                        clear.setVisibility(View.VISIBLE);
+                        paused = true;
+//                        hideFrame();
 
                     }
 
@@ -1457,8 +1477,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
     }
 
-    private void stopRunningService(){
-            getActivity().unregisterReceiver(receiver);
+    private void stopRunningService(boolean unregister){
+        if (unregister)
+        getActivity().unregisterReceiver(receiver);
             getActivity().stopService(new Intent(getActivity().getBaseContext(), RunningService.class));
 
 

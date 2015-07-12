@@ -54,7 +54,7 @@ public class RunningService extends IntentService implements LocationListener{
     public void onCreate() {
         super.onCreate();
 
-        Toast.makeText(this,  "on create", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,  "on create", Toast.LENGTH_SHORT).show();
 
     }
 
