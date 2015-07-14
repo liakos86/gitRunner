@@ -4,9 +4,9 @@
 
     <item >
         <shape android:shape="rectangle"  >
-            <corners android:radius="2dp" />
-            <stroke android:width="1dip" android:color="@color/drawer_black" />
-            <solid android:color="@color/runner_green"/>
+            <corners android:radius="4dp" />
+            <stroke android:width="1dip" android:color="@color/white_back" />
+            <solid android:color="@color/death_grey"/>
             <!--<gradient android:angle="-90" android:startColor="@color/runner_green" android:endColor="@color/runner_green_pressed" />-->
         </shape>
     </item>

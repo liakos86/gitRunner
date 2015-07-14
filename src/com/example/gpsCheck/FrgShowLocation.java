@@ -611,6 +611,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         opponentUsername=null;
         challenge=null;
         running=false;
+        paused=false;
     }
 
 
@@ -1324,6 +1325,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 if (targetDistance != -1) {
 
                     if (paused){
+                        Log.v("LATLON", "running");
                         resumeRun();
                     }else if (!running){// ((ExtApplication) getActivity().getApplication()).isRunning()) {
                         // if he is not running means either that:
@@ -1331,6 +1333,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                         // 2) he has not yet started the challenge
 
                         if (provider != null) {
+                            Log.v("LATLON", "rl");
                             rl.setVisibility(View.VISIBLE);
                             getUpdates(true);
                         }

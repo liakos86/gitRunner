@@ -31,23 +31,44 @@
             <RelativeLayout android:layout_below="@+id/noLocation" android:layout_alignParentTop="true" android:id="@+id/textViews" android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 
-                <LinearLayout android:background="@drawable/text_on_map_back" android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="32dp">
-                <TextView  android:layout_weight="1" android:textColor="#fff"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
-                <TextView  android:layout_weight="1" android:textColor="#fff" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>
-                <TextView android:layout_weight="1" android:textColor="#fff"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />
+                <LinearLayout android:padding="6dp" android:background="@drawable/text_on_map_back" android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="wrap_content">
+
+                    <RelativeLayout android:layout_weight="1"  android:layout_width="0dp" android:layout_height="wrap_content">
+                        <TextView android:layout_centerHorizontal="true" android:textColor="@color/white_back"  android:id="@+id/speedText" android:text="Speed" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        <TextView android:layout_centerHorizontal="true" android:textColor="@color/white_back"  android:layout_below="@+id/speedText" android:id="@+id/textChalSpeed" android:text="0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout android:layout_weight="1"  android:layout_width="0dp" android:layout_height="wrap_content">
+
+                        <TextView android:layout_centerHorizontal="true" android:textColor="@color/white_back" android:id="@+id/distanceText"  android:text="Distance"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+                        <TextView android:textColor="@color/white_back" android:layout_centerHorizontal="true" android:layout_below="@+id/distanceText" android:id="@+id/textChalDistance"  android:text="0.0"  android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+                    </RelativeLayout>
+                    <RelativeLayout android:layout_weight="1"  android:layout_width="0dp" android:layout_height="wrap_content">
+
+                        <TextView android:layout_centerHorizontal="true"  android:textColor="@color/white_back"  android:id="@+id/avgText" android:text="Avg Speed" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                    <TextView  android:textColor="@color/white_back" android:layout_centerHorizontal="true"  android:layout_below="@+id/avgText"  android:id="@+id/textChalSpeedAvg" android:text="0.0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+                    </RelativeLayout>
                 </LinearLayout>
 
 
                 <TextView
+                        android:drawableLeft="@drawable/timer"
+                        android:drawablePadding="4dp"
                         android:layout_below="@+id/onMapTexts"
                         android:id="@+id/textChalTimer"
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_centerHorizontal="true"
                         android:layout_marginTop="10dp"
                         android:text="0.00"
-                        android:textColor="@color/drawer_grey"
-                        android:background="@color/white_back"
+                        android:textColor="@color/white_back"
+                        android:background="@drawable/text_on_map_back"
+                        android:padding="6dp"
                         android:textSize="20dp" />
 
 
@@ -81,20 +102,20 @@
 
 
                 <LinearLayout android:padding="2dp" android:layout_margin="4dp" android:background="@drawable/text_on_map_back"  android:id="@+id/targetLayout" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="wrap_content">
-                <EditText android:drawablePadding="4dp"  android:paddingLeft="4dp" android:layout_gravity="center_vertical|left" android:background="@android:color/white"  android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="48dp" android:hint="target distance" android:textColor="@color/drawer_black" android:singleLine="true"/>
+                <EditText android:inputType="number" android:drawablePadding="4dp"  android:paddingLeft="4dp" android:layout_gravity="center_vertical|left" android:background="@android:color/white"  android:textColorHint="@color/circle_grey" android:id="@+id/targetValue" android:layout_width="0dp" android:layout_weight="2" android:layout_height="48dp" android:hint="target distance" android:textColor="@color/drawer_black" android:singleLine="true"/>
                 <Button android:textColor="@color/white_back"  android:id="@+id/buttonTarget" android:layout_width="0dp" android:layout_weight="1" android:background="@color/runner_green" android:text="Set" android:layout_height="wrap_content" />
                 </LinearLayout>
 
             </LinearLayout>
 
-            <!--<TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="#fff" android:layout_height="wrap_content" android:background="@color/drawer_black"/>-->
+            <!--<TextView android:gravity="center" android:id="@+id/opponentComment" android:layout_width="fill_parent" android:padding="10dp" android:visibility="gone" android:textColor="@color/white_back" android:layout_height="wrap_content" android:background="@color/drawer_black"/>-->
 
             <!--<Button android:textColor="@color/white_back" android:layout_below="@+id/targetWindow"  android:id="@+id/buttonChalSave" android:layout_width="fill_parent" android:background="@color/runner_green" android:text="Start" android:layout_height="wrap_content" />-->
 
             <!--<LinearLayout android:background="@drawable/text_on_map_back" android:layout_alignParentBottom="true" android:id="@+id/onMapTexts" android:layout_width="fill_parent" android:layout_height="32dp">-->
-                <!--<TextView  android:layout_weight="1" android:textColor="#fff"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />-->
-                <!--<TextView  android:layout_weight="1" android:textColor="#fff" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>-->
-                <!--<TextView  android:layout_weight="1" android:textColor="#fff"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />-->
+                <!--<TextView  android:layout_weight="1" android:textColor="@color/white_back"  android:id="@+id/textChalSpeed" android:text="Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />-->
+                <!--<TextView  android:layout_weight="1" android:textColor="@color/white_back" android:layout_toRightOf="@+id/textChalSpeed" android:id="@+id/textChalDistance"  android:text="Distance: 0.0"  android:layout_width="0dp" android:layout_height="wrap_content"/>-->
+                <!--<TextView  android:layout_weight="1" android:textColor="@color/white_back"  android:layout_toRightOf="@+id/textChalDistance"  android:id="@+id/textChalSpeedAvg" android:text="Avg Speed: 0.0" android:layout_width="0dp" android:layout_height="wrap_content" />-->
             <!--</LinearLayout>-->
 
         </RelativeLayout>
