@@ -66,15 +66,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
 
-                Toast.makeText(getActivity(),
-                        "RECEIVER: " + bundle.getString(RunningService.LATLONLIST),
-                        Toast.LENGTH_LONG).show();
-
                 if (latLonList==null || latLonList.trim().equals("")){//if it is empty it is the first change or we come back from out
 
+                    Log.v("LATLON","INTO SERVICE 1: "+ bundle.getString(RunningService.LATLONLIST));
 //                    Toast.makeText(getActivity(),
 //                            "new list " + latLonList,
 //                            Toast.LENGTH_LONG).show();
@@ -88,7 +86,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                         buttonStartStop.performClick();
                     }else {
                         if (!latLonList.equals("")) {
-                            drawRoute(latLonList);
+                            Log.v("LATLON","INTO SERVICE 1: drawRoute();");
+                            drawRoute(latLonList, false);
                         }
                     }
 
@@ -101,8 +100,13 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                     Location first = new Location("gps");
                     first.setLatitude(Double.parseDouble(newLoc.split(",")[0]));
                     first.setLongitude(Double.parseDouble(newLoc.split(",")[1]));
+
+                    Log.v("LATLON","INTO SERVICE 2: "+ bundle.getString(RunningService.LATLONLIST));
                     addLocationToRun(first);
                 }
+
+            }else{
+                Log.v("LATLON", "Bundle is null");
 
             }
         }
@@ -121,14 +125,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         View v = inflater.inflate(R.layout.showlocation_frg, container, false);
 
-        textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
-        textChalSpeedAvg = (TextView) v.findViewById(R.id.textChalSpeedAvg);
-        textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
-        textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
-        buttonStartStop = (ImageButton) v.findViewById(R.id.buttonChalSave);
-        clear = (ImageButton) v.findViewById(R.id.buttonChalClear);
-        buttonResume = (Button) v.findViewById(R.id.buttonResume);
-        mapLines = new ArrayList<Polyline>();
+        setTextViewsAndButtons(v);
+
         setListeners(v);
         setAutoComplete(v);
         selectProvider();
@@ -141,6 +139,32 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
         initializeMap();
 
+        moveLocationIcon(v);
+
+
+        setSaveListener();
+
+//       if  (isMyServiceRunning(RunningService.class)){
+//        Log.v("LATLON", "onStart run (Service on)");
+////           getExistingLatLonList();
+////           getInRunningMode();
+//       }
+
+       return  v;
+    }
+
+    private void setTextViewsAndButtons(View v){
+        textChalSpeed = (TextView) v.findViewById(R.id.textChalSpeed);
+        textChalSpeedAvg = (TextView) v.findViewById(R.id.textChalSpeedAvg);
+        textChalDistance = (TextView) v.findViewById(R.id.textChalDistance);
+        textChalTimer = (TextView) v.findViewById(R.id.textChalTimer);
+        buttonStartStop = (ImageButton) v.findViewById(R.id.buttonChalSave);
+        clear = (ImageButton) v.findViewById(R.id.buttonChalClear);
+        buttonResume = (Button) v.findViewById(R.id.buttonResume);
+        mapLines = new ArrayList<Polyline>();
+    }
+
+    private void moveLocationIcon(View v){
         // Get the button view
         View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
 
@@ -151,15 +175,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         rlp.setMargins(0, 0, 20, 200);
 
-        //default is personal run
-        setSaveListener();
-
-       if  (isMyServiceRunning(RunningService.class)){
-           checkIfRouteExists();
-           getInRunningMode();
-       }
-
-       return  v;
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -173,21 +188,35 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     }
 
 
-    private boolean checkIfRouteExists(){
+    private boolean getExistingLatLonList(){
 
         ExtApplication application = (ExtApplication) getActivity().getApplication().getApplicationContext();
         SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+        SharedPreferences.Editor editor = app_preferences.edit();
 
         String existingList = app_preferences.getString(RunningService.LATLONLIST, null);
+
+
+
         if (existingList!=null) {
+
             latLonList=existingList;
+            Log.v("LATLON", "GOT ON RESUME: "+latLonList);
+            editor.putString(RunningService.LATLONLIST, null);
+            editor.apply();
             opponentUsername = app_preferences.getString(RunningService.OPPONENT,"");
             targetDistance = app_preferences.getFloat(RunningService.TARGET_DIST,0);
 
+
             if (latLonList!=null && !latLonList.equals(""))
-            drawRoute(latLonList);
+            drawRoute(latLonList, true);
             return true;
+        }else{
+            Log.v("LATLON", "GOT ON RESUME: null");
         }
+
+
+
         return false;
     }
 
@@ -723,12 +752,16 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         if (isMyServiceRunning(RunningService.class)) {
 
             running=true;
-            Toast.makeText(getActivity(), "runninservice was on", Toast.LENGTH_SHORT).show();
+            getExistingLatLonList();
+            getInRunningMode();
+            Log.v("LATLON", "Resuming run (Service on)");
+
             getActivity().registerReceiver(receiver, new IntentFilter(RunningService.NOTIFICATION));
-        }
+        }else {
 
 //        if (running && !isMyServiceRunning(RunningService.class))
             getOneLocationUpdate();
+        }
     }
     //
 //    /* Remove the locationlistener updates when Activity is paused */
@@ -756,18 +789,12 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     public void addLocationToRun(Location location) {
 
 
-
         if (startMarker==null){
 
-//            Toast.makeText(getActivity(), "start marker", Toast.LENGTH_SHORT).show();
+            Log.v("LATLON", "INTO FRG setting startmarker: "+latLonList);
             lastLocation=location;
-
             latLonList="";
-//            ((ExtApplication) getActivity().getApplication()).setLatLonList("");
-
             latLonList = String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude());
-
-//            ((ExtApplication) getActivity().getApplication()).setLatLonList(String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude()));
 
             googleMap.clear();
             startMarker = googleMap.addMarker(new MarkerOptions()
@@ -801,13 +828,14 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                             .position(new LatLng(location.getLatitude(), location.getLongitude()))
                             .title("You are here")
             );
-//            runnerMarker.setVisible(false);
             firstChange=true;
             lastLocation = location;
+
+            Log.v("LATLON", "INTO FRG setting startmarker runnermarker: "+latLonList);
             return;
         }
 
-//        runnerMarker.setVisible(true);
+   //just updating the runner marker now
         runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.runner_marker))
@@ -817,20 +845,15 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         );
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15));
-
-        //todo try zoomby to keep the users zoom every time
-        googleMap.animateCamera(CameraUpdateFactory.zoomBy(0), 2000, null);
-
-
+        //todo try zoom by to keep the users zoom every time
+        googleMap.animateCamera(CameraUpdateFactory.zoomBy(15), 1, null);
 
         //the first polyline is the distance between my last location and my current
         //so it might be kilometers away and should not be accounted for
         if (firstChange&&!paused) {
 
             totalDistance += location.distanceTo(lastLocation);
-
             latLonList+=","+String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude());
-
             PolylineOptions line =
                     new PolylineOptions().add(new LatLng(location.getLatitude(),
                                     location.getLongitude()),
@@ -840,52 +863,39 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                             .width(5).color(Color.RED);
 
             lastLocation = location;
-
             Polyline pline = googleMap.addPolyline(line);
             mapLines.add(pline);
-
             // getSpeed is in meters/second so km/hour is meters*1000  / seconds*3600
-            textChalSpeed.setText("Speed: " + String.format("%1$,.2f", ((location.getSpeed() * 3600) / 1000)));
+            textChalSpeed.setText( String.format("%1$,.2f", ((location.getSpeed() * 3600) / 1000)));
+            textChalSpeedAvg.setText( String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
+            textChalDistance.setText(String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
 
-            textChalSpeedAvg.setText("Avg Speed: " + String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
+            checkIfFinished(totalDistance, targetDistance);
 
-            textChalDistance.setText("Dist: " + String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
-
-
-            if (totalDistance>=targetDistance){
-
-                goalReached=true;
-                running=false;
-//                ((ExtApplication) getActivity().getApplication()).setRunning(false);
-                getUpdates(false);
-                //he has achieved the distance and it is a challenge
-
-
-                if (challenge==null) {
-
-                    buttonResume.setText("Upload challenge");
-                    clear.setVisibility(View.VISIBLE);
-//                    buttonStartStop.setBackgroundDrawable(getResources().getDrawable(R.drawable.circle_green));
-//                    buttonStartStop.setBackgroundColor(getResources().getColor(R.color.runner_green));
-//                    buttonStartStop.setText("Start");
-
-//                    stopRunningService(true);
-                    hideFrame();
-                }else{//he won the challenge
-
-                    showWinLoseDialog(1,true);
-
-                }
-            }
-
+            Log.v("LATLON", "INTO FRG adding point: "+latLonList);
         }else if (!firstChange){
+            Log.v("LATLON", "INTO FRG first change");
             firstChange = true;
         }else if (paused){
             lastLocation = location;
             paused = false;
         }
+    }
 
-
+    private void checkIfFinished(float totalDistance, float targetDistance){
+        if (totalDistance>=targetDistance){
+            goalReached=true;
+            running=false;
+            getUpdates(false);
+            //he has achieved the distance and it is a challenge
+            if (challenge==null) {
+                buttonResume.setText("Upload challenge");
+                clear.setVisibility(View.VISIBLE);
+                hideFrame();
+            }else{//he won the challenge
+                showWinLoseDialog(1,true);
+            }
+        }
     }
 
     public Location getLastLocation(){
@@ -1183,26 +1193,24 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         return new LatLng(Math.toDegrees(lat3),Math.toDegrees(lon3));
     }
 
-    private void drawRoute(String list){
-
+    private void drawRoute(String list, boolean fromResume){
 
         list.replace(" ","");
         String[] pointsList = list.split(",");
 
         List<LatLng> locationList = new ArrayList<LatLng>();
-
         int pointsLength = pointsList.length;
-
-
-
-
 
         if (startMarker!=null)
         startMarker.remove();
-        for (int i=0; i<pointsLength-1; i+=2){
 
 
-            if (i==0){
+        int startIndex= fromResume ? 2 : 0;
+
+
+        for (int i=startIndex; i<pointsLength-1; i+=2){
+
+            if (i==startIndex){
                 startMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
 
@@ -1212,8 +1220,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 );
 
             }else if (i==pointsLength-2){
-
-
                 runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.runner_marker))
@@ -1224,33 +1230,19 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 
             }
 
-
-
-
-
             locationList.add(new LatLng(Double.parseDouble(pointsList[i]), Double.parseDouble(pointsList[i + 1])));
 
         }
         int latlonLength = locationList.size();
 
-
         for (int i=0; i<latlonLength-1; i++){
-
-
             PolylineOptions line  = new PolylineOptions().add(locationList.get(i), locationList.get(i + 1)).width(5).color(Color.RED);
-
             Polyline pline = googleMap.addPolyline(line);
-
-
             mapLines.add(pline);
-
         }
-
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(pointsList[pointsLength-2]), Double.parseDouble(pointsList[pointsLength-1])), 15));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
-
-
     }
 
 
@@ -1279,16 +1271,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
     private void clearViews(){
 
         clear.setVisibility(View.GONE);
-        textChalSpeed.setText("Speed: 0.0");
-
-        textChalSpeedAvg.setText("Avg Speed: 0.0");
-
-        textChalDistance.setText("Distance: 0.0");
-
+        textChalSpeed.setText("0.0");
+        textChalSpeedAvg.setText("0.0");
+        textChalDistance.setText("0.0");
         targetDist.setText(""); description.setText("");
-
-//        selectUsernameSpinner.setSelection(0);
-
         textChalTimer.setText("0:00");
 
         ll.setVisibility(View.VISIBLE);
@@ -1301,7 +1287,6 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //        buttonStartStop.setText("Start");
         buttonResume.setText("Resume");
         description.setVisibility(View.GONE);
-
         rl.setVisibility(View.GONE);
 
         //todo animate the camera to where i am

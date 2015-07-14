@@ -18,6 +18,7 @@ import android.os.Bundle;
 
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 import com.example.gpsCheck.ExtApplication;
 
@@ -39,6 +40,10 @@ public class RunningService extends IntentService implements LocationListener{
     public float targetDistance;
     public float totalDistance;
     public Location lastLocation;
+
+    SharedPreferences app_preferences;
+    SharedPreferences.Editor editor;
+
 
 
     @Override
@@ -67,6 +72,10 @@ public class RunningService extends IntentService implements LocationListener{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        ExtApplication application = (ExtApplication) getApplication().getApplicationContext();
+        app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
+        editor = app_preferences.edit();
+
 
         //it will start two times:
         //the first is with intent values
@@ -78,11 +87,17 @@ public class RunningService extends IntentService implements LocationListener{
             targetDistance = intent.getFloatExtra(TARGET_DIST, 0);
             totalDistance = intent.getFloatExtra(TOTAL_DIST, 0);
         }else{//second
+
+
+
             SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(getApplication());
             opponentUsername =  app_preferences.getString(OPPONENT, "");
             latLonList = app_preferences.getString(LATLONLIST, "");
             targetDistance = app_preferences.getFloat(TARGET_DIST, 0);
             totalDistance = app_preferences.getFloat(TOTAL_DIST, 0);
+
+
+            Log.v("LATLON", "Service restart with: "+latLonList);
         }
 
         locationManager = (LocationManager) getApplication().getSystemService(Context.LOCATION_SERVICE);
@@ -98,18 +113,14 @@ public class RunningService extends IntentService implements LocationListener{
     @Override
     public void onTaskRemoved(Intent rootIntent) {//killing the app here, store in shared prefs
 
-        Toast.makeText(getApplication(), "removed", Toast.LENGTH_SHORT).show();
-
-        ExtApplication application = (ExtApplication) getApplication().getApplicationContext();
-        SharedPreferences app_preferences = PreferenceManager.getDefaultSharedPreferences(application);
-        SharedPreferences.Editor editor = app_preferences.edit();
+        Log.v("LATLON", "Parent removed");
 
         editor.putString(LATLONLIST, latLonList);
         editor.putString(OPPONENT, opponentUsername);
         editor.putFloat(TARGET_DIST, targetDistance);
         editor.putFloat(TOTAL_DIST, totalDistance);
 
-        editor.commit();
+        editor.apply();
 
         super.onTaskRemoved(rootIntent);
     }
@@ -128,7 +139,7 @@ public class RunningService extends IntentService implements LocationListener{
 
         if (totalDistance<targetDistance) {
 
-            Toast.makeText(this, "1. " + opponentUsername + " ||||| " + latLonList, Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "1. " + opponentUsername + " ||||| " + latLonList, Toast.LENGTH_LONG).show();
 
             if (latLonList.equals("")) {
                 latLonList = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
@@ -145,6 +156,15 @@ public class RunningService extends IntentService implements LocationListener{
 
 
         }
+
+
+
+        editor.putString(LATLONLIST, latLonList);
+        editor.putString(OPPONENT, opponentUsername);
+        editor.putFloat(TARGET_DIST, targetDistance);
+        editor.putFloat(TOTAL_DIST, totalDistance);
+
+        editor.apply();
 
         publishResults(String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude()));
     }
