@@ -177,6 +177,7 @@ public class RunningService extends IntentService implements LocationListener{
         intent.putExtra(NEW_LOCATION, newLocation);
         intent.putExtra(LATLONLIST, latLonList);
         intent.putExtra(OPPONENT, opponentUsername);
+        intent.putExtra(TOTAL_DIST, totalDistance);
         intent.putExtra(GOAL_REACHED, totalDistance>=targetDistance);
         sendBroadcast(intent);
     }

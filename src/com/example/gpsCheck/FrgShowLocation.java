@@ -70,6 +70,8 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
 
+                totalDistance = bundle.getFloat(RunningService.TOTAL_DIST);
+                Log.v("LATLON","DIST FROM SERVICE : "+ totalDistance);
                 if (latLonList==null || latLonList.trim().equals("")){//if it is empty it is the first change or we come back from out
 
                     Log.v("LATLON","INTO SERVICE 1: "+ bundle.getString(RunningService.LATLONLIST));
@@ -450,8 +452,10 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
 //            buttonStartStop.setText("Stop");
 
 
-            startMarker=null;
-            runnerMarker=null;
+            if (startMarker!=null)
+            startMarker.remove();
+            if (runnerMarker!=null)
+            runnerMarker.remove();
             totalDistance =0;
 
 
@@ -721,6 +725,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         if (lastLocation!=null && googleMap!=null) {
 
             if ( !isMyServiceRunning(RunningService.class)) {
+
+                if (startMarker!=null) startMarker.remove();
+
                 startMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
 
@@ -853,7 +860,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         //so it might be kilometers away and should not be accounted for
         if (firstChange&&!paused) {
 
-            totalDistance += location.distanceTo(lastLocation);
+//            totalDistance += location.distanceTo(lastLocation);
             latLonList+=","+String.valueOf(location.getLatitude())+","+ String.valueOf(location.getLongitude());
             PolylineOptions line =
                     new PolylineOptions().add(new LatLng(location.getLatitude(),
@@ -871,7 +878,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
             textChalSpeedAvg.setText( String.format("%1$,.2f", (double) (totalDistance) / (double) (totalTime / (3600))));
             textChalDistance.setText(String.format("%1$,.2f", (double) (totalDistance / 1000))+" / "+String.format("%1$,.2f", (double) targetDistance/1000));
 
-            checkIfFinished(totalDistance, targetDistance);
+            checkIfFinished();
 
             Log.v("LATLON", "INTO FRG adding point: "+latLonList);
         }else if (!firstChange){
@@ -883,7 +890,7 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
         }
     }
 
-    private void checkIfFinished(float totalDistance, float targetDistance){
+    private void checkIfFinished(){
         if (totalDistance>=targetDistance){
             goalReached=true;
             running=false;
@@ -1221,6 +1228,9 @@ public class FrgShowLocation extends BaseFragment implements LocationListener {
                 );
 
             }else if (i==pointsLength-2){
+
+                if (runnerMarker!=null) runnerMarker.remove();
+
                 runnerMarker = googleMap.addMarker(new MarkerOptions()
 //                        .infoWindowAnchor(0.48f, 4.16f)
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.runner_marker))
